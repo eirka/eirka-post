@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"runtime"
 
-	"pram-post/config"
-	c "pram-post/controllers"
-	m "pram-post/middleware"
-	u "pram-post/utils"
+	"github.com/techjanitor/pram-post/config"
+	c "github.com/techjanitor/pram-post/controllers"
+	m "github.com/techjanitor/pram-post/middleware"
+	u "github.com/techjanitor/pram-post/utils"
 )
 
 func init() {

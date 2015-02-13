@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"pram-post/config"
+	"github.com/techjanitor/pram-post/config"
 )
 
 func (i *ImageType) CheckWebM() (err error) {

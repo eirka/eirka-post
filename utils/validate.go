@@ -4,7 +4,7 @@ import (
 	"net"
 	"strconv"
 
-	"pram-post/config"
+	"github.com/techjanitor/pram-post/config"
 )
 
 // Validate will check string length

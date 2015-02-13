@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"pram-post/config"
+	"github.com/techjanitor/pram-post/config"
 )
 
 type ImageType struct {

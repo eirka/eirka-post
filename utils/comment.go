@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"pram-post/akismet"
-	"pram-post/config"
+	"github.com/techjanitor/pram-post/akismet"
+	"github.com/techjanitor/pram-post/config"
 )
 
 type CheckComment struct {

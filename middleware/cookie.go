@@ -3,8 +3,8 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 
-	"pram-post/config"
-	e "pram-post/errors"
+	"github.com/techjanitor/pram-post/config"
+	e "github.com/techjanitor/pram-post/errors"
 )
 
 func GetAntiSpamCookie() gin.HandlerFunc {

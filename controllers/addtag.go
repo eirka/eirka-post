@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 
-	"pram-post/config"
-	e "pram-post/errors"
-	"pram-post/models"
-	u "pram-post/utils"
+	"github.com/techjanitor/pram-post/config"
+	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-post/models"
+	u "github.com/techjanitor/pram-post/utils"
 )
 
 // Add tag input on image page

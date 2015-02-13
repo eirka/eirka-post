@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"pram-post/config"
+	"github.com/techjanitor/pram-post/config"
 )
 
 // Stop Forum Spam return format

@@ -3,8 +3,8 @@ package models
 import (
 	"net"
 
-	e "pram-post/errors"
-	u "pram-post/utils"
+	e "github.com/techjanitor/pram-post/errors"
+	u "github.com/techjanitor/pram-post/utils"
 )
 
 type AddTagModel struct {

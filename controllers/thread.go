@@ -5,10 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"pram-post/config"
-	e "pram-post/errors"
-	"pram-post/models"
-	u "pram-post/utils"
+	"github.com/techjanitor/pram-post/config"
+	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-post/models"
+	u "github.com/techjanitor/pram-post/utils"
 )
 
 // ThreadController handles the creation of new threads

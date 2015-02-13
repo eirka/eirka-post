@@ -1,7 +1,7 @@
 package utils
 
 import (
-	e "pram-post/errors"
+	e "github.com/techjanitor/pram-post/errors"
 )
 
 type CheckDuplicate struct {
