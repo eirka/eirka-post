@@ -56,7 +56,7 @@ func CheckStopForumSpam(ip string) error {
 		return errors.New("error parsing sfs data")
 	}
 
-	if sfs_data.Ip.Confidence > config.Settings.StopForumSpam.SfsConfidence {
+	if sfs_data.Ip.Confidence > config.Settings.StopForumSpam.Confidence {
 		return errors.New("ip on blacklist")
 	}
 

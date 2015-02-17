@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"runtime"
 
@@ -13,17 +14,11 @@ import (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	conf := config.Settings
-
-	db := conf.Database
-
 	// Set up DB connection
-	u.NewDb(db.DbUser, db.DbPassword, db.DbProto, db.DbHost, db.DbDatabase, db.DbMaxIdle, db.DbMaxConnections)
-
-	redis := conf.Redis
+	u.NewDb()
 
 	// Set up Redis connection
-	u.NewRedisCache(redis.RedisAddress, redis.RedisProtocol, redis.RedisMaxIdle, redis.RedisMaxConnections)
+	u.NewRedisCache()
 }
 
 func main() {
@@ -39,6 +34,6 @@ func main() {
 	r.POST("/tag/add", c.AddTagController)
 	r.NoRoute(c.ErrorController)
 
-	r.Run("127.0.0.1:5015")
+	r.Run(fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port))
 
 }

@@ -197,7 +197,7 @@ func (i *ImageType) GetStats() (err error) {
 func (i *ImageType) SaveImage() (err error) {
 	buffer := bytes.NewReader(i.image)
 
-	imagefile := filepath.Join(config.Settings.Directory.ImageDir, i.Filename)
+	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 
 	image, err := os.Create(imagefile)
 	if err != nil {
@@ -217,8 +217,8 @@ func (i *ImageType) SaveImage() (err error) {
 }
 
 func (i *ImageType) CreateThumbnail() (err error) {
-	imagefile := filepath.Join(config.Settings.Directory.ImageDir, i.Filename)
-	thumbfile := filepath.Join(config.Settings.Directory.ThumbnailDir, i.Thumbnail)
+	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
+	thumbfile := filepath.Join(config.Settings.General.ThumbnailDir, i.Thumbnail)
 
 	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
 	thumb_dimensions := fmt.Sprintf("%dx%d>", config.Settings.Limits.ThumbnailMaxWidth, config.Settings.Limits.ThumbnailMaxHeight)

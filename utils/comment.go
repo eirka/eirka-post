@@ -22,8 +22,8 @@ func (c *CheckComment) Get() (err error) {
 	}
 
 	config := &akismet.Config{
-		APIKey:    config.Settings.Akismet.AkismetKey,
-		Host:      config.Settings.Akismet.AkismetHost,
+		APIKey:    config.Settings.Akismet.Key,
+		Host:      config.Settings.Akismet.Host,
 		UserAgent: akismet.UserAgentString("Pram/1.2"),
 	}
 

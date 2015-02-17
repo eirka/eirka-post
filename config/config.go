@@ -8,28 +8,41 @@ import (
 var Settings *Config
 
 type Config struct {
+	General struct {
+		// Settings for daemon
+		Address string
+		Port    uint
+
+		// Default name if none specified
+		DefaultName string
+
+		// Storage directory for images
+		ImageDir     string
+		ThumbnailDir string
+	}
+
 	Database struct {
 		// Database connection settings
-		DbUser           string
-		DbPassword       string
-		DbProto          string
-		DbHost           string
-		DbDatabase       string
-		DbMaxIdle        int
-		DbMaxConnections int
+		User           string
+		Password       string
+		Proto          string
+		Host           string
+		Database       string
+		MaxIdle        int
+		MaxConnections int
 	}
 	Redis struct {
 		// Redis address and max pool connections
-		RedisProtocol       string
-		RedisAddress        string
-		RedisMaxIdle        int
-		RedisMaxConnections int
+		Protocol       string
+		Address        string
+		MaxIdle        int
+		MaxConnections int
 	}
 
 	Akismet struct {
 		// Akismet settings
-		AkismetKey  string
-		AkismetHost string
+		Key  string
+		Host string
 	}
 
 	Antispam struct {
@@ -43,18 +56,7 @@ type Config struct {
 
 	StopForumSpam struct {
 		// Stop Forum Spam settings
-		SfsConfidence float64
-	}
-
-	Directory struct {
-		// Storage directory for images
-		ImageDir     string
-		ThumbnailDir string
-	}
-
-	General struct {
-		// Default name if none specified
-		DefaultName string
+		Confidence float64
 	}
 
 	Limits struct {
