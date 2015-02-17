@@ -15,7 +15,7 @@ import (
 )
 
 func (i *ImageType) CheckWebM() (err error) {
-	imagefile := filepath.Join(config.Settings.Directory.ImageDir, i.Filename)
+	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 
 	ffprobeArgs := []string{
 		"-v",
@@ -93,8 +93,8 @@ func (i *ImageType) CheckWebM() (err error) {
 }
 
 func (i *ImageType) CreateWebMThumbnail() (err error) {
-	imagefile := filepath.Join(config.Settings.Directory.ImageDir, i.Filename)
-	thumbfile := filepath.Join(config.Settings.Directory.ThumbnailDir, i.Thumbnail)
+	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
+	thumbfile := filepath.Join(config.Settings.General.ThumbnailDir, i.Thumbnail)
 
 	ffmpegArgs := []string{
 		"-i",

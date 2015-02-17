@@ -24,7 +24,7 @@ var (
 func NewRedisCache() {
 	RedisCache.pool = &redis.Pool{
 		MaxIdle:     config.Settings.Redis.MaxIdle,
-		MaxActive:   config.Settings.Redis.MaxActive,
+		MaxActive:   config.Settings.Redis.MaxConnections,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial(config.Settings.Redis.Protocol, config.Settings.Redis.Address)
