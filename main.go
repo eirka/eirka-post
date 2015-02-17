@@ -14,6 +14,8 @@ import (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
+	config.Print()
+
 	// Set up DB connection
 	u.NewDb()
 
