@@ -133,7 +133,7 @@ func (i *ThreadModel) Post() (err error) {
 		return
 	}
 
-	i.Id = t_id
+	i.Id = uint(t_id)
 
 	e2, err := ps2.Exec(t_id, i.Name, i.Ip, i.Comment)
 	if err != nil {
