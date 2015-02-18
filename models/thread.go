@@ -12,6 +12,7 @@ import (
 
 type ThreadModel struct {
 	Ib          uint
+	Id          uint
 	Ip          string
 	Name        string
 	Title       string
@@ -131,6 +132,8 @@ func (i *ThreadModel) Post() (err error) {
 	if err != nil {
 		return
 	}
+
+	i.Id = t_id
 
 	e2, err := ps2.Exec(t_id, i.Name, i.Ip, i.Comment)
 	if err != nil {

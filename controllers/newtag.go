@@ -83,6 +83,20 @@ func NewTagController(c *gin.Context) {
 	}
 
 	c.Redirect(303, "/")
+
+	audit := u.Audit{
+		User:   0,
+		Ib:     m.Ib,
+		Ip:     m.Ip,
+		Action: "new tag",
+		Info:   fmt.Printf("%s", m.Tag),
+	}
+
+	err = audit.Submit()
+	if err != nil {
+		c.Error(err, "Audit log")
+	}
+
 	return
 
 }

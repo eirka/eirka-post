@@ -221,6 +221,20 @@ func ReplyController(c *gin.Context) {
 	}
 
 	c.Redirect(303, "/")
+
+	audit := u.Audit{
+		User:   0,
+		Ib:     m.Ib,
+		Ip:     m.Ip,
+		Action: "new reply",
+		Info:   fmt.Printf("%s/%s", m.Thread, m.PostNum),
+	}
+
+	err = audit.Submit()
+	if err != nil {
+		c.Error(err, "Audit log")
+	}
+
 	return
 
 }

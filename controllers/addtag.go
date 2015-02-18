@@ -86,6 +86,19 @@ func AddTagController(c *gin.Context) {
 
 	c.Redirect(303, "/")
 
+	audit := u.Audit{
+		User:   0,
+		Ib:     m.Ib,
+		Ip:     m.Ip,
+		Action: "add tag",
+		Info:   fmt.Printf("%s", m.Image),
+	}
+
+	err = audit.Submit()
+	if err != nil {
+		c.Error(err, "Audit log")
+	}
+
 	return
 
 }
