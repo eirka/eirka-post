@@ -206,7 +206,7 @@ func ThreadController(c *gin.Context) {
 		User:   1,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
-		Action: "new thread",
+		Action: u.AuditNewThread,
 		Info:   fmt.Sprintf("%d", m.Id),
 	}
 

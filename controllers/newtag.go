@@ -88,7 +88,7 @@ func NewTagController(c *gin.Context) {
 		User:   1,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
-		Action: "new tag",
+		Action: u.AuditNewTag,
 		Info:   fmt.Sprintf("%s", m.Tag),
 	}
 

@@ -90,7 +90,7 @@ func AddTagController(c *gin.Context) {
 		User:   1,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
-		Action: "add tag",
+		Action: u.AuditAddTag,
 		Info:   fmt.Sprintf("%d", m.Image),
 	}
 

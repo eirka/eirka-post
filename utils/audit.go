@@ -9,13 +9,30 @@ type Audit struct {
 	Info   string
 }
 
+var (
+	AuditNewThread      = "New Thread"
+	AuditReply          = "Reply"
+	AuditNewTag         = "New Tag"
+	AuditAddTag         = "Add Tag"
+	AuditCloseThread    = "Thread Closed"
+	AuditOpenThread     = "Thread Opened"
+	AuditStickyThread   = "Thread Stickied"
+	AuditUnstickyThread = "Thread Unstickied"
+	AuditDeletePost     = "Post Deleted"
+	AuditDeleteThread   = "Thread Deleted"
+	AuditDeleteTag      = "Tag Deleted"
+	AuditDeleteImageTag = "Image Tag Deleted"
+	AuditPurge          = "Deleted Items Purged"
+	AuditFlushCache     = "Cache Flushed"
+	AuditBanIp          = "Ip Banned"
+	AuditBanImage       = "Image Banned"
+	AuditRegister       = "Account Registered"
+	AuditChangePassword = "Password Changed"
+	AuditEmailUpdate    = "Email Changed"
+)
+
 // Submit will insert audit info into the audit log
 func (a *Audit) Submit() (err error) {
-	// Get Database handle
-	db, err := GetDb()
-	if err != nil {
-		return
-	}
 
 	// Insert data into audit table
 	ps, err := db.Prepare("INSERT INTO audit (user_id,ib_id,audit_ip,audit_time,audit_action,audit_info) VALUES (?,?,?,NOW(),?,?)")
