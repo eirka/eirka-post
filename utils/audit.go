@@ -1,9 +1,5 @@
 package utils
 
-import (
-	e "github.com/techjanitor/pram-post/errors"
-)
-
 // Audit adds an action to the audit log
 type Audit struct {
 	User   uint
@@ -28,7 +24,7 @@ func (a *Audit) Submit() (err error) {
 	}
 	defer ps.Close()
 
-	_, err := ps.Exec(a.User, a.Ib, a.Ip, a.Action, a.Info)
+	_, err = ps.Exec(a.User, a.Ib, a.Ip, a.Action, a.Info)
 	if err != nil {
 		return
 	}
