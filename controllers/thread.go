@@ -207,7 +207,7 @@ func ThreadController(c *gin.Context) {
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: "new thread",
-		Info:   fmt.Sprintf("%s", m.Id),
+		Info:   fmt.Sprintf("%d", m.Id),
 	}
 
 	err = audit.Submit()
