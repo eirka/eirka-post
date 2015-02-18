@@ -89,7 +89,7 @@ func NewTagController(c *gin.Context) {
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: "new tag",
-		Info:   fmt.Printf("%s", m.Tag),
+		Info:   fmt.Sprintf("%s", m.Tag),
 	}
 
 	err = audit.Submit()

@@ -91,7 +91,7 @@ func AddTagController(c *gin.Context) {
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: "add tag",
-		Info:   fmt.Printf("%s", m.Image),
+		Info:   fmt.Sprintf("%s", m.Image),
 	}
 
 	err = audit.Submit()
