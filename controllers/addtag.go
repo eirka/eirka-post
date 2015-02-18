@@ -87,7 +87,7 @@ func AddTagController(c *gin.Context) {
 	c.Redirect(303, "/")
 
 	audit := u.Audit{
-		User:   0,
+		User:   1,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: "add tag",

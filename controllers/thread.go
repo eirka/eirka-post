@@ -203,7 +203,7 @@ func ThreadController(c *gin.Context) {
 	c.Redirect(303, "/")
 
 	audit := u.Audit{
-		User:   0,
+		User:   1,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: "new thread",
