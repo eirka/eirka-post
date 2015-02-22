@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
 	"runtime"
 
@@ -36,6 +37,11 @@ func main() {
 	r.POST("/tag/add", c.AddTagController)
 	r.NoRoute(c.ErrorController)
 
-	r.Run(fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port))
+	s := &http.Server{
+		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),
+		Handler: r,
+	}
+
+	gracehttp.Serve(s)
 
 }
