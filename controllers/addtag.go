@@ -84,7 +84,7 @@ func AddTagController(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, u.RedirectLink(req.Referer()))
+	c.Redirect(303, "/")
 
 	audit := u.Audit{
 		User:   1,
