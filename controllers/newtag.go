@@ -82,7 +82,7 @@ func NewTagController(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, fmt.Sprintf("//%s/", c.Request.URL.Host))
+	c.Redirect(303, u.RedirectLink(req.Referer()))
 
 	audit := u.Audit{
 		User:   1,
