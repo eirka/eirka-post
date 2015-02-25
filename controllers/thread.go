@@ -161,6 +161,14 @@ func ThreadController(c *gin.Context) {
 			return
 		}
 
+		// Save the image to gcs
+		err = image.UploadGCS()
+		if err != nil {
+			c.JSON(e.ErrorMessage(e.ErrInternalError))
+			c.Error(err, "Operation aborted")
+			return
+		}
+
 		// Make the thumbnail
 		err = image.CreateThumbnail()
 		if err != nil {
