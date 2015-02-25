@@ -162,6 +162,13 @@ func (i *ImageType) CreateWebMThumbnail() (err error) {
 	i.ThumbWidth = img.Width
 	i.ThumbHeight = img.Height
 
+	err = UploadGCS(thumbfile)
+	if err != nil {
+		os.RemoveAll(thumbfile)
+		os.RemoveAll(imagefile)
+		return
+	}
+
 	return
 
 }

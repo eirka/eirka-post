@@ -202,14 +202,20 @@ func (i *ImageType) SaveImage() (err error) {
 	image, err := os.Create(imagefile)
 	if err != nil {
 		os.RemoveAll(imagefile)
-		return errors.New("problem creating file")
+		return errors.New("problem saving file")
 	}
 	defer image.Close()
 
 	_, err = io.Copy(image, buffer)
 	if err != nil {
 		os.RemoveAll(imagefile)
-		return errors.New("problem creating file")
+		return errors.New("problem saving file")
+	}
+
+	err = UploadGCS(imagefile)
+	if err != nil {
+		os.RemoveAll(imagefile)
+		return
 	}
 
 	return
@@ -262,6 +268,13 @@ func (i *ImageType) CreateThumbnail() (err error) {
 
 	i.ThumbWidth = img.Width
 	i.ThumbHeight = img.Height
+
+	err = UploadGCS(thumbfile)
+	if err != nil {
+		os.RemoveAll(thumbfile)
+		os.RemoveAll(imagefile)
+		return
+	}
 
 	return
 

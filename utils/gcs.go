@@ -46,19 +46,22 @@ func getGCS() (service *storage.Service, err error) {
 
 }
 
-func (i *ImageType) UploadGCS() (err error) {
-	buffer := bytes.NewReader(i.image)
-
-	object := &storage.Object{Name: i.Filename}
+func UploadGCS(filename string) (err error) {
 
 	service, err := getGCS()
 	if err != nil {
 		return
 	}
 
-	_, err = service.Objects.Insert(config.Settings.Google.Bucket, object).Media(buffer).Do()
+	file, err := os.Open(filename)
 	if err != nil {
-		return errors.New("problem saving file to gcs")
+		return errors.New("problem opening file for gcs")
+	}
+	defer file.Close()
+
+	_, err = service.Objects.Insert(config.Settings.Google.Bucket, &storage.Object{Name: filename}).Media(file).PredefinedAcl("publicRead").Do()
+	if err != nil {
+		return
 	}
 
 	return
