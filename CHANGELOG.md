@@ -1,5 +1,13 @@
 #Pram-post Changelog
 
+### Feb 24, 2015
+
+- [ADD] Google Cloud Storage support for images
+
+### Feb 22, 2015
+
+- [ADD] Added graceful shutdown/restart
+
 ### Feb 16, 2015
 
 - [FIX] General improvements to config
