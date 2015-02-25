@@ -18,7 +18,8 @@ func init() {
 
 	gckey, err = ioutil.ReadFile(config.Settings.Google.Key)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 }

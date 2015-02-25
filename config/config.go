@@ -102,7 +102,8 @@ func Print() {
 	// Marshal the structs into JSON
 	output, err := json.MarshalIndent(Settings, "", "  ")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	fmt.Printf("%s", output)
@@ -112,7 +113,8 @@ func Print() {
 func init() {
 	file, err := os.Open("/etc/pram/post.conf")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	Settings = &Config{}
@@ -121,7 +123,8 @@ func init() {
 
 	err = decoder.Decode(&Settings)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 }
