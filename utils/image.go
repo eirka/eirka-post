@@ -212,7 +212,7 @@ func (i *ImageType) SaveImage() (err error) {
 		return errors.New("problem saving file")
 	}
 
-	err = UploadGCS(imagefile)
+	err = UploadGCS(imagefile, fmt.Sprintf("src/%s", i.Filename))
 	if err != nil {
 		os.RemoveAll(imagefile)
 		return
@@ -269,7 +269,7 @@ func (i *ImageType) CreateThumbnail() (err error) {
 	i.ThumbWidth = img.Width
 	i.ThumbHeight = img.Height
 
-	err = UploadGCS(thumbfile)
+	err = UploadGCS(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
 	if err != nil {
 		os.RemoveAll(thumbfile)
 		os.RemoveAll(imagefile)

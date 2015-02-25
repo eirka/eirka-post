@@ -45,14 +45,14 @@ func getGCS() (service *storage.Service, err error) {
 
 }
 
-func UploadGCS(filename string) (err error) {
+func UploadGCS(filepath, filename string) (err error) {
 
 	service, err := getGCS()
 	if err != nil {
 		return
 	}
 
-	file, err := os.Open(filename)
+	file, err := os.Open(filepath)
 	if err != nil {
 		return errors.New("problem opening file for gcs")
 	}
