@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"golang.org/x/oauth2"
