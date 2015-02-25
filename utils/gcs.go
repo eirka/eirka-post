@@ -36,7 +36,7 @@ func getGCS() (service *storage.Service, err error) {
 
 	service, err = storage.New(client)
 	if err != nil {
-		return errors.New("problem saving file to gcs")
+		return nil, errors.New("problem saving file to gcs")
 	}
 
 	return
@@ -69,7 +69,7 @@ func DeletGCS(object string) (err error) {
 		return
 	}
 
-	err := service.Objects.Delete(config.Settings.Google.Bucket, object).Do()
+	err = service.Objects.Delete(config.Settings.Google.Bucket, object).Do()
 	if err != nil {
 		return errors.New("problem deleting gcs file")
 	}
