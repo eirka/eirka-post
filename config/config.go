@@ -40,6 +40,12 @@ type Config struct {
 		MaxConnections int
 	}
 
+	Google struct {
+		Auth   string
+		Bucket string
+		Key    string
+	}
+
 	Akismet struct {
 		// Akismet settings
 		Key  string
