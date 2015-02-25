@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/jwt"
 	storage "google.golang.org/api/storage/v1"
@@ -33,7 +34,7 @@ func getGCS() (service *storage.Service, err error) {
 
 	client := authconf.Client(oauth2.NoContext)
 
-	service, err := storage.New(client)
+	service, err = storage.New(client)
 	if err != nil {
 		return errors.New("problem saving file to gcs")
 	}
@@ -57,18 +58,22 @@ func (i *ImageType) UploadGCS() (err error) {
 		return errors.New("problem saving file to gcs")
 	}
 
+	return
+
 }
 
-func (i *ImageType) DeletGCS() (err error) {
+func DeletGCS(object string) (err error) {
 
 	service, err := getGCS()
 	if err != nil {
 		return
 	}
 
-	err := service.Objects.Delete(config.Settings.Google.Bucket, objectName).Do()
+	err := service.Objects.Delete(config.Settings.Google.Bucket, object).Do()
 	if err != nil {
 		return errors.New("problem deleting gcs file")
 	}
+
+	return
 
 }
