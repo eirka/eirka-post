@@ -25,6 +25,7 @@ func init() {
 
 }
 
+// Authenticate to Google Cloud Storage and return handler
 func getGCS() (service *storage.Service, err error) {
 
 	authconf := &jwt.Config{
@@ -45,6 +46,7 @@ func getGCS() (service *storage.Service, err error) {
 
 }
 
+// Upload a file to Google Cloud Storage
 func UploadGCS(filepath, filename string) (err error) {
 
 	service, err := getGCS()
@@ -58,7 +60,7 @@ func UploadGCS(filepath, filename string) (err error) {
 	}
 	defer file.Close()
 
-	_, err = service.Objects.Insert(config.Settings.Google.Bucket, &storage.Object{Name: filename}).Media(file).PredefinedAcl("publicRead").Do()
+	_, err = service.Objects.Insert(config.Settings.Google.Bucket, &storage.Object{Name: filename}).Media(file).Do()
 	if err != nil {
 		return
 	}
@@ -67,7 +69,8 @@ func UploadGCS(filepath, filename string) (err error) {
 
 }
 
-func DeletGCS(object string) (err error) {
+// Delete a file from Google Cloud Storage
+func DeleteGCS(object string) (err error) {
 
 	service, err := getGCS()
 	if err != nil {
