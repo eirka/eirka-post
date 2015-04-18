@@ -19,7 +19,7 @@ func ThreadController(c *gin.Context) {
 	// Test for antispam key from Prim
 	antispam := req.FormValue("askey")
 	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(400, gin.H{"error_message": e.ErrInvalidKey.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
 		c.Error(e.ErrInvalidKey, "Operation aborted")
 		return
 	}
@@ -37,7 +37,7 @@ func ThreadController(c *gin.Context) {
 	// Check if theres a file
 	image.File, image.Header, err = req.FormFile("file")
 	if err == http.ErrMissingFile {
-		c.JSON(400, gin.H{"error_message": e.ErrNoImage.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrNoImage.Error()})
 		c.Error(e.ErrNoImage, "Operation aborted")
 		return
 	}
@@ -45,7 +45,7 @@ func ThreadController(c *gin.Context) {
 	// Validate input parameters
 	err = m.ValidateInput(req.FormValue("ib"))
 	if err != nil {
-		c.JSON(400, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
 		return
 	}
@@ -61,7 +61,7 @@ func ThreadController(c *gin.Context) {
 
 	err = check.Get()
 	if err != nil {
-		c.JSON(400, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
 		return
 	}
@@ -69,7 +69,7 @@ func ThreadController(c *gin.Context) {
 	// Check image header ext
 	err = image.CheckReqExt()
 	if err != nil {
-		c.JSON(400, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
 		return
 	}
@@ -77,7 +77,7 @@ func ThreadController(c *gin.Context) {
 	// Get image MD5
 	err = image.GetMD5()
 	if err != nil {
-		c.JSON(400, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
 		return
 	}
@@ -94,7 +94,7 @@ func ThreadController(c *gin.Context) {
 	// Check database for duplicate image hashes
 	err = duplicate.Get()
 	if err == e.ErrDuplicateImage {
-		c.JSON(400, gin.H{"error_message": err.Error(), "thread": duplicate.Thread, "post": duplicate.Post})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error(), "thread": duplicate.Thread, "post": duplicate.Post})
 		c.Error(err, "Operation aborted")
 		return
 	}
@@ -107,7 +107,7 @@ func ThreadController(c *gin.Context) {
 	// Check file for magic bytes and get ext
 	err = image.CheckMagic()
 	if err != nil {
-		c.JSON(400, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
 		return
 	}
@@ -129,7 +129,7 @@ func ThreadController(c *gin.Context) {
 		// Get webm stats like size and dimensions
 		err = image.CheckWebM()
 		if err != nil {
-			c.JSON(400, gin.H{"error_message": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 			c.Error(err, "Operation aborted")
 			return
 		}
@@ -148,7 +148,7 @@ func ThreadController(c *gin.Context) {
 		// Get image stats like size and dimensions
 		err = image.GetStats()
 		if err != nil {
-			c.JSON(400, gin.H{"error_message": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 			c.Error(err, "Operation aborted")
 			return
 		}

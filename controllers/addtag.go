@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
@@ -35,7 +36,7 @@ func AddTagController(c *gin.Context) {
 	// Test for antispam key from Prim
 	antispam := atf.Antispam
 	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(400, gin.H{"error_message": e.ErrInvalidKey.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
 		c.Error(e.ErrInvalidKey, "Operation aborted")
 		return
 	}
@@ -43,7 +44,7 @@ func AddTagController(c *gin.Context) {
 	// Validate input parameters
 	err := m.ValidateInput()
 	if err != nil {
-		c.JSON(400, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
 		return
 	}
@@ -51,7 +52,7 @@ func AddTagController(c *gin.Context) {
 	// Check tag for duplicate
 	err = m.Status()
 	if err == e.ErrDuplicateTag {
-		c.JSON(400, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
 		return
 	}
