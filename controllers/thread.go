@@ -42,10 +42,10 @@ func ThreadController(c *gin.Context) {
 	// Set parameters to ThreadModel
 	m := models.ThreadModel{
 		Ip:      c.ClientIP(),
-		Name:    tf.name,
-		Title:   tf.title,
-		Comment: tf.comment,
-		Ib:      tf.ib,
+		Name:    tf.Name,
+		Title:   tf.Title,
+		Comment: tf.Comment,
+		Ib:      tf.Ib,
 	}
 
 	image := u.ImageType{}
