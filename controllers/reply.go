@@ -13,7 +13,7 @@ import (
 
 // Input from new reply form
 type replyForm struct {
-	Key     string `form:"id" binding:"required"`
+	Key     string `form:"askey" binding:"required"`
 	Name    string `form:"name"`
 	Comment string `form:"comment"`
 	Thread  uint   `form:"thread" binding:"required"`

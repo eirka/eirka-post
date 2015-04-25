@@ -13,7 +13,7 @@ import (
 
 // Input from new thread form
 type threadForm struct {
-	Key     string `form:"id" binding:"required"`
+	Key     string `form:"askey" binding:"required"`
 	Name    string `form:"name"`
 	Title   string `form:"title" binding:"required"`
 	Comment string `form:"comment" binding:"required"`
