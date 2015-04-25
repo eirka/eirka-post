@@ -32,7 +32,7 @@ func ThreadController(c *gin.Context) {
 	}
 
 	// Test for antispam key from Prim
-	antispam := tf.askey
+	antispam := tf.Key
 	if antispam != config.Settings.Antispam.AntispamKey {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
 		c.Error(e.ErrInvalidKey, "Operation aborted")
