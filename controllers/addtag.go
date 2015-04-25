@@ -23,7 +23,11 @@ type addTagForm struct {
 func AddTagController(c *gin.Context) {
 	var atf addTagForm
 
-	c.Bind(&atf)
+	if !c.Bind(&atf) {
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err, "Operation aborted")
+		return
+	}
 
 	// Set parameters to AddTagModel
 	m := models.AddTagModel{

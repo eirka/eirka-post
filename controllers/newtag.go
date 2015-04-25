@@ -23,7 +23,11 @@ type newTagForm struct {
 func NewTagController(c *gin.Context) {
 	var ntf newTagForm
 
-	c.Bind(&ntf)
+	if !c.Bind(&ntf) {
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err, "Operation aborted")
+		return
+	}
 
 	// Set parameters to NewTagModel
 	m := models.NewTagModel{
