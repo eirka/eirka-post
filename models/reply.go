@@ -28,13 +28,7 @@ type ReplyModel struct {
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *ReplyModel) ValidateInput(thread string) (err error) {
-	// Validate ib parameter
-	i.Thread, err = u.ValidateParam(thread)
-	if err != nil {
-		return e.ErrInvalidParam
-	}
-
+func (i *ReplyModel) ValidateInput() (err error) {
 	if i.Thread == 0 {
 		return e.ErrInvalidParam
 	}

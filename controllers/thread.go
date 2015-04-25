@@ -11,13 +11,28 @@ import (
 	u "github.com/techjanitor/pram-post/utils"
 )
 
+// Input from new thread form
+type threadForm struct {
+	Key     string `form:"id" binding:"required"`
+	Name    string `form:"name"`
+	Title   string `form:"title" binding:"required"`
+	Comment string `form:"comment" binding:"required"`
+	Ib      uint   `form:"ib" binding:"required"`
+}
+
 // ThreadController handles the creation of new threads
 func ThreadController(c *gin.Context) {
 	var err error
+	var tf threadForm
 	req := c.Request
 
+	if !c.Bind(&tf) {
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		return
+	}
+
 	// Test for antispam key from Prim
-	antispam := req.FormValue("askey")
+	antispam := tf.askey
 	if antispam != config.Settings.Antispam.AntispamKey {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
 		c.Error(e.ErrInvalidKey, "Operation aborted")
@@ -27,9 +42,10 @@ func ThreadController(c *gin.Context) {
 	// Set parameters to ThreadModel
 	m := models.ThreadModel{
 		Ip:      c.ClientIP(),
-		Name:    req.FormValue("name"),
-		Title:   req.FormValue("title"),
-		Comment: req.FormValue("comment"),
+		Name:    tf.name,
+		Title:   tf.title,
+		Comment: tf.comment,
+		Ib:      tf.ib,
 	}
 
 	image := u.ImageType{}
@@ -43,7 +59,7 @@ func ThreadController(c *gin.Context) {
 	}
 
 	// Validate input parameters
-	err = m.ValidateInput(req.FormValue("ib"))
+	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")

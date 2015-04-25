@@ -27,13 +27,7 @@ type ThreadModel struct {
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *ThreadModel) ValidateInput(ib string) (err error) {
-	// Validate ib parameter
-	i.Ib, err = u.ValidateParam(ib)
-	if err != nil {
-		return e.ErrInvalidParam
-	}
-
+func (i *ThreadModel) ValidateInput() (err error) {
 	if i.Ib == 0 {
 		return e.ErrInvalidParam
 	}

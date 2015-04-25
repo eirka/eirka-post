@@ -11,13 +11,27 @@ import (
 	u "github.com/techjanitor/pram-post/utils"
 )
 
+// Input from new reply form
+type replyForm struct {
+	Key     string `form:"id" binding:"required"`
+	Name    string `form:"name"`
+	Comment string `form:"comment"`
+	Thread  uint   `form:"thread" binding:"required"`
+}
+
 // ReplyController handles the creation of new threads
 func ReplyController(c *gin.Context) {
 	var err error
+	var rf replyForm
 	req := c.Request
 
+	if !c.Bind(&rf) {
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		return
+	}
+
 	// Test for antispam key from Prim
-	antispam := req.FormValue("askey")
+	antispam := rf.askey
 	if antispam != config.Settings.Antispam.AntispamKey {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
 		c.Error(e.ErrInvalidKey, "Operation aborted")
@@ -27,8 +41,9 @@ func ReplyController(c *gin.Context) {
 	// Set parameters to ReplyModel
 	m := models.ReplyModel{
 		Ip:      c.ClientIP(),
-		Name:    req.FormValue("name"),
-		Comment: req.FormValue("comment"),
+		Name:    rf.name,
+		Comment: rf.comment,
+		Thread:  rf.thread,
 		Image:   true,
 	}
 
@@ -41,7 +56,7 @@ func ReplyController(c *gin.Context) {
 	}
 
 	// Validate input parameters
-	err = m.ValidateInput(req.FormValue("thread"))
+	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err, "Operation aborted")
