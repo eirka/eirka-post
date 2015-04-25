@@ -25,7 +25,6 @@ func NewTagController(c *gin.Context) {
 
 	if !c.Bind(&ntf) {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err, "Operation aborted")
 		return
 	}
 
