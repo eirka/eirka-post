@@ -60,7 +60,12 @@ func UploadGCS(filepath, filename string) (err error) {
 	}
 	defer file.Close()
 
-	_, err = service.Objects.Insert(config.Settings.Google.Bucket, &storage.Object{Name: filename}).Media(file).Do()
+	object := &storage.Object{
+		Name:         filename,
+		CacheControl: "public, max-age=31536000",
+	}
+
+	_, err = service.Objects.Insert(config.Settings.Google.Bucket, object).Media(file).Do()
 	if err != nil {
 		return
 	}
