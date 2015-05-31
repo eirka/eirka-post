@@ -37,7 +37,7 @@ func ThreadController(c *gin.Context) {
 	antispam := tf.Key
 	if antispam != config.Settings.Antispam.AntispamKey {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey, "Operation aborted")
+		c.Error(e.ErrInvalidKey)
 		return
 	}
 
@@ -56,7 +56,7 @@ func ThreadController(c *gin.Context) {
 	image.File, image.Header, err = req.FormFile("file")
 	if err == http.ErrMissingFile {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrNoImage.Error()})
-		c.Error(e.ErrNoImage, "Operation aborted")
+		c.Error(e.ErrNoImage)
 		return
 	}
 

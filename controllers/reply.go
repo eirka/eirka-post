@@ -36,7 +36,7 @@ func ReplyController(c *gin.Context) {
 	antispam := rf.Key
 	if antispam != config.Settings.Antispam.AntispamKey {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey, "Operation aborted")
+		c.Error(e.ErrInvalidKey)
 		return
 	}
 
