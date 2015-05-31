@@ -25,8 +25,10 @@ func ReplyController(c *gin.Context) {
 	var rf replyForm
 	req := c.Request
 
-	if !c.Bind(&rf) {
+	err = c.Bind(&rf)
+	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err)
 		return
 	}
 

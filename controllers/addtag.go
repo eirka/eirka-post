@@ -24,7 +24,8 @@ func AddTagController(c *gin.Context) {
 	var err error
 	var atf addTagForm
 
-	err = c.Bind(&atf) {
+	err = c.Bind(&atf)
+	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
 		c.Error(err)
 		return

@@ -26,7 +26,8 @@ func ThreadController(c *gin.Context) {
 	var tf threadForm
 	req := c.Request
 
-	err = c.Bind(&tf) {
+	err = c.Bind(&tf)
+	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
 		c.Error(err)
 		return
