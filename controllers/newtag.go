@@ -21,10 +21,12 @@ type newTagForm struct {
 
 // NewTagController handles the creation of new threads
 func NewTagController(c *gin.Context) {
+	var err error
 	var ntf newTagForm
 
-	if !c.Bind(&ntf) {
+	err = c.Bind(&ntf) {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err)
 		return
 	}
 
@@ -45,7 +47,7 @@ func NewTagController(c *gin.Context) {
 	}
 
 	// Validate input parameters
-	err := m.ValidateInput()
+	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
