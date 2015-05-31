@@ -31,8 +31,6 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	r.Use(gin.ForwardedFor())
-
 	// Checks for antispam cookie
 	r.Use(m.GetAntiSpamCookie())
 

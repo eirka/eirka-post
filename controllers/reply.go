@@ -59,7 +59,7 @@ func ReplyController(c *gin.Context) {
 	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -67,12 +67,12 @@ func ReplyController(c *gin.Context) {
 	err = m.Status()
 	if err == e.ErrThreadClosed {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -90,7 +90,7 @@ func ReplyController(c *gin.Context) {
 		err = check.Get()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err, "Operation aborted")
+			c.Error(err)
 			return
 		}
 
@@ -102,7 +102,7 @@ func ReplyController(c *gin.Context) {
 		err = image.CheckReqExt()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err, "Operation aborted")
+			c.Error(err)
 			return
 		}
 
@@ -110,7 +110,7 @@ func ReplyController(c *gin.Context) {
 		err = image.GetMD5()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err, "Operation aborted")
+			c.Error(err)
 			return
 		}
 
@@ -127,12 +127,12 @@ func ReplyController(c *gin.Context) {
 		err = duplicate.Get()
 		if err == e.ErrDuplicateImage {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error(), "thread": duplicate.Thread, "post": duplicate.Post})
-			c.Error(err, "Operation aborted")
+			c.Error(err)
 			return
 		}
 		if err != nil {
 			c.JSON(e.ErrorMessage(e.ErrInternalError))
-			c.Error(err, "Operation aborted")
+			c.Error(err)
 			return
 		}
 
@@ -140,7 +140,7 @@ func ReplyController(c *gin.Context) {
 		err = image.CheckMagic()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err, "Operation aborted")
+			c.Error(err)
 			return
 		}
 
@@ -154,7 +154,7 @@ func ReplyController(c *gin.Context) {
 			err = image.SaveImage()
 			if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				return
 			}
 
@@ -162,7 +162,7 @@ func ReplyController(c *gin.Context) {
 			err = image.CheckWebM()
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				return
 			}
 
@@ -170,7 +170,7 @@ func ReplyController(c *gin.Context) {
 			err = image.CreateWebMThumbnail()
 			if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				return
 			}
 
@@ -181,7 +181,7 @@ func ReplyController(c *gin.Context) {
 			err = image.GetStats()
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				return
 			}
 
@@ -189,7 +189,7 @@ func ReplyController(c *gin.Context) {
 			err = image.SaveImage()
 			if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				return
 			}
 
@@ -197,7 +197,7 @@ func ReplyController(c *gin.Context) {
 			err = image.CreateThumbnail()
 			if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
-				c.Error(err, "Operation aborted")
+				c.Error(err)
 				return
 			}
 
@@ -216,7 +216,7 @@ func ReplyController(c *gin.Context) {
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -231,7 +231,7 @@ func ReplyController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key, thread_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -247,7 +247,7 @@ func ReplyController(c *gin.Context) {
 
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err, "Audit log")
+		c.Error(err)
 	}
 
 	return

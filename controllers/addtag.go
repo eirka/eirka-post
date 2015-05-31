@@ -48,7 +48,7 @@ func AddTagController(c *gin.Context) {
 	err := m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -56,12 +56,12 @@ func AddTagController(c *gin.Context) {
 	err = m.Status()
 	if err == e.ErrDuplicateTag {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -69,7 +69,7 @@ func AddTagController(c *gin.Context) {
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -84,7 +84,7 @@ func AddTagController(c *gin.Context) {
 	err = cache.Delete(tags_key, tag_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err, "Operation aborted")
+		c.Error(err)
 		return
 	}
 
@@ -100,7 +100,7 @@ func AddTagController(c *gin.Context) {
 
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err, "Audit log")
+		c.Error(err)
 	}
 
 	return
