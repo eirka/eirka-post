@@ -16,16 +16,20 @@ import (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	// Print out config
-	if gin.IsDebugging() {
-		config.Print()
-	}
-
 	// Set up DB connection
 	u.NewDb()
 
 	// Set up Redis connection
 	u.NewRedisCache()
+
+	// Get limits and stuff from database
+	u.GetDatabaseSettings()
+
+	// Print out config
+	if gin.IsDebugging() {
+		config.Print()
+	}
+
 }
 
 func main() {
