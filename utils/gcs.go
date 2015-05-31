@@ -31,7 +31,7 @@ func getGCS() (service *storage.Service, err error) {
 	authconf := &jwt.Config{
 		Email:      config.Settings.Google.Auth,
 		PrivateKey: gckey,
-		Scopes:     []string{storage.DevstorageRead_writeScope},
+		Scopes:     []string{storage.DevstorageReadWriteScope},
 		TokenURL:   "https://accounts.google.com/o/oauth2/token",
 	}
 
