@@ -6,19 +6,18 @@ import (
 )
 
 // Redirect to the referer host if there is one
-func RedirectLink(refer string) (link string) {
-
-	link = "/"
+func RedirectLink(refer string) string {
 
 	parsed, err := url.Parse(refer)
 	if err != nil {
-		return
+		return "/"
 	}
 
-	if parsed != nil {
-		link = fmt.Sprintf("//%s/", parsed.Host)
+	redir := &url.URL{
+		Scheme: parsed.Scheme,
+		Host:   parsed.Host,
 	}
 
-	return
+	return redir.String()
 
 }
