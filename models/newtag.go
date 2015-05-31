@@ -1,8 +1,6 @@
 package models
 
 import (
-	"net"
-
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
@@ -23,17 +21,6 @@ func (i *NewTagModel) ValidateInput() (err error) {
 
 	if i.TagType == 0 {
 		return e.ErrInvalidParam
-	}
-
-	// Get the ip without port
-	i.Ip, _, err = net.SplitHostPort(i.Ip)
-	if err != nil {
-		return e.ErrIpParse
-	}
-
-	// Make sure IP can be parsed
-	if u.ValidateIP(i.Ip) {
-		return e.ErrIpParse
 	}
 
 	// Validate name input

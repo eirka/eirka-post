@@ -3,7 +3,6 @@ package models
 import (
 	"github.com/microcosm-cc/bluemonday"
 	"html"
-	"net"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
@@ -30,17 +29,6 @@ type ThreadModel struct {
 func (i *ThreadModel) ValidateInput() (err error) {
 	if i.Ib == 0 {
 		return e.ErrInvalidParam
-	}
-
-	// Get the ip without port
-	i.Ip, _, err = net.SplitHostPort(i.Ip)
-	if err != nil {
-		return e.ErrIpParse
-	}
-
-	// Make sure IP can be parsed
-	if u.ValidateIP(i.Ip) {
-		return e.ErrIpParse
 	}
 
 	// Validate name input

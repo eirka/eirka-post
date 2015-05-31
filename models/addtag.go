@@ -1,8 +1,6 @@
 package models
 
 import (
-	"net"
-
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -26,17 +24,6 @@ func (i *AddTagModel) ValidateInput() (err error) {
 
 	if i.Image == 0 {
 		return e.ErrInvalidParam
-	}
-
-	// Get the ip without port
-	i.Ip, _, err = net.SplitHostPort(i.Ip)
-	if err != nil {
-		return e.ErrIpParse
-	}
-
-	// Make sure IP can be parsed
-	if u.ValidateIP(i.Ip) {
-		return e.ErrIpParse
 	}
 
 	return

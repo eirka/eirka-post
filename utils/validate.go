@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"net"
 	"strconv"
 
 	"github.com/techjanitor/pram-post/config"
@@ -25,17 +24,6 @@ func ValidateParam(param string) (id uint, err error) {
 	id = uint(pid)
 
 	return
-}
-
-// Parse ip and return true if it cant be parsed
-func ValidateIP(ip string) bool {
-	pip := net.ParseIP(ip)
-	if pip == nil {
-		return true
-	}
-
-	return false
-
 }
 
 // MaxLength checks string for length
