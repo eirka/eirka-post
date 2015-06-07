@@ -136,21 +136,18 @@ func (i *ImageType) CheckMagic() (err error) {
 
 	n, _ := buffer.ReadAt(bytes, 0)
 
-	if n < 4 {
+	switch {
+	case n < 4:
 		return errors.New("unknown file type")
-		// PNG Signature
-	} else if bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47 {
+	case bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47:
 		i.Ext = ".png"
-		// JPG Signature
-	} else if bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF {
+	case bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF:
 		i.Ext = ".jpg"
-		// Gif Signature
-	} else if bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38 {
+	case bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38:
 		i.Ext = ".gif"
-		// WebM Signature
-	} else if bytes[0] == 0x1A && bytes[1] == 0x45 && bytes[2] == 0xDF && bytes[3] == 0xA3 {
+	case bytes[0] == 0x1A && bytes[1] == 0x45 && bytes[2] == 0xDF && bytes[3] == 0xA3:
 		i.Ext = ".webm"
-	} else {
+	default:
 		return errors.New("unknown file type")
 	}
 
@@ -178,15 +175,16 @@ func (i *ImageType) GetStats() (err error) {
 	i.OrigHeight = img.Height
 
 	// Check against maximum sizes
-	if i.OrigWidth > config.Settings.Limits.ImageMaxWidth {
+	switch {
+	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
 		return errors.New("image width too large")
-	} else if img.Width < config.Settings.Limits.ImageMinWidth {
+	case img.Width < config.Settings.Limits.ImageMinWidth:
 		return errors.New("image width too small")
-	} else if i.OrigHeight > config.Settings.Limits.ImageMaxHeight {
+	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
 		return errors.New("image height too large")
-	} else if img.Height < config.Settings.Limits.ImageMinHeight {
+	case img.Height < config.Settings.Limits.ImageMinHeight:
 		return errors.New("image height too small")
-	} else if imagesize > config.Settings.Limits.ImageMaxSize {
+	case imagesize > config.Settings.Limits.ImageMaxSize:
 		return errors.New("image size too large")
 	}
 

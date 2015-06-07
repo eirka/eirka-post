@@ -40,12 +40,12 @@ func (i *ImageType) CheckWebM() (err error) {
 		return errors.New("problem decoding webm")
 	}
 
-	if ffprobe.Format.FormatName != "matroska,webm" {
+	switch {
+	case ffprobe.Format.FormatName != "matroska,webm":
 		os.RemoveAll(imagefile)
 		return errors.New("file is not vp8 video")
-	}
 
-	if ffprobe.Streams[0].CodecName != "vp8" {
+	case ffprobe.Streams[0].CodecName != "vp8":
 		os.RemoveAll(imagefile)
 		return errors.New("file is not vp8 video")
 	}
@@ -68,22 +68,23 @@ func (i *ImageType) CheckWebM() (err error) {
 	i.OrigHeight = ffprobe.Streams[0].Height
 
 	// Check against maximum sizes
-	if i.OrigWidth > config.Settings.Limits.ImageMaxWidth {
+	switch {
+	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
 		os.RemoveAll(imagefile)
 		return errors.New("webm width too large")
-	} else if i.OrigWidth < config.Settings.Limits.ImageMinWidth {
+	case i.OrigWidth < config.Settings.Limits.ImageMinWidth:
 		os.RemoveAll(imagefile)
 		return errors.New("webm width too small")
-	} else if i.OrigHeight > config.Settings.Limits.ImageMaxHeight {
+	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
 		os.RemoveAll(imagefile)
 		return errors.New("webm height too large")
-	} else if i.OrigHeight < config.Settings.Limits.ImageMinHeight {
+	case i.OrigHeight < config.Settings.Limits.ImageMinHeight:
 		os.RemoveAll(imagefile)
 		return errors.New("webm height too small")
-	} else if orig_size > config.Settings.Limits.ImageMaxSize {
+	case orig_size > config.Settings.Limits.ImageMaxSize:
 		os.RemoveAll(imagefile)
 		return errors.New("webm size too large")
-	} else if file_duration > config.Settings.Limits.WebmMaxLength {
+	case file_duration > config.Settings.Limits.WebmMaxLength:
 		os.RemoveAll(imagefile)
 		return errors.New("webm too long")
 	}
