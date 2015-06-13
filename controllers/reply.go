@@ -228,7 +228,7 @@ func ReplyController(c *gin.Context) {
 	// Delete redis stuff
 	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
 	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
-	thread_key := fmt.Sprintf("%s:%d", "thread", m.Thread)
+	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
 
 	err = cache.Delete(index_key, directory_key, thread_key)
 	if err != nil {

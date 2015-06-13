@@ -81,8 +81,8 @@ func AddTagController(c *gin.Context) {
 
 	// Delete redis stuff
 	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
-	tag_key := fmt.Sprintf("%s:%d", "tag", m.Tag)
-	image_key := fmt.Sprintf("%s:%d", "image", m.Image)
+	tag_key := fmt.Sprintf("%s:%d:%d", "tag", m.Ib, m.Tag)
+	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
 
 	err = cache.Delete(tags_key, tag_key, image_key)
 	if err != nil {
