@@ -229,8 +229,9 @@ func ReplyController(c *gin.Context) {
 	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
 	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
 	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
+	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
 
-	err = cache.Delete(index_key, directory_key, thread_key)
+	err = cache.Delete(index_key, directory_key, thread_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
