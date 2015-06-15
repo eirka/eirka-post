@@ -244,14 +244,14 @@ func ReplyController(c *gin.Context) {
 		Referer: req.Referer(),
 	}
 
-	link, err := redir.Link()
+	err = redir.Link()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return
 	}
 
-	c.Redirect(303, link)
+	c.Redirect(303, redir.Url)
 
 	audit := u.Audit{
 		User:   1,
