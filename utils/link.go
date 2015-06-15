@@ -7,21 +7,21 @@ import (
 type Redirect struct {
 	Id      uint
 	Referer string
+	Host    string
 	Url     string
-	Link    string
 }
 
 // Redirect to the correct imageboard after post
 func (r *Redirect) Link() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	db, err := GetDb()
 	if err != nil {
 		return
 	}
 
 	// Get the url of the imageboard from the database
-	err = db.QueryRow("SELECT ib_domain FROM imageboards WHERE ib_id = ?", r.Id).Scan(&r.Url)
+	err = db.QueryRow("SELECT ib_domain FROM imageboards WHERE ib_id = ?", r.Id).Scan(&r.Host)
 	if err != nil {
 		return
 	}
@@ -35,11 +35,11 @@ func (r *Redirect) Link() (err error) {
 	// Create url
 	redir := &url.URL{
 		Scheme: parsed.Scheme,
-		Host:   r.Url,
+		Host:   r.Host,
 	}
 
 	// set the link
-	r.Link = redir.String()
+	r.Url = redir.String()
 
 	return
 
