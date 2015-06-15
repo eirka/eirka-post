@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"http"
+	"net/http"
 	"net/url"
 	"strings"
 
