@@ -224,7 +224,14 @@ func ThreadController(c *gin.Context) {
 		Referer: req.Referer(),
 	}
 
-	c.Redirect(303, redir.Link)
+	link, err := redir.Link()
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
+	}
+
+	c.Redirect(303, link)
 
 	audit := u.Audit{
 		User:   1,
