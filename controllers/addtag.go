@@ -91,7 +91,7 @@ func AddTagController(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, "/")
+	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditAddTag})
 
 	audit := u.Audit{
 		User:   1,
