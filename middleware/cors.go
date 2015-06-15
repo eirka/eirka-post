@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"http"
 	"net/url"
 	"strings"
 
@@ -34,10 +35,18 @@ func CORS() gin.HandlerFunc {
 			res.Header().Set("Access-Control-Allow-Origin", "")
 		}
 
-		// Add allowed method header
-		res.Header().Set("Access-Control-Allow-Methods", "POST")
+		if req.Method == "OPTIONS" {
 
-		c.Next()
+			// Add allowed method header
+			res.Header().Set("Access-Control-Allow-Methods", "POST")
+
+			c.AbortWithStatus(http.StatusOK)
+
+		} else {
+
+			c.Next()
+
+		}
 
 	}
 }
