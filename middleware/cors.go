@@ -9,7 +9,10 @@ import (
 	"github.com/techjanitor/pram-post/config"
 )
 
-var validSites = map[string]bool{}
+var (
+	validSites          = map[string]bool{}
+	defaultAllowHeaders = []string{"Origin", "Accept", "Content-Type"}
+)
 
 func init() {
 
@@ -39,6 +42,9 @@ func CORS() gin.HandlerFunc {
 
 			// Add allowed method header
 			res.Header().Set("Access-Control-Allow-Methods", "POST")
+
+			// Add allowed headers header
+			res.Header().Set("Access-Control-Allow-Headers", strings.Join(defaultAllowHeaders, ","))
 
 			c.AbortWithStatus(http.StatusOK)
 
