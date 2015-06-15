@@ -33,6 +33,8 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	// Adds CORS headers
+	r.Use(m.CORS())
 	// Checks for antispam cookie
 	r.Use(m.GetAntiSpamCookie())
 
