@@ -238,7 +238,13 @@ func ReplyController(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, "/")
+	// generate redirect link
+	redir := u.Redirect{
+		Id:      m.Ib,
+		Referer: req.Referer(),
+	}
+
+	c.Redirect(303, redir.Link)
 
 	audit := u.Audit{
 		User:   1,
