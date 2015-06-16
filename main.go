@@ -36,7 +36,7 @@ func main() {
 	// Adds CORS headers
 	r.Use(m.CORS())
 	// Checks for antispam cookie
-	r.Use(m.GetAntiSpamCookie())
+	//r.Use(m.GetAntiSpamCookie())
 
 	r.POST("/thread/new", c.ThreadController)
 	r.POST("/thread/reply", c.ReplyController)
