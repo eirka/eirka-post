@@ -38,6 +38,8 @@ func CORS() gin.HandlerFunc {
 			res.Header().Set("Access-Control-Allow-Origin", "")
 		}
 
+		res.Header().Set("Access-Control-Allow-Credentials", "true")
+
 		if req.Method == "OPTIONS" {
 
 			// Add allowed method header
