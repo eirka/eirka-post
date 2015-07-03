@@ -81,7 +81,7 @@ func (i *ImageType) CheckWebM() (err error) {
 	case i.OrigHeight < config.Settings.Limits.ImageMinHeight:
 		os.RemoveAll(imagefile)
 		return errors.New("webm height too small")
-	case orig_size > config.Settings.Limits.ImageMaxSize:
+	case int(orig_size) > config.Settings.Limits.ImageMaxSize:
 		os.RemoveAll(imagefile)
 		return errors.New("webm size too large")
 	case file_duration > config.Settings.Limits.WebmMaxLength:
