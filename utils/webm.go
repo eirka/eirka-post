@@ -58,7 +58,7 @@ func (i *ImageType) CheckWebM() (err error) {
 
 	file_duration := int(duration)
 
-	orig_size, err := strconv.Atoi(avprobe.Format.Size)
+	orig_size, err := strconv.ParseFloat(avprobe.Format.Size, 64)
 	if err != nil {
 		os.RemoveAll(imagefile)
 		return
