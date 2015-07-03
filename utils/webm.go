@@ -17,40 +17,40 @@ import (
 func (i *ImageType) CheckWebM() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 
-	ffprobeArgs := []string{
+	avprobeArgs := []string{
 		"-v",
 		"quiet",
-		"-print_format",
+		"-of",
 		"json",
 		"-show_format",
 		"-show_streams",
 		imagefile,
 	}
 
-	cmd, err := exec.Command("ffprobe", ffprobeArgs...).Output()
+	cmd, err := exec.Command("avprobe", avprobeArgs...).Output()
 	if err != nil {
 		return errors.New("problem decoding webm")
 	}
 
-	ffprobe := ffprobe{}
+	avprobe := avprobe{}
 
-	err = json.Unmarshal(cmd, &ffprobe)
+	err = json.Unmarshal(cmd, &avprobe)
 	if err != nil {
 		os.RemoveAll(imagefile)
 		return errors.New("problem decoding webm")
 	}
 
 	switch {
-	case ffprobe.Format.FormatName != "matroska,webm":
+	case avprobe.Format.FormatName != "matroska,webm":
 		os.RemoveAll(imagefile)
 		return errors.New("file is not vp8 video")
 
-	case ffprobe.Streams[0].CodecName != "vp8":
+	case avprobe.Streams[0].CodecName != "vp8":
 		os.RemoveAll(imagefile)
 		return errors.New("file is not vp8 video")
 	}
 
-	duration, err := strconv.ParseFloat(ffprobe.Format.Duration, 64)
+	duration, err := strconv.ParseFloat(avprobe.Format.Duration, 64)
 	if err != nil {
 		os.RemoveAll(imagefile)
 		return errors.New("problem decoding webm")
@@ -58,14 +58,14 @@ func (i *ImageType) CheckWebM() (err error) {
 
 	file_duration := int(duration)
 
-	orig_size, err := strconv.Atoi(ffprobe.Format.Size)
+	orig_size, err := strconv.Atoi(avprobe.Format.Size)
 	if err != nil {
 		os.RemoveAll(imagefile)
 		return errors.New("problem decoding webm")
 	}
 
-	i.OrigWidth = ffprobe.Streams[0].Width
-	i.OrigHeight = ffprobe.Streams[0].Height
+	i.OrigWidth = avprobe.Streams[0].Width
+	i.OrigHeight = avprobe.Streams[0].Height
 
 	// Check against maximum sizes
 	switch {
@@ -97,7 +97,7 @@ func (i *ImageType) CreateWebMThumbnail() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 	thumbfile := filepath.Join(config.Settings.General.ThumbnailDir, i.Thumbnail)
 
-	ffmpegArgs := []string{
+	avconvArgs := []string{
 		"-i",
 		imagefile,
 		"-v",
@@ -112,8 +112,8 @@ func (i *ImageType) CreateWebMThumbnail() (err error) {
 		thumbfile,
 	}
 
-	// Make an image of first frame with ffmpeg
-	_, err = exec.Command("ffmpeg", ffmpegArgs...).Output()
+	// Make an image of first frame with avconv
+	_, err = exec.Command("avconv", avconvArgs...).Output()
 	if err != nil {
 		os.RemoveAll(thumbfile)
 		os.RemoveAll(imagefile)
@@ -174,8 +174,18 @@ func (i *ImageType) CreateWebMThumbnail() (err error) {
 
 }
 
-// ffprobe json format
-type ffprobe struct {
+// avprobe json format
+type avprobe struct {
+	Format struct {
+		Filename       string `json:"filename"`
+		NbStreams      int    `json:"nb_streams"`
+		FormatName     string `json:"format_name"`
+		FormatLongName string `json:"format_long_name"`
+		StartTime      string `json:"start_time"`
+		Duration       string `json:"duration"`
+		Size           string `json:"size"`
+		BitRate        string `json:"bit_rate"`
+	} `json:"format"`
 	Streams []struct {
 		Index              int    `json:"index"`
 		CodecName          string `json:"codec_name"`
@@ -191,33 +201,9 @@ type ffprobe struct {
 		DisplayAspectRatio string `json:"display_aspect_ratio"`
 		PixFmt             string `json:"pix_fmt"`
 		Level              int    `json:"level"`
-		RFrameRate         string `json:"r_frame_rate"`
 		AvgFrameRate       string `json:"avg_frame_rate"`
 		TimeBase           string `json:"time_base"`
-		StartPts           int    `json:"start_pts"`
 		StartTime          string `json:"start_time"`
-		Disposition        struct {
-			Default         int `json:"default"`
-			Dub             int `json:"dub"`
-			Original        int `json:"original"`
-			Comment         int `json:"comment"`
-			Lyrics          int `json:"lyrics"`
-			Karaoke         int `json:"karaoke"`
-			Forced          int `json:"forced"`
-			HearingImpaired int `json:"hearing_impaired"`
-			VisualImpaired  int `json:"visual_impaired"`
-			CleanEffects    int `json:"clean_effects"`
-			AttachedPic     int `json:"attached_pic"`
-		} `json:"disposition"`
+		Duration           string `json:"duration"`
 	} `json:"streams"`
-	Format struct {
-		Filename       string `json:"filename"`
-		NbStreams      int    `json:"nb_streams"`
-		FormatName     string `json:"format_name"`
-		FormatLongName string `json:"format_long_name"`
-		StartTime      string `json:"start_time"`
-		Duration       string `json:"duration"`
-		Size           string `json:"size"`
-		BitRate        string `json:"bit_rate"`
-	} `json:"format"`
 }
