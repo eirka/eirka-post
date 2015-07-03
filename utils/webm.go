@@ -29,7 +29,7 @@ func (i *ImageType) CheckWebM() (err error) {
 
 	cmd, err := exec.Command("avprobe", avprobeArgs...).Output()
 	if err != nil {
-		return errors.New("problem decoding webm")
+		return
 	}
 
 	avprobe := avprobe{}
@@ -37,7 +37,7 @@ func (i *ImageType) CheckWebM() (err error) {
 	err = json.Unmarshal(cmd, &avprobe)
 	if err != nil {
 		os.RemoveAll(imagefile)
-		return errors.New("problem decoding webm")
+		return
 	}
 
 	switch {
@@ -53,7 +53,7 @@ func (i *ImageType) CheckWebM() (err error) {
 	duration, err := strconv.ParseFloat(avprobe.Format.Duration, 64)
 	if err != nil {
 		os.RemoveAll(imagefile)
-		return errors.New("problem decoding webm")
+		return
 	}
 
 	file_duration := int(duration)
@@ -61,7 +61,7 @@ func (i *ImageType) CheckWebM() (err error) {
 	orig_size, err := strconv.Atoi(avprobe.Format.Size)
 	if err != nil {
 		os.RemoveAll(imagefile)
-		return errors.New("problem decoding webm")
+		return
 	}
 
 	i.OrigWidth = avprobe.Streams[0].Width
@@ -117,7 +117,7 @@ func (i *ImageType) CreateWebMThumbnail() (err error) {
 	if err != nil {
 		os.RemoveAll(thumbfile)
 		os.RemoveAll(imagefile)
-		return errors.New("problem decoding webm")
+		return
 	}
 
 	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
