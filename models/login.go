@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/asaskevich/govalidator"
 	"golang.org/x/crypto/bcrypt"
 
@@ -71,6 +72,8 @@ func (r *LoginModel) Login() (err error) {
 	} else if err != nil {
 		return
 	}
+
+	fmt.Printf("%s\n%s\n", r.Hash, r.Password)
 
 	// compare provided password to stored hash
 	bcrypt.CompareHashAndPassword(r.Hash, []byte(r.Password))
