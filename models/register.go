@@ -1,10 +1,8 @@
 package models
 
 import (
-	"encoding/json"
 	"github.com/asaskevich/govalidator"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
