@@ -38,7 +38,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		// check if user meets set permissions
 		if user.Group < perms.Minimum {
 			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-			c.Error(err)
+			c.Error(e.ErrUnauthorized)
 			c.Abort()
 			return
 		}
