@@ -2,14 +2,15 @@ package utils
 
 import (
 	"fmt"
+	"github.com/garyburd/redigo/redis"
 	"strconv"
 
 	e "github.com/techjanitor/pram-post/errors"
 )
 
 var (
-	maxLogins    = 5
-	limitSeconds = 60
+	maxLogins    int  = 5
+	limitSeconds uint = 60
 )
 
 // will increment a counter in redis to limit login attempts
@@ -39,6 +40,8 @@ func LoginCounter(userid uint) (err error) {
 	if result >= maxLogins {
 		return e.ErrMaxLogins
 	}
+
+	return
 
 }
 
