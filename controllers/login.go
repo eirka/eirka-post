@@ -55,14 +55,8 @@ func LoginController(c *gin.Context) {
 
 	// log user in
 	err = m.Login()
-	// invalid username, invalid password, user not confirmed, user locked, user banned
-	if err == e.ErrInvalidUser || err == e.ErrInvalidPassword || err == e.ErrUserNotConfirmed || err == e.ErrUserLocked || err == e.ErrUserBanned {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
-		return
-	}
 	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
 		return
 	}
