@@ -53,7 +53,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 
 // permissions data
 type Permissions struct {
-	Minimum int
+	Minimum uint
 }
 
 // All users
