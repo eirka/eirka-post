@@ -19,8 +19,13 @@ var (
 	ErrTitleLong      error = errors.New("Title too long")
 	ErrTitleShort     error = errors.New("Title too short")
 	ErrNoTitle        error = errors.New("Title is required")
+	ErrNameEmpty      error = errors.New("Name empty")
 	ErrNameLong       error = errors.New("Name too long")
 	ErrNameShort      error = errors.New("Name too short")
+	ErrNameAlphaNum   error = errors.New("Name not alphanumeric")
+	ErrPasswordEmpty  error = errors.New("Password empty")
+	ErrPasswordLong   error = errors.New("Password too long")
+	ErrPasswordShort  error = errors.New("Password too short")
 	ErrNoTagId        error = errors.New("Tag id required")
 	ErrNoTagType      error = errors.New("Tag type required")
 	ErrTagLong        error = errors.New("Tag too long")
@@ -36,6 +41,7 @@ var (
 	ErrNoKey          error = errors.New("Antispam key required")
 	ErrThreadClosed   error = errors.New("Thread is closed")
 	ErrIpParse        error = errors.New("Input IP cannot be parsed")
+	ErrDuplicateName  error = errors.New("Name already registered")
 )
 
 type RequestError struct {
