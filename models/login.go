@@ -72,6 +72,12 @@ func (r *LoginModel) Login() (err error) {
 		return e.ErrInternalError
 	}
 
+	// rate limit login
+	err = u.LoginCounter(r.Id)
+	if err != nil {
+		return
+	}
+
 	// compare provided password to stored hash
 	err = bcrypt.CompareHashAndPassword(r.Hash, []byte(r.Password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
@@ -93,12 +99,6 @@ func (r *LoginModel) Login() (err error) {
 	// if banned
 	if r.Banned {
 		return e.ErrUserBanned
-	}
-
-	// rate limit login
-	err = u.LoginCounter(r.Id)
-	if err != nil {
-		return
 	}
 
 	// make new session for user in redis and return session id
