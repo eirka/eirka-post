@@ -10,7 +10,7 @@ import (
 )
 
 // checks for session cookie and handles permissions
-func Auth(perms *Permissions) gin.HandlerFunc {
+func Auth(perms Permissions) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// user data
@@ -57,21 +57,21 @@ type Permissions struct {
 }
 
 // All users
-func All() *Permissions {
+func All() Permissions {
 	return Permissions{Minimum: 0}
 }
 
 // registered users
-func Registered() *Permissions {
+func Registered() Permissions {
 	return Permissions{Minimum: 1}
 }
 
 // moderators
-func Moderators() *Permissions {
+func Moderators() Permissions {
 	return Permissions{Minimum: 2}
 }
 
 // admins
-func Admins() *Permissions {
+func Admins() Permissions {
 	return Permissions{Minimum: 3}
 }
