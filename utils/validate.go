@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"regex"
+	"regexp"
 	"strconv"
 
 	"github.com/techjanitor/pram-post/config"
