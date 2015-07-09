@@ -61,7 +61,7 @@ func (r *LoginModel) Login() (err error) {
 	// Get Database handle
 	db, err := u.GetDb()
 	if err != nil {
-		return
+		return e.ErrInternalError
 	}
 
 	// get hashed password from database
@@ -69,7 +69,7 @@ func (r *LoginModel) Login() (err error) {
 	if err == sql.ErrNoRows {
 		return e.ErrInvalidUser
 	} else if err != nil {
-		return
+		return e.ErrInternalError
 	}
 
 	// compare provided password to stored hash
@@ -77,7 +77,7 @@ func (r *LoginModel) Login() (err error) {
 	if err == bcrypt.ErrMismatchedHashAndPassword {
 		return e.ErrInvalidPassword
 	} else if err != nil {
-		return
+		return e.ErrInternalError
 	}
 
 	// if account is not confirmed
@@ -95,10 +95,16 @@ func (r *LoginModel) Login() (err error) {
 		return e.ErrUserBanned
 	}
 
-	// make new session for user
-	r.Sid, err = u.NewSession(r.Id, r.Group)
+	// rate limit login
+	err = u.LoginCounter(r.Id)
 	if err != nil {
 		return
+	}
+
+	// make new session for user in redis and return session id
+	r.Sid, err = u.NewSession(r.Id, r.Group)
+	if err != nil {
+		return e.ErrInternalError
 	}
 
 	// session must be returned
