@@ -52,7 +52,7 @@ func RegisterController(c *gin.Context) {
 	}
 
 	// Validate input
-	err := m.Validate()
+	err = m.Validate()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
@@ -73,7 +73,7 @@ func RegisterController(c *gin.Context) {
 	}
 
 	// register user
-	err := m.Register()
+	err = m.Register()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
@@ -87,7 +87,7 @@ func RegisterController(c *gin.Context) {
 		Ib:     rf.Ib,
 		Ip:     c.ClientIP(),
 		Action: u.AuditRegister,
-		Info:   fmt.Sprintf("%d", m.Id),
+		Info:   fmt.Sprintf("%d", m.Name),
 	}
 
 	err = audit.Submit()
