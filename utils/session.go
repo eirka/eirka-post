@@ -46,8 +46,8 @@ func NewSession(userid uint) (cookieToken string, err error) {
 	user_key := fmt.Sprintf("user:%d", userid)
 
 	// check to see if session exists already
-	result, err = cache.HGet(user_key, "session")
-	if err != u.ErrCacheMiss {
+	result, err := cache.HGet(user_key, "session")
+	if err != ErrCacheMiss {
 		return
 	}
 
