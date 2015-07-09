@@ -67,12 +67,11 @@ type Config struct {
 	}
 
 	Session struct {
-		// Session cookie
+		Secret     string
 		CookieName string
 	}
 
 	User struct {
-		// user info cookie
 		CookieName string
 	}
 

@@ -136,6 +136,11 @@ func GetDatabaseSettings() {
 		panic(err)
 	}
 
+	err = ps.QueryRow("hmac_secret").Scan(&config.Settings.Session.Secret)
+	if err != nil {
+		panic(err)
+	}
+
 	return
 
 }
