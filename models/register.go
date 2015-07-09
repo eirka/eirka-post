@@ -27,10 +27,7 @@ func (r *RegisterModel) Validate() (err error) {
 		return e.ErrNameShort
 	} else if name.MaxLength() {
 		return e.ErrNameLong
-	}
-
-	// check if name is alphanumeric
-	if !govalidator.IsAlphanumeric(r.Name) {
+	} else if name.IsUsername() {
 		return e.ErrNameAlphaNum
 	}
 

@@ -1,9 +1,18 @@
 package utils
 
 import (
+	"regex"
 	"strconv"
 
 	"github.com/techjanitor/pram-post/config"
+)
+
+const (
+	username = `^([a-zA-Z0-9]+[\s_-]?)+$`
+)
+
+var (
+	regexUsername = egexp.MustCompile(Username)
 )
 
 // Validate will check string length
@@ -39,4 +48,9 @@ func (v *Validate) MinLength() bool {
 // IsEmpty checks to see if string is empty
 func (v *Validate) IsEmpty() bool {
 	return v.Input == ""
+}
+
+// check if username matches regex
+func (v *Validate) IsUsername() bool {
+	return regexUsername.MatchString(v.Input)
 }

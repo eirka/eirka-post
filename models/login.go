@@ -34,6 +34,8 @@ func (r *LoginModel) Validate() (err error) {
 		return e.ErrNameShort
 	} else if name.MaxLength() {
 		return e.ErrNameLong
+	} else if name.IsUsername() {
+		return e.ErrNameAlphaNum
 	}
 
 	// check if name is alphanumeric
