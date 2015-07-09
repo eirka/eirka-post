@@ -25,9 +25,6 @@ func LoginController(c *gin.Context) {
 	var err error
 	var lf loginForm
 
-	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
-
 	err = c.Bind(&lf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
