@@ -52,7 +52,7 @@ func (c *RedisStore) Incr(key string) (result int, err error) {
 
 	raw, err := conn.Do("INCR", key)
 	if raw == nil {
-		return nil, ErrCacheMiss
+		return 0, ErrCacheMiss
 	}
 	result, err = redis.Int(raw, err)
 	if err != nil {
@@ -67,7 +67,7 @@ func (c *RedisStore) Expire(key string, timeout uint) (err error) {
 	conn := c.pool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("EXPIRE", key, timeout)
+	_, err = conn.Do("EXPIRE", key, timeout)
 
 	return
 }
