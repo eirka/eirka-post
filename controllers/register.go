@@ -86,7 +86,7 @@ func RegisterController(c *gin.Context) {
 		Ib:     rf.Ib,
 		Ip:     c.ClientIP(),
 		Action: u.AuditRegister,
-		Info:   fmt.Sprintf("%d", m.Name),
+		Info:   m.Name,
 	}
 
 	err = audit.Submit()
