@@ -258,7 +258,7 @@ func ReplyController(c *gin.Context) {
 	c.Redirect(303, redir.Url)
 
 	audit := u.Audit{
-		User:   1,
+		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: u.AuditReply,

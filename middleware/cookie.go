@@ -13,7 +13,7 @@ func GetAntiSpamCookie() gin.HandlerFunc {
 
 		// Test for cookie from Prim
 		cookie, err := c.Request.Cookie(config.Settings.Antispam.CookieName)
-		if err != nil {
+		if err == http.ErrNoCookie {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrNoCookie.Error()})
 			c.Error(e.ErrNoCookie)
 			c.Abort()

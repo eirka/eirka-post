@@ -98,7 +98,7 @@ func AddTagController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditAddTag})
 
 	audit := u.Audit{
-		User:   1,
+		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: u.AuditAddTag,

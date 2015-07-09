@@ -26,12 +26,6 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			}
 
 		}
-		if err != nil && err != http.ErrNoCookie {
-			c.JSON(e.ErrorMessage(e.ErrInternalError))
-			c.Error(err)
-			c.Abort()
-			return
-		}
 
 		// get session cookie data
 
@@ -56,22 +50,30 @@ type Permissions struct {
 	Minimum uint
 }
 
+func SetAuthLevel() Permissions {
+	return Permissions{}
+}
+
 // All users
-func All() Permissions {
-	return Permissions{Minimum: 0}
+func (p Permissions) All() Permissions {
+	p.Minimum = 0
+	return p
 }
 
 // registered users
-func Registered() Permissions {
-	return Permissions{Minimum: 1}
+func (p Permissions) Registered() Permissions {
+	p.Minimum = 1
+	return p
 }
 
 // moderators
-func Moderators() Permissions {
-	return Permissions{Minimum: 2}
+func (p Permissions) Moderators() Permissions {
+	p.Minimum = 2
+	return p
 }
 
 // admins
-func Admins() Permissions {
-	return Permissions{Minimum: 3}
+func (p Permissions) Admins() Permissions {
+	p.Minimum = 3
+	return p
 }
