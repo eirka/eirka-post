@@ -14,10 +14,11 @@ import (
 var nRandBytes = 32
 
 // creates a new random session id with user id
-func NewSession(userid uint) (cookieToken string, err error) {
+func NewSession(userid, groupid uint) (cookieToken string, err error) {
 
 	// convert userid to string
 	uid := strconv.Itoa(int(userid))
+	gid := strconv.Itoa(int(groupid))
 
 	// Initialize cache handle
 	cache := RedisCache
@@ -48,8 +49,10 @@ func NewSession(userid uint) (cookieToken string, err error) {
 		return
 	}
 
+	old_session_key := fmt.Sprintf("session:%s", result)
+
 	// delete keys
-	err = cache.Delete(user_key, string(result))
+	err = cache.Delete(user_key, old_session_key)
 	if err != nil {
 		return
 	}
@@ -60,8 +63,16 @@ func NewSession(userid uint) (cookieToken string, err error) {
 		return
 	}
 
+	// set user group
+	err = cache.HMSet(user_key, "group", []byte(gid))
+	if err != nil {
+		return
+	}
+
+	new_session_key := fmt.Sprintf("session:%s", storageToken)
+
 	// set key in redis
-	err = cache.SetEx(storageToken, 2592000, []byte(uid))
+	err = cache.SetEx(new_session_key, 2592000, []byte(uid))
 	if err != nil {
 		return
 	}

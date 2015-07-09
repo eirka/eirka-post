@@ -96,7 +96,7 @@ func (r *LoginModel) Login() (err error) {
 	}
 
 	// make new session for user
-	r.Sid, err = u.NewSession(r.Id)
+	r.Sid, err = u.NewSession(r.Id, r.Group)
 	if err != nil {
 		return
 	}
