@@ -35,9 +35,6 @@ func NewSession(userid uint) (cookieToken string, err error) {
 		return
 	}
 
-	// goes in the cookie
-	cookieToken = base64.URLEncoding.EncodeToString(token)
-
 	// goes to redis
 	sum := md5.Sum(token)
 	storageToken := base64.StdEncoding.EncodeToString(sum[:])
@@ -47,7 +44,7 @@ func NewSession(userid uint) (cookieToken string, err error) {
 
 	// check to see if session exists already
 	result, err := cache.HGet(user_key, "session")
-	if err != ErrCacheMiss {
+	if err != nil {
 		return
 	}
 
@@ -70,6 +67,9 @@ func NewSession(userid uint) (cookieToken string, err error) {
 	if err != nil {
 		return
 	}
+
+	// goes in the cookie
+	cookieToken = base64.URLEncoding.EncodeToString(token)
 
 	return
 
