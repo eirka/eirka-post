@@ -17,7 +17,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		var user u.User
 
 		// get session cookie
-		cookie, err := c.Request.Cookie(config.Settings.Session.CookieName)
+		_, err := c.Request.Cookie(config.Settings.Session.CookieName)
 		if err == http.ErrNoCookie {
 			// set as anonymous user if theres no cookie
 			user = u.User{

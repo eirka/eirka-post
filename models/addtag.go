@@ -6,6 +6,7 @@ import (
 )
 
 type AddTagModel struct {
+	Uid   uint
 	Ib    uint
 	Tag   uint
 	Image uint

@@ -10,6 +10,7 @@ import (
 )
 
 type ThreadModel struct {
+	Uid         uint
 	Ib          uint
 	Id          uint
 	Ip          string

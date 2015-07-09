@@ -45,6 +45,7 @@ func ReplyController(c *gin.Context) {
 
 	// Set parameters to ReplyModel
 	m := models.ReplyModel{
+		Uid:     userdata.Id,
 		Ip:      c.ClientIP(),
 		Name:    rf.Name,
 		Comment: rf.Comment,

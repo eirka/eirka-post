@@ -1,10 +1,10 @@
 package utils
 
 type User struct {
-	Id int
+	Id uint
 
 	// Permissions
-	Group int
+	Group uint
 
 	// Username
 	Name string

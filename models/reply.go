@@ -10,6 +10,7 @@ import (
 )
 
 type ReplyModel struct {
+	Uid         uint
 	Ib          uint
 	Thread      uint
 	PostNum     uint

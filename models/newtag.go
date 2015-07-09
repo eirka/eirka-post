@@ -7,6 +7,7 @@ import (
 )
 
 type NewTagModel struct {
+	Uid     uint
 	Ib      uint
 	Tag     string
 	TagType uint

@@ -36,6 +36,7 @@ func AddTagController(c *gin.Context) {
 
 	// Set parameters to AddTagModel
 	m := models.AddTagModel{
+		Uid:   userdata.Id,
 		Ip:    c.ClientIP(),
 		Ib:    atf.Ib,
 		Tag:   atf.Tag,

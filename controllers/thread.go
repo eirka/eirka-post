@@ -46,6 +46,7 @@ func ThreadController(c *gin.Context) {
 
 	// Set parameters to ThreadModel
 	m := models.ThreadModel{
+		Uid:     userdata.Id,
 		Ip:      c.ClientIP(),
 		Name:    tf.Name,
 		Title:   tf.Title,
