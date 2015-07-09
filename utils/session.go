@@ -5,10 +5,8 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
-	"time"
+	"strconv"
 
-	"github.com/techjanitor/easyhmac"
 	e "github.com/techjanitor/pram-post/errors"
 )
 
