@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"strconv"
 
 	e "github.com/techjanitor/pram-post/errors"
@@ -15,6 +16,7 @@ var nRandBytes = 32
 // creates a new random session id with user id
 func NewSession(userid uint) (cookieToken string, err error) {
 
+	// convert userid to string
 	uid := strconv.Itoa(int(userid))
 
 	// Initialize cache handle
@@ -39,6 +41,29 @@ func NewSession(userid uint) (cookieToken string, err error) {
 	// goes to redis
 	sum := md5.Sum(token)
 	storageToken := base64.StdEncoding.EncodeToString(sum[:])
+
+	// user hash is like user:100
+	user_key := fmt.Sprintf("user:%d", userid)
+
+	// check to see if session exists already
+	result, err = cache.HGet(user_key, "session")
+	if err != u.ErrCacheMiss {
+		return
+	}
+
+	hash_key := fmt.Sprintf("%s", result)
+
+	// delete keys
+	err = cache.Delete(user_key, hash_key)
+	if err != nil {
+		return
+	}
+
+	// set in user hash
+	err = cache.HMSet(user_key, "session", []byte(storageToken))
+	if err != nil {
+		return
+	}
 
 	// set key in redis
 	err = cache.SetEx(storageToken, 2592000, []byte(uid))

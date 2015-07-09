@@ -64,6 +64,7 @@ func LoginController(c *gin.Context) {
 	//
 	// create hmac cookie
 	//
+
 	easyhmac.Secret = config.Settings.Session.Secret
 
 	// Initialize SignedMessage struct with secret

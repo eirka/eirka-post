@@ -6,6 +6,9 @@ type User struct {
 	// Permissions
 	Group uint
 
+	// Session hash
+	Hash []byte
+
 	// Username
 	Name string
 
