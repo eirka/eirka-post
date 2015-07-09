@@ -44,6 +44,7 @@ func main() {
 	r.POST("/thread/reply", c.ReplyController)
 	r.POST("/tag/new", c.NewTagController)
 	r.POST("/tag/add", c.AddTagController)
+	r.POST("/register", c.RegisterController)
 	r.NoRoute(c.ErrorController)
 
 	s := &http.Server{
