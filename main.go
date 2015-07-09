@@ -38,7 +38,7 @@ func main() {
 	// Checks for antispam cookie
 	r.Use(m.GetAntiSpamCookie())
 	// use auth system
-	r.Use(m.Auth(m.All()))
+	r.Use(m.Auth(m.Registered()))
 
 	r.POST("/thread/new", c.ThreadController)
 	r.POST("/thread/reply", c.ReplyController)
