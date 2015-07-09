@@ -24,7 +24,6 @@ type registerForm struct {
 func RegisterController(c *gin.Context) {
 	var err error
 	var rf registerForm
-	req := c.Request
 
 	// get userdata from session middleware
 	userdata := c.MustGet("userdata").(u.User)
