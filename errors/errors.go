@@ -42,7 +42,7 @@ var (
 	ErrThreadClosed   error = errors.New("Thread is closed")
 	ErrIpParse        error = errors.New("Input IP cannot be parsed")
 	ErrDuplicateName  error = errors.New("Name already registered")
-	ErrInvalidEmail   error = errors.new("Invalid email address")
+	ErrInvalidEmail   error = errors.New("Invalid email address")
 )
 
 type RequestError struct {
