@@ -41,7 +41,7 @@ func NewSession(userid uint) (cookieToken string, err error) {
 	storageToken := base64.StdEncoding.EncodeToString(sum[:])
 
 	// set key in redis
-	err = cache.SetEx(storageToken, 2592000, uid)
+	err = cache.SetEx(storageToken, 2592000, []byte(uid))
 	if err != nil {
 		return
 	}
@@ -52,6 +52,9 @@ func NewSession(userid uint) (cookieToken string, err error) {
 
 // validate compares provided session id to redis
 func ValidateSession(key []byte) (err error) {
+
+	// Initialize cache handle
+	cache := RedisCache
 
 	// decode key
 	token, err := base64.URLEncoding.DecodeString(string(key))
@@ -78,7 +81,7 @@ func ValidateSession(key []byte) (err error) {
 
 	// check for match
 	result, err := cache.Get(providedHash)
-	if err == u.ErrCacheMiss {
+	if err == ErrCacheMiss {
 		return e.ErrInvalidSession
 	}
 	if err != nil {
