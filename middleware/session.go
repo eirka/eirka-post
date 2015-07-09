@@ -26,7 +26,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			}
 
 		}
-		if err != nil {
+		if err != nil && err != http.ErrNoCookie {
 			c.JSON(e.ErrorMessage(e.ErrInternalError))
 			c.Error(err)
 			c.Abort()
