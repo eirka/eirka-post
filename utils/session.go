@@ -44,7 +44,7 @@ func NewSession(userid uint) (cookieToken string, err error) {
 
 	// check to see if session exists already
 	result, err := cache.HGet(user_key, "session")
-	if err != nil {
+	if err != ErrCacheMiss {
 		return
 	}
 
