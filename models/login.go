@@ -73,10 +73,8 @@ func (r *LoginModel) Login() (err error) {
 		return
 	}
 
-	fmt.Printf("%s\n%s\n", r.Hash, r.Password)
-
 	// compare provided password to stored hash
-	bcrypt.CompareHashAndPassword(r.Hash, []byte(r.Password))
+	err = bcrypt.CompareHashAndPassword(r.Hash, []byte(r.Password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
 		return e.ErrInvalidPassword
 	} else if err != nil {
