@@ -44,16 +44,12 @@ func NewSession(userid uint) (cookieToken string, err error) {
 
 	// check to see if session exists already
 	result, err := cache.HGet(user_key, "session")
-	if err != nil {
+	if err != nil && err != ErrCacheMiss {
 		return
 	}
 
-	fmt.Printf("%s", result)
-
-	hash_key := fmt.Sprintf("%s", result)
-
 	// delete keys
-	err = cache.Delete(user_key, hash_key)
+	err = cache.Delete(user_key, string(result))
 	if err != nil {
 		return
 	}
