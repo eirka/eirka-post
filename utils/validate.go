@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	regexUsername = regexp.MustCompile(Username)
+	regexUsername = regexp.MustCompile(username)
 )
 
 // Validate will check string length
