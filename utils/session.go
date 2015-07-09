@@ -48,6 +48,8 @@ func NewSession(userid uint) (cookieToken string, err error) {
 		return
 	}
 
+	fmt.Printf("%s", result)
+
 	hash_key := fmt.Sprintf("%s", result)
 
 	// delete keys
