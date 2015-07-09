@@ -101,6 +101,11 @@ func (r *LoginModel) Login() (err error) {
 		return
 	}
 
+	// session must be returned
+	if govalidator.IsNull(r.Sid) {
+		return e.ErrInvalidSession
+	}
+
 	return
 
 }
