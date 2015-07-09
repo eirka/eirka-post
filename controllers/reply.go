@@ -25,6 +25,9 @@ func ReplyController(c *gin.Context) {
 	var rf replyForm
 	req := c.Request
 
+	// get userdata from session middleware
+	userdata := c.MustGet("userdata").(u.User)
+
 	err = c.Bind(&rf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))

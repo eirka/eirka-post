@@ -66,6 +66,16 @@ type Config struct {
 		CookieValue string
 	}
 
+	Session struct {
+		// Session cookie
+		CookieName string
+	}
+
+	User struct {
+		// user info cookie
+		CookieName string
+	}
+
 	StopForumSpam struct {
 		// Stop Forum Spam settings
 		Confidence float64

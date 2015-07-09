@@ -24,6 +24,9 @@ func NewTagController(c *gin.Context) {
 	var err error
 	var ntf newTagForm
 
+	// get userdata from session middleware
+	userdata := c.MustGet("userdata").(u.User)
+
 	err = c.Bind(&ntf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))

@@ -26,6 +26,9 @@ func ThreadController(c *gin.Context) {
 	var tf threadForm
 	req := c.Request
 
+	// get userdata from session middleware
+	userdata := c.MustGet("userdata").(u.User)
+
 	err = c.Bind(&tf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
