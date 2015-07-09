@@ -38,11 +38,6 @@ func (r *LoginModel) Validate() (err error) {
 		return e.ErrNameAlphaNum
 	}
 
-	// check if name is alphanumeric
-	if !govalidator.IsAlphanumeric(r.Name) {
-		return e.ErrNameAlphaNum
-	}
-
 	// Validate password input
 	password := u.Validate{Input: r.Password, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
 	if password.IsEmpty() {
