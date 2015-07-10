@@ -126,16 +126,6 @@ func GetDatabaseSettings() {
 		panic(err)
 	}
 
-	err = ps.QueryRow("session_cookiename").Scan(&config.Settings.Session.CookieName)
-	if err != nil {
-		panic(err)
-	}
-
-	err = ps.QueryRow("user_cookiename").Scan(&config.Settings.User.CookieName)
-	if err != nil {
-		panic(err)
-	}
-
 	err = ps.QueryRow("hmac_secret").Scan(&config.Settings.Session.Secret)
 	if err != nil {
 		panic(err)

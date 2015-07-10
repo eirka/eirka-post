@@ -110,7 +110,7 @@ func LoginController(c *gin.Context) {
 	// Set some claims
 	token.Claims["iss"] = "pram"
 	token.Claims["iat"] = time.Now().Unix()
-	token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	token.Claims["exp"] = time.Now().Add(time.Hour * 24 * 30).Unix()
 	token.Claims["user_name"] = m.Name
 	token.Claims["user_id"] = m.Id
 

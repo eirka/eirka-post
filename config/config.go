@@ -67,12 +67,7 @@ type Config struct {
 	}
 
 	Session struct {
-		Secret     string
-		CookieName string
-	}
-
-	User struct {
-		CookieName string
+		Secret string
 	}
 
 	StopForumSpam struct {

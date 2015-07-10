@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/asaskevich/govalidator"
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
@@ -14,6 +13,7 @@ type RegisterModel struct {
 	Name     string
 	Email    string
 	Password string
+	Hashed   []byte
 }
 
 // Validate will check the provided name length and email
@@ -84,19 +84,13 @@ func (r *RegisterModel) Register() (err error) {
 		return
 	}
 
-	// hash password
-	password, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return
-	}
-
 	ps1, err := db.Prepare("INSERT into users (usergroup_id, user_name, user_email, user_password, user_confirmed) VALUES (?,?,?,?,?)")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(1, r.Name, r.Email, password, 1)
+	_, err = ps1.Exec(1, r.Name, r.Email, r.Hashed, 1)
 	if err != nil {
 		return
 	}
