@@ -18,7 +18,6 @@ type LoginModel struct {
 	Confirmed bool
 	Locked    bool
 	Banned    bool
-	Sid       string
 }
 
 // Validate will check the provided name and password
@@ -50,7 +49,7 @@ func (r *LoginModel) Validate() (err error) {
 
 }
 
-// log user in
+// query user info from database
 func (r *LoginModel) Query() (err error) {
 
 	// Get Database handle

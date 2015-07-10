@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -101,6 +103,27 @@ func LoginController(c *gin.Context) {
 		c.Error(e.ErrUserBanned)
 		return
 	}
+
+	// Create the token
+	token := jwt.New(jwt.SigningMethodHS256)
+	// Set some claims
+	token.Claims["iss"] = "pram"
+	token.Claims["iat"] = time.Now().Unix()
+	token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	token.Claims["user_name"] = m.Name
+	token.Claims["user_id"] = m.Id
+	// Sign and get the complete encoded token as a string
+	tokenString, err := token.SignedString(config.Settings.Session.Secret)
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
+	}
+
+	bearer := fmt.Sprintf("Bearer %s", tokenString)
+
+	// set authorization header
+	c.Writer.Header().Set("Authorization", bearer)
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
 
