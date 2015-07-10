@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"time"
 
 	"github.com/techjanitor/easyhmac"
 	"github.com/techjanitor/pram-post/config"
@@ -53,52 +53,42 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	// log user in
-	err = m.Login()
+	// get user info
+	err = m.Query()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
 		return
 	}
 
-	//
-	// create hmac cookie
-	//
-
-	easyhmac.Secret = config.Settings.Session.Secret
-
-	// Initialize SignedMessage struct with secret
-	key := easyhmac.SignedMessage{}
-
-	// Add payload data
-	key.Payload = []byte(m.Sid)
-
-	// Create HMAC signature
-	key.Sign()
-
-	// Marshal message to JSON and encode in url-safe base64
-	signedkey, err := key.Encode()
+	// rate limit login
+	err = u.LoginCounter(m.Id)
 	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
 		return
 	}
 
-	//
-	// create hmac cookie
-	//
-
-	// make session cookie
-	sessioncookie := &http.Cookie{
-		Name:     config.Settings.Session.CookieName,
-		Value:    signedkey,
-		Expires:  time.Now().Add(356 * 24 * time.Hour),
-		Path:     "/",
-		HttpOnly: true,
+	// compare provided password to stored hash
+	err = bcrypt.CompareHashAndPassword(m.Hash, []byte(m.Password))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return e.ErrInvalidPassword
+	} else if err != nil {
+		return e.ErrInternalError
 	}
 
-	// set cookie
-	http.SetCookie(c.Writer, sessioncookie)
+	// if account is not confirmed
+	if !m.Confirmed {
+		return e.ErrUserNotConfirmed
+	}
+
+	// if locked
+	if m.Locked {
+		return e.ErrUserLocked
+	}
+
+	// if banned
+	if m.Banned {
+		return e.ErrUserBanned
+	}
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
 

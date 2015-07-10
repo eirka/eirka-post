@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 
-	"github.com/techjanitor/easyhmac"
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
@@ -19,54 +18,6 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		user := u.User{
 			Id:    1,
 			Group: 0,
-		}
-
-		// get session cookie
-		sessioncookie, _ := c.Request.Cookie(config.Settings.Session.CookieName)
-
-		// if there is a cookie we will get the value from it
-		if sessioncookie != nil {
-
-			// get session cookie data
-			cookiepayload := sessioncookie.Value
-
-			// set easyhmac secret from config
-			easyhmac.Secret = config.Settings.Session.Secret
-
-			// Initialize SignedMessage struct with secret
-			message := easyhmac.SignedMessage{}
-
-			// Decode message
-			err = message.Decode(cookiepayload)
-			if err != nil {
-				c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-				c.Error(err)
-				c.Abort()
-				return
-			}
-
-			// Verify signature, returns a bool (true if verified)
-			check := message.Verify()
-			if !check {
-				c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-				c.Error(err)
-				c.Abort()
-				return
-			}
-
-			// check the provided data
-			uid, gid, err := u.ValidateSession(message.Payload)
-			if err != nil {
-				c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-				c.Error(err)
-				c.Abort()
-				return
-			}
-
-			// set user and group
-			user.Id = uid
-			user.Group = gid
-
 		}
 
 		fmt.Println(user.Id, user.Group)
