@@ -101,7 +101,7 @@ func ValidateSession(key []byte) (uid, gid uint, err error) {
 
 	// check to see if user is there
 	if index < 0 {
-		return e.ErrInvalidSession
+		return
 	}
 
 	// get given uid
@@ -124,7 +124,7 @@ func ValidateSession(key []byte) (uid, gid uint, err error) {
 
 	// check if uid matches
 	if cookie_uid != string(userid) {
-		return e.ErrInvalidSession
+		return
 	}
 
 	// user hash is like user:100
@@ -137,16 +137,19 @@ func ValidateSession(key []byte) (uid, gid uint, err error) {
 	}
 
 	// parse user to uint
-	uid, err = strconv.ParseUint(cookie_uid, 10, 0)
+	puid, err := strconv.ParseUint(cookie_uid, 10, 0)
 	if err != nil {
 		return
 	}
 
 	// parse group to uint
-	gid, err = strconv.ParseUint(groupid, 10, 0)
+	pgid, err := strconv.ParseUint(string(groupid), 10, 0)
 	if err != nil {
 		return
 	}
+
+	uid = uint(puid)
+	gid = uint(pgid)
 
 	return
 
