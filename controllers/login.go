@@ -89,16 +89,16 @@ func LoginController(c *gin.Context) {
 	//
 
 	// make session cookie
-	cookie := &http.Cookie{
+	sessioncookie := &http.Cookie{
 		Name:     config.Settings.Session.CookieName,
 		Value:    signedkey,
-		Expires:  time.Now().Add(30 * 24 * time.Hour),
+		Expires:  time.Now().Add(356 * 24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
 	}
 
 	// set cookie
-	http.SetCookie(c.Writer, cookie)
+	http.SetCookie(c.Writer, sessioncookie)
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
 

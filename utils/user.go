@@ -1,21 +1,7 @@
 package utils
 
+// user struct
 type User struct {
-	Id uint
-
-	// Permissions
+	Id    uint
 	Group uint
-
-	// Session hash
-	Hash []byte
-
-	// Username
-	Name string
-
-	// Auth
-	Email    string
-	Password string
-
-	// Confirm
-	Confirmed bool
 }

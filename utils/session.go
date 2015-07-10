@@ -72,7 +72,7 @@ func NewSession(userid, groupid uint) (cookieToken string, err error) {
 	new_session_key := fmt.Sprintf("session:%s", storageToken)
 
 	// set key in redis
-	err = cache.SetEx(new_session_key, 2592000, []byte(uid))
+	err = cache.SetEx(new_session_key, 31556952, []byte(uid))
 	if err != nil {
 		return
 	}
@@ -85,7 +85,7 @@ func NewSession(userid, groupid uint) (cookieToken string, err error) {
 }
 
 // validate compares provided session id to redis
-func ValidateSession(key []byte) (err error) {
+func ValidateSession(key []byte) (uid, gid uint, err error) {
 
 	// Initialize cache handle
 	cache := RedisCache
@@ -105,7 +105,7 @@ func ValidateSession(key []byte) (err error) {
 	}
 
 	// get given uid
-	uid := string(token[:index])
+	cookie_uid := string(token[:index])
 
 	// hash token
 	sum := md5.Sum(token)
@@ -113,18 +113,39 @@ func ValidateSession(key []byte) (err error) {
 	// base64 encode sum
 	providedHash := base64.StdEncoding.EncodeToString(sum[:])
 
-	// check for match
-	result, err := cache.Get(providedHash)
-	if err == ErrCacheMiss {
-		return e.ErrInvalidSession
-	}
+	// session key in redis
+	session_key := fmt.Sprintf("session:%s", providedHash)
+
+	// check for match in user session hash
+	userid, err := cache.Get(session_key)
 	if err != nil {
 		return
 	}
 
 	// check if uid matches
-	if uid != string(result) {
+	if cookie_uid != string(userid) {
 		return e.ErrInvalidSession
+	}
+
+	// user hash is like user:100
+	user_key := fmt.Sprintf("user:%s", cookie_uid)
+
+	// get group id from user session hash
+	groupid, err := cache.HGet(user_key, "group")
+	if err != nil {
+		return
+	}
+
+	// parse user to uint
+	uid, err = strconv.ParseUint(cookie_uid, 10, 0)
+	if err != nil {
+		return
+	}
+
+	// parse group to uint
+	gid, err = strconv.ParseUint(groupid, 10, 0)
+	if err != nil {
+		return
 	}
 
 	return

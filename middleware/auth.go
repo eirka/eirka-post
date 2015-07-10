@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 
+	"github.com/techjanitor/easyhmac"
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
@@ -12,22 +14,63 @@ import (
 // checks for session cookie and handles permissions
 func Auth(perms Permissions) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var err error
 
-		// user data
-		var user u.User
-
-		// get session cookie
-		_, err := c.Request.Cookie(config.Settings.Session.CookieName)
-		if err == http.ErrNoCookie {
-			// set as anonymous user if theres no cookie
-			user = u.User{
-				Id:    1,
-				Group: 0,
-			}
-
+		// set default anonymous user
+		user := u.User{
+			Id:    1,
+			Group: 0,
 		}
 
-		// get session cookie data
+		// get session cookie
+		sessioncookie, _ := c.Request.Cookie(config.Settings.Session.CookieName)
+
+		// if there is a cookie we will get the value from it
+		if sessioncookie != nil {
+
+			// get session cookie data
+			cookiepayload := sessioncookie.Value
+
+			// set easyhmac secret from config
+			easyhmac.Secret = config.Settings.Session.Secret
+
+			// Initialize SignedMessage struct with secret
+			message := easyhmac.SignedMessage{}
+
+			// Decode message
+			err = message.Decode(cookiepayload)
+			if err != nil {
+				c.JSON(e.ErrorMessage(e.ErrInvalidSession))
+				c.Error(err)
+				c.Abort()
+				return
+			}
+
+			// Verify signature, returns a bool (true if verified)
+			check := message.Verify()
+			if !check {
+				c.JSON(e.ErrorMessage(e.ErrInvalidSession))
+				c.Error(err)
+				c.Abort()
+				return
+			}
+
+			// check the provided data
+			uid, gid, err := u.ValidateSession(message.Payload)
+			if err != nil {
+				c.JSON(e.ErrorMessage(e.ErrInvalidSession))
+				c.Error(err)
+				c.Abort()
+				return
+			}
+
+			// set user and group
+			user.Id = uid
+			user.Group = gid
+
+			fmt.Println(user.Id, user.Group)
+
+		}
 
 		// check if user meets set permissions
 		if user.Group < perms.Minimum {
@@ -43,6 +86,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		c.Next()
 
 	}
+
 }
 
 // permissions data
