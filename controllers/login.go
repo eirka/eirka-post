@@ -93,7 +93,6 @@ func LoginController(c *gin.Context) {
 		Name:     config.Settings.Session.CookieName,
 		Value:    signedkey,
 		Expires:  time.Now().Add(30 * 24 * time.Hour),
-		Domain:   ".trish.io",
 		Path:     "/",
 		HttpOnly: true,
 	}
