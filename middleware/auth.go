@@ -67,9 +67,9 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			user.Id = uid
 			user.Group = gid
 
-			fmt.Println(user.Id, user.Group)
-
 		}
+
+		fmt.Println(user.Id, user.Group)
 
 		// check if user meets set permissions
 		if user.Group < perms.Minimum {
