@@ -11,7 +11,6 @@ import (
 // checks for session cookie and handles permissions
 func Auth(perms Permissions) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var err error
 
 		// set default anonymous user
 		user := u.User{
