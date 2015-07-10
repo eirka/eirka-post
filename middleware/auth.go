@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 
-	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )

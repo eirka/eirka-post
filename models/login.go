@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"github.com/asaskevich/govalidator"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
