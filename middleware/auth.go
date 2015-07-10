@@ -3,7 +3,6 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 
 	"github.com/techjanitor/easyhmac"
 	"github.com/techjanitor/pram-post/config"
@@ -40,7 +39,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			// Decode message
 			err = message.Decode(cookiepayload)
 			if err != nil {
-				c.JSON(e.ErrorMessage(e.ErrInvalidSession))
+				c.JSON(e.ErrorMessage(e.ErrUnauthorized))
 				c.Error(err)
 				c.Abort()
 				return
@@ -49,7 +48,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			// Verify signature, returns a bool (true if verified)
 			check := message.Verify()
 			if !check {
-				c.JSON(e.ErrorMessage(e.ErrInvalidSession))
+				c.JSON(e.ErrorMessage(e.ErrUnauthorized))
 				c.Error(err)
 				c.Abort()
 				return
@@ -58,7 +57,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			// check the provided data
 			uid, gid, err := u.ValidateSession(message.Payload)
 			if err != nil {
-				c.JSON(e.ErrorMessage(e.ErrInvalidSession))
+				c.JSON(e.ErrorMessage(e.ErrUnauthorized))
 				c.Error(err)
 				c.Abort()
 				return
