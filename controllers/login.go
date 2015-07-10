@@ -5,10 +5,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
-	"github.com/techjanitor/easyhmac"
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	"github.com/techjanitor/pram-post/models"
+	u "github.com/techjanitor/pram-post/utils"
 )
 
 // Input from login form
@@ -64,30 +64,42 @@ func LoginController(c *gin.Context) {
 	// rate limit login
 	err = u.LoginCounter(m.Id)
 	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrTooManyRequests))
+		c.Error(err)
 		return
 	}
 
 	// compare provided password to stored hash
 	err = bcrypt.CompareHashAndPassword(m.Hash, []byte(m.Password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return e.ErrInvalidPassword
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidPassword.Error()})
+		c.Error(err)
+		return
 	} else if err != nil {
-		return e.ErrInternalError
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
 	}
 
 	// if account is not confirmed
 	if !m.Confirmed {
-		return e.ErrUserNotConfirmed
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotConfirmed.Error()})
+		c.Error(e.ErrUserNotConfirmed)
+		return
 	}
 
 	// if locked
 	if m.Locked {
-		return e.ErrUserLocked
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserLocked.Error()})
+		c.Error(e.ErrUserLocked)
+		return
 	}
 
 	// if banned
 	if m.Banned {
-		return e.ErrUserBanned
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserBanned.Error()})
+		c.Error(e.ErrUserBanned)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
