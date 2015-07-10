@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -113,8 +114,17 @@ func LoginController(c *gin.Context) {
 	token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 	token.Claims["user_name"] = m.Name
 	token.Claims["user_id"] = m.Id
+
+	// base64 encode our session secret
+	signingKey, err := base64.URLEncoding.DecodeString(config.Settings.Session.Secret)
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
+	}
+
 	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString(config.Settings.Session.Secret)
+	tokenString, err := token.SignedString(signingKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
