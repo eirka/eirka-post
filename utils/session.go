@@ -7,8 +7,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strconv"
-
-	e "github.com/techjanitor/pram-post/errors"
 )
 
 var nRandBytes = 32
