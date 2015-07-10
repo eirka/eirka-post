@@ -50,6 +50,7 @@ var (
 	ErrUserLocked       error = errors.New("Account locked")
 	ErrInvalidSession   error = errors.New("Invalid session")
 	ErrMaxLogins        error = errors.New("Login attempts exceeded")
+	ErrUserNotAllowed   error = errors.New("Username not allowed")
 )
 
 type RequestError struct {

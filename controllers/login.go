@@ -84,6 +84,13 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
+	// user 1 is the special anonymous account
+	if m.Id == 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
+		c.Error(e.ErrUserNotAllowed)
+		return
+	}
+
 	// if account is not confirmed
 	if !m.Confirmed {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotConfirmed.Error()})
