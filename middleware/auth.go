@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
@@ -62,8 +61,6 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			user.Group = uint(gid)
 
 		}
-
-		fmt.Println(user.Id, user.Group)
 
 		// check if user meets set permissions
 		if user.Group < perms.Minimum {
