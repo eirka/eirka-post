@@ -29,10 +29,10 @@ func Auth(perms Permissions) gin.HandlerFunc {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
 
-			return []byte(config.Settings.Session.Secret)
+			return []byte(config.Settings.Session.Secret), nil
 		})
 		// if the error is anything but no token
-		if err != jwt.ErrNoTokenInRequest {
+		if err != nil && err != jwt.ErrNoTokenInRequest {
 			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
 			c.Error(err)
 			c.Abort()
