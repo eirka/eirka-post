@@ -90,7 +90,7 @@ func (r *RegisterModel) Register() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(1, r.Name, r.Email, r.Hashed, 1)
+	_, err = ps1.Exec(2, r.Name, r.Email, r.Hashed, 1)
 	if err != nil {
 		return
 	}
