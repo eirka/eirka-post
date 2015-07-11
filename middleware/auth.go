@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
 	e "github.com/techjanitor/pram-post/errors"
@@ -16,6 +17,32 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		user := u.User{
 			Id:    1,
 			Group: 0,
+		}
+
+		// parse jwt token if its there
+		token, err := jwt.ParseFromRequest(c.Request, func(token *jwt.Token) ([]byte, error) {
+
+			// check alg
+			_, ok := token.Method.(*jwt.SigningMethodHMAC)
+			if !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
+
+			return []byte(config.Settings.Session.Secret), nil
+		})
+		// if the error is anything but no token
+		if err != jwt.ErrNoTokenInRequest {
+			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
+			c.Error(e.ErrUnauthorized)
+			c.Abort()
+			return
+		}
+
+		// if the token is valid set the data
+		if err == nil && token.Valid {
+			user.Id = token.Claims["user_id"]
+			user.Group = token.Claims["user_group"]
+
 		}
 
 		fmt.Println(user.Id, user.Group)
