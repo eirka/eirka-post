@@ -118,8 +118,6 @@ func LoginController(c *gin.Context) {
 	token.Claims["iat"] = time.Now().Unix()
 	token.Claims["exp"] = time.Now().Add(time.Hour * 24 * 30).Unix()
 	token.Claims["user_id"] = m.Id
-	token.Claims["user_name"] = m.Name
-	token.Claims["user_group"] = m.Group
 
 	// Sign and get the complete encoded token as a string
 	tokenString, err := token.SignedString([]byte(config.Settings.Session.Secret))
