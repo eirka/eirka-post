@@ -71,6 +71,13 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
+	// user 1 is the special anonymous account
+	if m.Id == 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
+		c.Error(e.ErrUserNotAllowed)
+		return
+	}
+
 	// compare provided password to stored hash
 	err = bcrypt.CompareHashAndPassword(m.Hash, []byte(m.Password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
@@ -80,13 +87,6 @@ func LoginController(c *gin.Context) {
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
-		return
-	}
-
-	// user 1 is the special anonymous account
-	if m.Id == 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
-		c.Error(e.ErrUserNotAllowed)
 		return
 	}
 
