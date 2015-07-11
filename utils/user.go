@@ -16,7 +16,7 @@ type User struct {
 // get the user info
 func (u *User) Info() (err error) {
 
-	err := db.QueryRow("SELECT usergroup_id,user_name FROM users WHERE user_id = ?", u.Id).Scan(&u.Group, &u.Name)
+	err = db.QueryRow("SELECT usergroup_id,user_name FROM users WHERE user_id = ?", u.Id).Scan(&u.Group, &u.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
