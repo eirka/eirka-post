@@ -41,8 +41,8 @@ func Auth(perms Permissions) gin.HandlerFunc {
 
 		// if the token is valid set the data
 		if err == nil && token.Valid {
-			user.Id = token.Claims["user_id"]
-			user.Group = token.Claims["user_group"]
+			user.Id = token.Claims["user_id"].(uint)
+			user.Group = token.Claims["user_group"].(uint)
 
 		}
 
