@@ -34,7 +34,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		// if the error is anything but no token
 		if err != jwt.ErrNoTokenInRequest {
 			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-			c.Error(e.ErrUnauthorized)
+			c.Error(err)
 			c.Abort()
 			return
 		}
