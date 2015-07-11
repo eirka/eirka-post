@@ -10,7 +10,7 @@ import (
 
 var (
 	maxLogins    int  = 5
-	limitSeconds uint = 3
+	limitSeconds uint = 300
 )
 
 // will increment a counter in redis to limit login attempts
