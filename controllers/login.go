@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -129,12 +128,7 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	bearer := fmt.Sprintf("Bearer %s", tokenString)
-
-	// set authorization header
-	c.Writer.Header().Set("Authorization", bearer)
-
-	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
+	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful", "token": tokenString})
 
 	return
 
