@@ -5,6 +5,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
+	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -20,7 +21,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		}
 
 		// parse jwt token if its there
-		token, err := jwt.ParseFromRequest(c.Request, func(token *jwt.Token) ([]byte, error) {
+		token, err := jwt.ParseFromRequest(c.Request, func(token *jwt.Token) (interface{}, error) {
 
 			// check alg
 			_, ok := token.Method.(*jwt.SigningMethodHMAC)
