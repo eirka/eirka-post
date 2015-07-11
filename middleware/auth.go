@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
