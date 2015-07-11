@@ -42,7 +42,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 		// if the token is valid set the data
 		if err == nil && token.Valid {
 
-			uid, ok := token.Claims["user_id"].(uint)
+			uid, ok := token.Claims["user_id"].(float64)
 			if !ok {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
 				c.Error(err)
@@ -50,7 +50,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 				return
 			}
 
-			gid, ok := token.Claims["user_group"].(uint)
+			gid, ok := token.Claims["user_group"].(float64)
 			if !ok {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
 				c.Error(err)
@@ -58,8 +58,8 @@ func Auth(perms Permissions) gin.HandlerFunc {
 				return
 			}
 
-			user.Id = uid
-			user.Group = gid
+			user.Id = uint(uid)
+			user.Group = uint(gid)
 
 		}
 
