@@ -50,16 +50,20 @@ func Auth(perms Permissions) gin.HandlerFunc {
 				return
 			}
 
-			gid, ok := token.Claims["user_group"].(float64)
-			if !ok {
+			// set user id
+			user.Id = uint(uid)
+
+			// get the rest of the user info
+			err = user.Info()
+			if err == e.ErrNotFound {
+				c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidUser.Error()})
+				c.Error(err)
+				return
+			} else if err != nil {
 				c.JSON(e.ErrorMessage(e.ErrInternalError))
 				c.Error(err)
-				c.Abort()
 				return
 			}
-
-			user.Id = uint(uid)
-			user.Group = uint(gid)
 
 		}
 
