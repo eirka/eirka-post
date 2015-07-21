@@ -48,11 +48,14 @@ func (i *AddTagModel) Status() (err error) {
 	err = db.QueryRow(`SELECT count(1) FROM images
 	LEFT JOIN posts on images.post_id = posts.post_id
 	LEFT JOIN threads on posts.thread_id = threads.thread_id
-	WHERE image_id = ? AND ib_id = ?`, i.Image, i.Ib)
-	if err == sql.ErrNoRows {
-		return e.ErrNotFound
-	} else if err != nil {
+	WHERE image_id = ? AND ib_id = ?`, i.Image, i.Ib).Scan(&check)
+	if err != nil {
 		return
+	}
+
+	// return if zero
+	if !check {
+		return e.ErrNotFound
 	}
 
 	// Check if tag is already there
