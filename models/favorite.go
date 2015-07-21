@@ -48,13 +48,13 @@ func (i *FavoriteModel) Status() (err error) {
 
 		ps1, err := db.Prepare("DELETE FROM favorites WHERE image_id = ? AND user_id = ? LIMIT 1")
 		if err != nil {
-			return
+			return err
 		}
 		defer ps1.Close()
 
 		_, err = ps1.Exec(i.Image, i.Uid)
 		if err != nil {
-			return
+			return err
 		}
 
 		return e.ErrFavoriteRemoved
