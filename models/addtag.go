@@ -80,13 +80,13 @@ func (i *AddTagModel) Post() (err error) {
 		return
 	}
 
-	ps1, err := db.Prepare("INSERT into tagmap (image_id, tag_id, tagmap_ip) VALUES (?,?,?)")
+	ps1, err := db.Prepare("INSERT into tagmap (image_id, tag_id) VALUES (?,?)")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Image, i.Tag, i.Ip)
+	_, err = ps1.Exec(i.Image, i.Tag)
 	if err != nil {
 		return
 	}
