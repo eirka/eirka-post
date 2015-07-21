@@ -32,21 +32,27 @@ func init() {
 
 func main() {
 	r := gin.Default()
-
 	// Adds CORS headers
 	r.Use(m.CORS())
-	// Checks for antispam cookie
-	r.Use(m.GetAntiSpamCookie())
-	// use auth system
-	r.Use(m.Auth(m.SetAuthLevel().All()))
 
-	r.POST("/thread/new", c.ThreadController)
-	r.POST("/thread/reply", c.ReplyController)
-	r.POST("/tag/new", c.NewTagController)
-	r.POST("/tag/add", c.AddTagController)
-	r.POST("/register", c.RegisterController)
-	r.POST("/login", c.LoginController)
 	r.NoRoute(c.ErrorController)
+
+	// all users
+	public := r.Group("/")
+	public.Use(m.Auth(m.SetAuthLevel().All()))
+
+	public.POST("/thread/new", m.GetAntiSpamCookie(), c.ThreadController)
+	public.POST("/thread/reply", m.GetAntiSpamCookie(), c.ReplyController)
+	public.POST("/tag/new", m.GetAntiSpamCookie(), c.NewTagController)
+	public.POST("/tag/add", m.GetAntiSpamCookie(), c.AddTagController)
+	public.POST("/register", c.RegisterController)
+	public.POST("/login", c.LoginController)
+
+	// requires user perms
+	users := r.Group("/user")
+	users.Use(m.Auth(m.SetAuthLevel().Registered()))
+
+	users.POST("/favorite", c.FavoriteController)
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),
