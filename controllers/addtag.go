@@ -59,9 +59,9 @@ func AddTagController(c *gin.Context) {
 		return
 	}
 
-	// Check tag for duplicate
+	// Check image for correct ib and tag for duplicate
 	err = m.Status()
-	if err == e.ErrDuplicateTag {
+	if err == e.ErrDuplicateTag || err == e.ErrNotFound {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
 		return

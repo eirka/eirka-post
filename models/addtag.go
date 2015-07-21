@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -41,6 +43,17 @@ func (i *AddTagModel) Status() (err error) {
 	}
 
 	var check bool
+
+	// check to see if this image is in the right ib
+	err = db.QueryRow(`SELECT count(1) FROM images
+	LEFT JOIN posts on images.post_id = posts.post_id
+	LEFT JOIN threads on posts.thread_id = threads.thread_id
+	WHERE image_id = ? AND ib_id = ?`, i.Image, i.Ib)
+	if err == sql.ErrNoRows {
+		return e.ErrNotFound
+	} else if err != nil {
+		return
+	}
 
 	// Check if tag is already there
 	err = db.QueryRow("select count(1) from tagmap where tag_id = ? AND image_id = ?", i.Tag, i.Image).Scan(&check)
