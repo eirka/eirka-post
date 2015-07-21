@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -35,7 +33,7 @@ func FavoriteController(c *gin.Context) {
 	m := models.FavoriteModel{
 		Uid:   userdata.Id,
 		Ip:    c.ClientIP(),
-		Image: atf.Image,
+		Image: ff.Image,
 	}
 
 	// Validate input parameters
