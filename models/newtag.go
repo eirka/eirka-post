@@ -73,13 +73,13 @@ func (i *NewTagModel) Post() (err error) {
 		return
 	}
 
-	ps1, err := db.Prepare("INSERT into tags (tag_name,ib_id,tagtype_id,tag_ip) VALUES (?,?,?,?)")
+	ps1, err := db.Prepare("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Tag, i.Ib, i.TagType, i.Ip)
+	_, err = ps1.Exec(i.Tag, i.Ib, i.TagType)
 	if err != nil {
 		return
 	}
