@@ -5,14 +5,14 @@ import (
 	u "github.com/techjanitor/pram-post/utils"
 )
 
-type FavoriteModel struct {
+type FavoritesModel struct {
 	Uid   uint
 	Image uint
 	Ip    string
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *FavoriteModel) ValidateInput() (err error) {
+func (i *FavoritesModel) ValidateInput() (err error) {
 
 	if i.Uid == 0 || i.Uid == 1 {
 		return e.ErrInvalidParam
@@ -27,7 +27,7 @@ func (i *FavoriteModel) ValidateInput() (err error) {
 }
 
 // Status will return info
-func (i *FavoriteModel) Status() (err error) {
+func (i *FavoritesModel) Status() (err error) {
 
 	// Get Database handle
 	db, err := u.GetDb()
@@ -66,7 +66,7 @@ func (i *FavoriteModel) Status() (err error) {
 }
 
 // Post will add the fav to the database
-func (i *FavoriteModel) Post() (err error) {
+func (i *FavoritesModel) Post() (err error) {
 
 	// Get Database handle
 	db, err := u.GetDb()

@@ -9,15 +9,15 @@ import (
 	u "github.com/techjanitor/pram-post/utils"
 )
 
-// Add a favorite
-type favoriteForm struct {
+// Add a favorites
+type favoritesForm struct {
 	Image uint `json:"image" binding:"required"`
 }
 
-// FavoriteController handles the creation of new threads
-func FavoriteController(c *gin.Context) {
+// FavoritessController handles the creation of new threads
+func FavoritesController(c *gin.Context) {
 	var err error
-	var ff favoriteForm
+	var ff favoritesForm
 
 	// get userdata from session middleware
 	userdata := c.MustGet("userdata").(u.User)
@@ -29,8 +29,8 @@ func FavoriteController(c *gin.Context) {
 		return
 	}
 
-	// Set parameters to FavoriteModel
-	m := models.FavoriteModel{
+	// Set parameters to FavoritesModel
+	m := models.FavoritesModel{
 		Uid:   userdata.Id,
 		Ip:    c.ClientIP(),
 		Image: ff.Image,
