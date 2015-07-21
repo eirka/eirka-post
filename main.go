@@ -52,7 +52,7 @@ func main() {
 	users := r.Group("/user")
 	users.Use(m.Auth(m.SetAuthLevel().Registered()))
 
-	users.POST("/favorite", c.FavoriteController)
+	users.POST("/favorite", c.FavoritesController)
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),
