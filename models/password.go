@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
@@ -59,6 +60,8 @@ func (r *PasswordModel) CheckOldPassword() (err error) {
 	if err != nil {
 		return
 	}
+
+	fmt.Printf("%s\n%s\n", r.OldHashed, storedpw)
 
 	// if they arent equal, y'fired
 	if !bytes.Equal(r.OldHashed, storedpw) {
