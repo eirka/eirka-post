@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -47,8 +46,6 @@ func LoginController(c *gin.Context) {
 		Name:     lf.Name,
 		Password: lf.Password,
 	}
-
-	fmt.Printf("%s\n", m)
 
 	// Validate input
 	err = m.Validate()
