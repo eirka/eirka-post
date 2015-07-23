@@ -53,6 +53,7 @@ func main() {
 	users.Use(m.Auth(m.SetAuthLevel().Registered()))
 
 	users.POST("/favorite", c.FavoritesController)
+	users.POST("/password", c.PasswordController)
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),
