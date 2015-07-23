@@ -57,7 +57,7 @@ func (i *FavoritesModel) Status() (err error) {
 			return err
 		}
 
-		return
+		return nil
 
 	}
 
