@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
@@ -57,6 +58,8 @@ func (r *LoginModel) Query() (err error) {
 	if err != nil {
 		return e.ErrInternalError
 	}
+
+	fmt.Println(r)
 
 	// get hashed password from database
 	err = db.QueryRow("select user_id, user_password, usergroup_id, user_confirmed, user_locked, user_banned from users where user_name = ?", r.Name).Scan(&r.Id, &r.Hash, &r.Group, &r.Confirmed, &r.Locked, &r.Banned)
