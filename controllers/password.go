@@ -5,7 +5,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
-	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -70,7 +69,7 @@ func PasswordController(c *gin.Context) {
 	}
 
 	// hash new password
-	m.NewHashed, err = bcrypt.GenerateFromPassword([]byte(m.Password), bcrypt.DefaultCost)
+	m.NewHashed, err = bcrypt.GenerateFromPassword([]byte(m.NewPw), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
