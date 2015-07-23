@@ -1,9 +1,6 @@
 package models
 
 import (
-	"bytes"
-	"fmt"
-
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
@@ -46,7 +43,7 @@ func (r *PasswordModel) Validate() (err error) {
 }
 
 // check old password before changing
-func (r *PasswordModel) CheckOldPassword() (err error) {
+func (r *PasswordModel) GetOldPassword() (err error) {
 
 	// Get Database handle
 	db, err := u.GetDb()
@@ -54,18 +51,10 @@ func (r *PasswordModel) CheckOldPassword() (err error) {
 		return
 	}
 
-	var storedpw []byte
-
-	err = db.QueryRow("select user_password from users where user_id = ?", r.Uid).Scan(&storedpw)
+	// get stored password
+	err = db.QueryRow("select user_password from users where user_id = ?", r.Uid).Scan(&r.OldHashed)
 	if err != nil {
 		return
-	}
-
-	fmt.Printf("%s\n%s\n", r.OldHashed, storedpw)
-
-	// if they arent equal, y'fired
-	if !bytes.Equal(r.OldHashed, storedpw) {
-		return e.ErrInvalidPassword
 	}
 
 	return

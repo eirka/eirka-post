@@ -47,22 +47,26 @@ func PasswordController(c *gin.Context) {
 		return
 	}
 
-	// hash old password
-	m.OldHashed, err = bcrypt.GenerateFromPassword([]byte(m.OldPw), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
-		return
-	}
-
-	// Compare old password in db to provided
-	err = m.CheckOldPassword()
+	// Get old password in db to provided
+	err = m.GetOldPassword()
 	if err == e.ErrInvalidPassword {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
 		return
 	}
 	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
+	}
+
+	// compare provided password to stored hash
+	err = bcrypt.CompareHashAndPassword(m.OldHashed, []byte(m.OldPw))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidPassword.Error()})
+		c.Error(err)
+		return
+	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return
