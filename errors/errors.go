@@ -51,7 +51,6 @@ var (
 	ErrInvalidSession   error = errors.New("Invalid session")
 	ErrMaxLogins        error = errors.New("Login attempts exceeded")
 	ErrUserNotAllowed   error = errors.New("Username not allowed")
-	ErrFavoriteRemoved  error = errors.New("Favorite removed")
 )
 
 type RequestError struct {
