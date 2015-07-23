@@ -2,7 +2,6 @@ package models
 
 import (
 	"bytes"
-	"github.com/asaskevich/govalidator"
 
 	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
@@ -22,22 +21,22 @@ type PasswordModel struct {
 func (r *PasswordModel) Validate() (err error) {
 
 	// Validate new password input
-	password := u.Validate{Input: r.NewPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
-	if password.IsEmpty() {
+	newpassword := u.Validate{Input: r.NewPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	if newpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
-	} else if password.MinLength() {
+	} else if newpassword.MinLength() {
 		return e.ErrPasswordShort
-	} else if password.MaxLength() {
+	} else if newpassword.MaxLength() {
 		return e.ErrPasswordLong
 	}
 
 	// Validate old password input
-	password := u.Validate{Input: r.OldPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
-	if password.IsEmpty() {
+	oldpassword := u.Validate{Input: r.OldPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	if oldpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
-	} else if password.MinLength() {
+	} else if oldpassword.MinLength() {
 		return e.ErrPasswordShort
-	} else if password.MaxLength() {
+	} else if oldpassword.MaxLength() {
 		return e.ErrPasswordLong
 	}
 
