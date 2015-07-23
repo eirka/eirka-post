@@ -10,10 +10,10 @@ type Audit struct {
 }
 
 var (
-	AuditNewThread       = "New Thread"
-	AuditReply           = "Reply"
-	AuditNewTag          = "New Tag"
-	AuditAddTag          = "Add Tag"
+	AuditNewThread       = "Thread Created"
+	AuditReply           = "Replied"
+	AuditNewTag          = "Tag Created"
+	AuditAddTag          = "Tag Added"
 	AuditCloseThread     = "Thread Closed"
 	AuditOpenThread      = "Thread Opened"
 	AuditStickyThread    = "Thread Stickied"
@@ -24,13 +24,13 @@ var (
 	AuditDeleteImageTag  = "Image Tag Deleted"
 	AuditPurge           = "Deleted Items Purged"
 	AuditFlushCache      = "Cache Flushed"
-	AuditBanIp           = "Ip Banned"
+	AuditBanIp           = "IP Banned"
 	AuditBanImage        = "Image Banned"
 	AuditRegister        = "Account Registered"
 	AuditChangePassword  = "Password Changed"
 	AuditEmailUpdate     = "Email Changed"
-	AuditFavoriteRemoved = "Favorite removed"
-	AuditFavoriteAdded   = "Favorite added"
+	AuditFavoriteRemoved = "Favorite Removed"
+	AuditFavoriteAdded   = "Favorite Added"
 )
 
 // Submit will insert audit info into the audit log
