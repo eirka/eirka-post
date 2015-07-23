@@ -47,7 +47,7 @@ func FavoritesController(c *gin.Context) {
 	// Check fav, if its there delete it because i dont want this to be too complicated
 	err = m.Status()
 	if err == e.ErrFavoriteRemoved {
-		c.JSON(http.StatusOK, gin.H{"success_message": "Favorite removed"})
+		c.JSON(http.StatusOK, gin.H{"success_message": u.AuditFavoriteRemoved})
 		return
 	}
 	if err != nil {
@@ -64,7 +64,7 @@ func FavoritesController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": "Favorite added"})
+	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditFavoriteAdded})
 
 	return
 
