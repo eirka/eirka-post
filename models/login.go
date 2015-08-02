@@ -10,14 +10,10 @@ import (
 
 // loginmodel contains user name and password
 type LoginModel struct {
-	Name      string
-	Password  string
-	Hash      []byte
-	Id        uint
-	Group     uint
-	Confirmed bool
-	Locked    bool
-	Banned    bool
+	Name     string
+	Password string
+	Id       uint
+	Hash     []byte
 }
 
 // Validate will check the provided name and password
@@ -59,7 +55,7 @@ func (r *LoginModel) Query() (err error) {
 	}
 
 	// get hashed password from database
-	err = db.QueryRow("select user_id, user_password, usergroup_id, user_confirmed, user_locked, user_banned from users where user_name = ?", r.Name).Scan(&r.Id, &r.Hash, &r.Group, &r.Confirmed, &r.Locked, &r.Banned)
+	err = db.QueryRow("select user_id, user_password, usergroup_id from users where user_name = ?", r.Name).Scan(&r.Id, &r.Hash)
 	if err == sql.ErrNoRows {
 		return e.ErrInvalidUser
 	} else if err != nil {

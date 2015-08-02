@@ -71,13 +71,6 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	// user 1 is the special anonymous account
-	if m.Id == 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
-		c.Error(e.ErrUserNotAllowed)
-		return
-	}
-
 	// compare provided password to stored hash
 	err = bcrypt.CompareHashAndPassword(m.Hash, []byte(m.Password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
@@ -90,24 +83,17 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	// if account is not confirmed
-	if !m.Confirmed {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotConfirmed.Error()})
-		c.Error(e.ErrUserNotConfirmed)
-		return
+	// set uset struct
+	user := u.User{
+		Id: m.Id,
 	}
 
-	// if locked
-	if m.Locked {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserLocked.Error()})
-		c.Error(e.ErrUserLocked)
-		return
-	}
-
-	// if banned
-	if m.Banned {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserBanned.Error()})
-		c.Error(e.ErrUserBanned)
+	// get the rest of the user info
+	err = user.Info()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.Error(err)
+		c.Abort()
 		return
 	}
 
