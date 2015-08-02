@@ -85,14 +85,6 @@ func Auth(perms Permissions) gin.HandlerFunc {
 			return
 		}
 
-		// check if the user needs to be authenticated
-		if user.IsAuthenticated != perms.IsAuthenticated {
-			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-			c.Error(e.ErrUnauthorized)
-			c.Abort()
-			return
-		}
-
 		// set user data
 		c.Set("userdata", user)
 
@@ -104,8 +96,7 @@ func Auth(perms Permissions) gin.HandlerFunc {
 
 // permissions data
 type Permissions struct {
-	Minimum         uint
-	IsAuthenticated bool
+	Minimum uint
 }
 
 func SetAuthLevel() Permissions {
@@ -115,27 +106,23 @@ func SetAuthLevel() Permissions {
 // All users
 func (p Permissions) All() Permissions {
 	p.Minimum = 1
-	p.IsAuthenticated = false
 	return p
 }
 
 // registered users
 func (p Permissions) Registered() Permissions {
 	p.Minimum = 2
-	p.IsAuthenticated = true
 	return p
 }
 
 // moderators
 func (p Permissions) Moderators() Permissions {
 	p.Minimum = 3
-	p.IsAuthenticated = true
 	return p
 }
 
 // admins
 func (p Permissions) Admins() Permissions {
 	p.Minimum = 4
-	p.IsAuthenticated = true
 	return p
 }
