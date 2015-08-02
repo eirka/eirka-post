@@ -27,7 +27,7 @@ func (u *User) Info() (err error) {
 	}
 
 	// get data from users table
-	err = db.QueryRow("SELECT usergroup_id,user_name,user_email,user_confirmed,user_locked,user_banned FROM users WHERE user_id = ?", u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.Confirmed, &u.Locked, &u.Banned)
+	err = db.QueryRow("SELECT usergroup_id,user_name,user_email,user_confirmed,user_locked,user_banned FROM users WHERE user_id = ?", u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.IsConfirmed, &u.IsLocked, &u.IsBanned)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
