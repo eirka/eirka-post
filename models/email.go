@@ -3,7 +3,6 @@ package models
 import (
 	"github.com/asaskevich/govalidator"
 
-	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )
