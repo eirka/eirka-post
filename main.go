@@ -54,6 +54,7 @@ func main() {
 
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
+	users.POST("/email", c.EmailController)
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),

@@ -28,7 +28,7 @@ var (
 	AuditBanImage        = "Image Banned"
 	AuditRegister        = "Account Registered"
 	AuditChangePassword  = "Password Changed"
-	AuditEmailUpdate     = "Email Changed"
+	AuditEmailUpdate     = "Email Updated"
 	AuditFavoriteRemoved = "Favorite Removed"
 	AuditFavoriteAdded   = "Favorite Added"
 )
