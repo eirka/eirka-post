@@ -55,7 +55,7 @@ func (r *LoginModel) Query() (err error) {
 	}
 
 	// get hashed password from database
-	err = db.QueryRow("select user_id, user_password, usergroup_id from users where user_name = ?", r.Name).Scan(&r.Id, &r.Hash)
+	err = db.QueryRow("select user_id, user_password from users where user_name = ?", r.Name).Scan(&r.Id, &r.Hash)
 	if err == sql.ErrNoRows {
 		return e.ErrInvalidUser
 	} else if err != nil {
