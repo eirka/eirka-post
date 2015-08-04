@@ -115,7 +115,7 @@ func Print() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("%s", output)
+	fmt.Printf("%s\n", output)
 
 }
 
