@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	e "github.com/techjanitor/pram-post/errors"
+	e "github.com/techjanitor/pram-get/errors"
 )
 
 var (
@@ -18,8 +18,8 @@ var (
 
 // struct for database insert worker
 type userWorker struct {
-	send    chan *User
-	receive chan *User
+	send chan *User
+	done chan bool
 }
 
 // user struct
@@ -41,8 +41,8 @@ func UserInit() {
 
 	// make worker channel
 	userdataWorker = &userWorker{
-		send:    make(chan *User, 64),
-		receive: make(chan *User, 64),
+		send: make(chan *User),
+		done: make(chan bool),
 	}
 
 	go func() {
@@ -70,8 +70,7 @@ func UserInit() {
 				u.err = err
 			}
 
-			// send back data
-			userdataWorker.receive <- u
+			userdataWorker.done <- true
 
 		}
 
@@ -94,7 +93,7 @@ func (u *User) Info() (err error) {
 	userdataWorker.send <- u
 
 	// block until done
-	<-userdataWorker.receive
+	<-userdataWorker.done
 
 	// check error
 	if u.err == sql.ErrNoRows {
