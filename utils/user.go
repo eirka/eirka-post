@@ -11,7 +11,15 @@ var (
 	ErrUserNotConfirmed error = errors.New("Account not confirmed")
 	ErrUserBanned       error = errors.New("Account banned")
 	ErrUserLocked       error = errors.New("Account locked")
+	ErrUserNotExist     error = errors.New("User does not exist")
+	userdataWorker      *userWorker
 )
+
+// struct for database insert worker
+type userWorker struct {
+	send    chan *User
+	receive chan *User
+}
 
 // user struct
 type User struct {
@@ -23,6 +31,46 @@ type User struct {
 	IsLocked        bool   `json:"-"`
 	IsBanned        bool   `json:"-"`
 	IsAuthenticated bool   `json:"-"`
+	err             error  `json:"-"`
+}
+
+func init() {
+	// make worker channel
+	userdataWorker = &userWorker{
+		send:    make(chan *User, 64),
+		receive: make(chan *User, 64),
+	}
+
+	go func() {
+
+		// Get Database handle
+		db, err := GetDb()
+		if err != nil {
+			return
+		}
+
+		// prepare query for users table
+		ps1, err := db.Prepare("SELECT usergroup_id,user_name,user_email,user_confirmed,user_locked,user_banned FROM users WHERE user_id = ?")
+		if err != nil {
+			return
+		}
+
+		// range through tasks channel
+		for u := range userdataWorker.send {
+
+			// input data
+			err = ps1.QueryRow(u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.IsConfirmed, &u.IsLocked, &u.IsBanned)
+			if err != nil {
+				u.err = err
+			}
+
+			// send back data
+			userdataWorker.receive <- u
+
+		}
+
+	}()
+
 }
 
 // get the user info from id
@@ -33,11 +81,16 @@ func (u *User) Info() (err error) {
 		return e.ErrInvalidParam
 	}
 
-	// get data from users table
-	err = db.QueryRow("SELECT usergroup_id,user_name,user_email,user_confirmed,user_locked,user_banned FROM users WHERE user_id = ?", u.Id).Scan(&u.Group, &u.Name, &u.Email, &u.IsConfirmed, &u.IsLocked, &u.IsBanned)
-	if err == sql.ErrNoRows {
-		return e.ErrNotFound
-	} else if err != nil {
+	// send to worker
+	userdataWorker.send <- u
+
+	// block until done
+	<-userdataWorker.receive
+
+	// check error
+	if u.err == sql.ErrNoRows {
+		return ErrUserNotExist
+	} else if u.err != nil {
 		return e.ErrInternalError
 	}
 
