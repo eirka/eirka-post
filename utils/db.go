@@ -34,6 +34,11 @@ func NewDb() {
 	db.SetMaxOpenConns(config.Settings.Database.MaxConnections)
 }
 
+// CloseDb closes the connection to MySQL
+func CloseDb() (err error) {
+	return db.Close()
+}
+
 // GetDb returns a connection to MySQL
 func GetDb() (*sql.DB, error) {
 	return db, nil
