@@ -31,9 +31,6 @@ func init() {
 	// Print out config
 	config.Print()
 
-	// init the user data worker
-	u.UserInit()
-
 	// channel for shutdown
 	c := make(chan os.Signal, 10)
 
