@@ -65,8 +65,7 @@ func NewTagController(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
 		return
-	}
-	if err != nil {
+	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return

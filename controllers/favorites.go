@@ -49,8 +49,7 @@ func FavoritesController(c *gin.Context) {
 	if err == e.ErrFavoriteRemoved {
 		c.JSON(http.StatusOK, gin.H{"success_message": u.AuditFavoriteRemoved})
 		return
-	}
-	if err != nil {
+	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return
