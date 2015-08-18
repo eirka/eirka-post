@@ -92,7 +92,7 @@ func (i *ThreadModel) Post() (err error) {
 	defer ps1.Close()
 
 	// Insert data into posts table
-	ps2, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_name,post_time,post_ip,post_text) VALUES (?,?,NOW(),?,?)")
+	ps2, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_name,post_time,post_ip,post_text) VALUES (?,?,?,NOW(),?,?)")
 	if err != nil {
 		return
 	}
