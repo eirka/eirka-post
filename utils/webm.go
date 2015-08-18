@@ -65,6 +65,8 @@ func (i *ImageType) checkWebM() (err error) {
 		return errors.New("problem decoding webm")
 	}
 
+	fmt.Printf("%s\n", avprobe)
+
 	switch {
 	case avprobe.Format.FormatName != "matroska,webm":
 		os.RemoveAll(imagefile)
