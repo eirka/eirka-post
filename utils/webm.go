@@ -14,7 +14,29 @@ import (
 	"github.com/techjanitor/pram-post/config"
 )
 
-func (i *ImageType) CheckWebM() (err error) {
+func (i *ImageType) SaveWebM() (err error) {
+
+	// save the file
+	err = i.saveImage()
+	if err != nil {
+		return
+	}
+
+	// check the webm info
+	err = i.checkWebM()
+	if err != nil {
+		return
+	}
+
+	// create thumbnail from webm
+	err = i.createWebMThumbnail()
+	if err != nil {
+		return
+	}
+
+}
+
+func (i *ImageType) checkWebM() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 
 	avprobeArgs := []string{
@@ -93,7 +115,7 @@ func (i *ImageType) CheckWebM() (err error) {
 
 }
 
-func (i *ImageType) CreateWebMThumbnail() (err error) {
+func (i *ImageType) createWebMThumbnail() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 	thumbfile := filepath.Join(config.Settings.General.ThumbnailDir, i.Thumbnail)
 

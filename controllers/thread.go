@@ -88,16 +88,8 @@ func ThreadController(c *gin.Context) {
 		return
 	}
 
-	// Check image header ext
-	err = image.CheckReqExt()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
-		return
-	}
-
-	// Get image MD5
-	err = image.GetMD5()
+	// process the uploaded file
+	err = image.ProcessFile()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err)
@@ -125,67 +117,22 @@ func ThreadController(c *gin.Context) {
 		return
 	}
 
-	// Check file for magic bytes and get ext
-	err = image.CheckMagic()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
-		return
-	}
-
-	// Make filenames
-	err = image.MakeFilenames()
-
-	// Handle WebM
 	if image.Ext == ".webm" {
 
 		// Save the webm to a file
-		err = image.SaveImage()
-		if err != nil {
-			c.JSON(e.ErrorMessage(e.ErrInternalError))
-			c.Error(err)
-			return
-		}
-
-		// Get webm stats like size and dimensions
-		err = image.CheckWebM()
+		err = image.SaveWebM()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 			c.Error(err)
 			return
 		}
 
-		// Make the thumbnail
-		err = image.CreateWebMThumbnail()
-		if err != nil {
-			c.JSON(e.ErrorMessage(e.ErrInternalError))
-			c.Error(err)
-			return
-		}
-
-		// Handle images
 	} else {
-
-		// Get image stats like size and dimensions
-		err = image.GetStats()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err)
-			return
-		}
 
 		// Save the image to a file
 		err = image.SaveImage()
 		if err != nil {
-			c.JSON(e.ErrorMessage(e.ErrInternalError))
-			c.Error(err)
-			return
-		}
-
-		// Make the thumbnail
-		err = image.CreateThumbnail()
-		if err != nil {
-			c.JSON(e.ErrorMessage(e.ErrInternalError))
+			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 			c.Error(err)
 			return
 		}

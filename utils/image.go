@@ -37,8 +37,60 @@ type ImageType struct {
 	image       []byte
 }
 
+// ProcessFile will check file integrity, get an md5, and make filenames
+func (i *ImageType) ProcessFile() (err error) {
+
+	// check file ext
+	err = i.checkReqExt()
+	if err != nil {
+		return
+	}
+
+	// get file md5
+	err = i.getMD5()
+	if err != nil {
+		return
+	}
+
+	// check file magic sig
+	err = i.checkMagic()
+	if err != nil {
+		return
+	}
+
+	// create unique filenames for image and thumbnail
+	err = i.makeFilenames()
+	if err != nil {
+		return
+	}
+
+}
+
+// save an image file
+func (i *ImageType) SaveImage() (err error) {
+
+	// check image stats
+	err = i.getStats()
+	if err != nil {
+		return
+	}
+
+	// save the file to disk
+	err = i.saveImage()
+	if err != nil {
+		return
+	}
+
+	// create a thumbnail
+	err = i.createThumbnail()
+	if err != nil {
+		return
+	}
+
+}
+
 // Get file extension from request header
-func (i *ImageType) CheckReqExt() (err error) {
+func (i *ImageType) checkReqExt() (err error) {
 	// Get ext from request header
 	name := i.Header.Filename
 	ext := filepath.Ext(name)
@@ -77,7 +129,7 @@ func isAllowedExt(ext string) bool {
 }
 
 // Make a random unix time filename
-func (i *ImageType) MakeFilenames() (err error) {
+func (i *ImageType) makeFilenames() (err error) {
 
 	// Create seed for random
 	rand.Seed(time.Now().UnixNano())
@@ -97,7 +149,7 @@ func (i *ImageType) MakeFilenames() (err error) {
 }
 
 // Get image MD5 and write file into buffer
-func (i *ImageType) GetMD5() (err error) {
+func (i *ImageType) getMD5() (err error) {
 	var b bytes.Buffer
 
 	hasher := md5.New()
@@ -129,7 +181,7 @@ func (i *ImageType) GetMD5() (err error) {
 
 }
 
-func (i *ImageType) CheckMagic() (err error) {
+func (i *ImageType) checkMagic() (err error) {
 	buffer := bytes.NewReader(i.image)
 
 	bytes := make([]byte, 4)
@@ -161,7 +213,7 @@ func (i *ImageType) CheckMagic() (err error) {
 
 }
 
-func (i *ImageType) GetStats() (err error) {
+func (i *ImageType) getStats() (err error) {
 	buffer := bytes.NewReader(i.image)
 
 	imagesize := buffer.Len()
@@ -192,7 +244,7 @@ func (i *ImageType) GetStats() (err error) {
 
 }
 
-func (i *ImageType) SaveImage() (err error) {
+func (i *ImageType) saveImage() (err error) {
 	buffer := bytes.NewReader(i.image)
 
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
@@ -220,7 +272,7 @@ func (i *ImageType) SaveImage() (err error) {
 
 }
 
-func (i *ImageType) CreateThumbnail() (err error) {
+func (i *ImageType) createThumbnail() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 	thumbfile := filepath.Join(config.Settings.General.ThumbnailDir, i.Thumbnail)
 
