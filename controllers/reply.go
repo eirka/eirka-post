@@ -103,7 +103,7 @@ func ReplyController(c *gin.Context) {
 
 	if m.Image {
 
-		// process the uploaded file
+		// process the uploaded file, this creates an md5
 		err = image.ProcessFile()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})

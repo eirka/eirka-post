@@ -40,7 +40,7 @@ type ImageType struct {
 // ProcessFile will check file integrity, get an md5, and make filenames
 func (i *ImageType) ProcessFile() (err error) {
 
-	// check file ext
+	// check given file ext
 	err = i.checkReqExt()
 	if err != nil {
 		return

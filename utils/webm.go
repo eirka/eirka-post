@@ -38,6 +38,7 @@ func (i *ImageType) SaveWebM() (err error) {
 
 }
 
+// check webm metadata to make sure its the correct type of video, size, etc
 func (i *ImageType) checkWebM() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 
@@ -68,10 +69,9 @@ func (i *ImageType) checkWebM() (err error) {
 	case avprobe.Format.FormatName != "matroska,webm":
 		os.RemoveAll(imagefile)
 		return errors.New("file is not vp8 video")
-
-	case avprobe.Streams[0].CodecName != "vp8":
+	case avprobe.Streams[0].CodecName != "vp8" || avprobe.Streams[0].CodecName != "vp9":
 		os.RemoveAll(imagefile)
-		return errors.New("file is not vp8 video")
+		return errors.New("file is not vp8/9 video")
 	}
 
 	duration, err := strconv.ParseFloat(avprobe.Format.Duration, 64)
@@ -117,6 +117,7 @@ func (i *ImageType) checkWebM() (err error) {
 
 }
 
+// create a webm thumbnail from the first frames
 func (i *ImageType) createWebMThumbnail() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 	thumbfile := filepath.Join(config.Settings.General.ThumbnailDir, i.Thumbnail)

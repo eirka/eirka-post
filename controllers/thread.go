@@ -88,7 +88,7 @@ func ThreadController(c *gin.Context) {
 		return
 	}
 
-	// process the uploaded file
+	// process the uploaded file, this creates an md5
 	err = image.ProcessFile()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
