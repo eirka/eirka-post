@@ -92,7 +92,7 @@ func (i *ThreadModel) Post() (err error) {
 	defer ps1.Close()
 
 	// Insert data into posts table
-	ps2, err := tx.Prepare("INSERT INTO posts (thread_id,post_name,post_time,post_ip,post_text) VALUES (?,?,NOW(),?,?)")
+	ps2, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_name,post_time,post_ip,post_text) VALUES (?,?,NOW(),?,?)")
 	if err != nil {
 		return
 	}
@@ -118,7 +118,7 @@ func (i *ThreadModel) Post() (err error) {
 
 	i.Id = uint(t_id)
 
-	e2, err := ps2.Exec(t_id, i.Name, i.Ip, i.Comment)
+	e2, err := ps2.Exec(t_id, i.Uid, i.Name, i.Ip, i.Comment)
 	if err != nil {
 		return
 	}

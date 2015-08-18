@@ -138,7 +138,7 @@ func (i *ReplyModel) Post() (err error) {
 	defer tx.Rollback()
 
 	// Insert data into posts table
-	ps1, err := tx.Prepare("INSERT INTO posts (thread_id,post_name,post_num,post_time,post_ip,post_text) VALUES (?,?,?,NOW(),?,?)")
+	ps1, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_name,post_num,post_time,post_ip,post_text) VALUES (?,?,?,NOW(),?,?)")
 	if err != nil {
 		return
 	}
@@ -151,7 +151,7 @@ func (i *ReplyModel) Post() (err error) {
 	}
 	defer ps2.Close()
 
-	e1, err := ps1.Exec(i.Thread, i.Name, i.PostNum, i.Ip, i.Comment)
+	e1, err := ps1.Exec(i.Thread, i.Uid, i.Name, i.PostNum, i.Ip, i.Comment)
 	if err != nil {
 		return
 	}
