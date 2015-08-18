@@ -17,7 +17,7 @@ import (
 func (i *ImageType) SaveWebM() (err error) {
 
 	// save the file
-	err = i.saveImage()
+	err = i.saveFile()
 	if err != nil {
 		return
 	}

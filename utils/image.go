@@ -78,7 +78,7 @@ func (i *ImageType) SaveImage() (err error) {
 	}
 
 	// save the file to disk
-	err = i.saveImage()
+	err = i.saveFile()
 	if err != nil {
 		return
 	}
@@ -248,7 +248,7 @@ func (i *ImageType) getStats() (err error) {
 
 }
 
-func (i *ImageType) saveImage() (err error) {
+func (i *ImageType) saveFile() (err error) {
 	buffer := bytes.NewReader(i.image)
 
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
