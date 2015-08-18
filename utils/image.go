@@ -35,6 +35,7 @@ type ImageType struct {
 	ThumbWidth  int
 	ThumbHeight int
 	image       []byte
+	duration    int
 }
 
 // ProcessFile will check file integrity, get an md5, and make filenames

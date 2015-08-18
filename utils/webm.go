@@ -87,7 +87,8 @@ func (i *ImageType) checkWebM() (err error) {
 		return errors.New("problem decoding webm")
 	}
 
-	file_duration := int(duration)
+	// set file duration
+	i.duration = int(duration)
 
 	orig_size, err := strconv.ParseFloat(avprobe.Format.Size, 64)
 	if err != nil {
@@ -115,7 +116,7 @@ func (i *ImageType) checkWebM() (err error) {
 	case int(orig_size) > config.Settings.Limits.ImageMaxSize:
 		os.RemoveAll(imagefile)
 		return errors.New("webm size too large")
-	case file_duration > config.Settings.Limits.WebmMaxLength:
+	case i.duration > config.Settings.Limits.WebmMaxLength:
 		os.RemoveAll(imagefile)
 		return errors.New("webm too long")
 	}
@@ -129,13 +130,22 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	imagefile := filepath.Join(config.Settings.General.ImageDir, i.Filename)
 	thumbfile := filepath.Join(config.Settings.General.ThumbnailDir, i.Thumbnail)
 
+	var timepoint string
+
+	// set the time when the screenshot is taken depending on video duration
+	if i.duration > 5 {
+		timepoint = "00:00:05"
+	} else {
+		timepoint = "00:00:00"
+	}
+
 	avconvArgs := []string{
 		"-i",
 		imagefile,
 		"-v",
 		"quiet",
 		"-ss",
-		"00:00:00",
+		timepoint,
 		"-an",
 		"-vframes",
 		"1",
