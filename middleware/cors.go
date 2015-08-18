@@ -49,6 +49,8 @@ func CORS() gin.HandlerFunc {
 
 			c.AbortWithStatus(http.StatusOK)
 
+			return
+
 		} else {
 
 			c.Next()

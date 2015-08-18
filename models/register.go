@@ -41,11 +41,13 @@ func (r *RegisterModel) Validate() (err error) {
 		return e.ErrPasswordLong
 	}
 
-	// Validate email
-	if !govalidator.IsEmail(r.Email) {
-		return e.ErrInvalidEmail
+	// if theres an email validate it
+	if r.Email != "" {
+		// Validate email
+		if !govalidator.IsEmail(r.Email) {
+			return e.ErrInvalidEmail
+		}
 	}
-
 	return
 
 }
