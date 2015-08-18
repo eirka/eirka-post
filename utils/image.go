@@ -64,6 +64,8 @@ func (i *ImageType) ProcessFile() (err error) {
 		return
 	}
 
+	return
+
 }
 
 // save an image file
@@ -86,6 +88,8 @@ func (i *ImageType) SaveImage() (err error) {
 	if err != nil {
 		return
 	}
+
+	return
 
 }
 

@@ -34,6 +34,8 @@ func (i *ImageType) SaveWebM() (err error) {
 		return
 	}
 
+	return
+
 }
 
 func (i *ImageType) checkWebM() (err error) {
