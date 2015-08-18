@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/techjanitor/pram-post/config"
 )
@@ -65,15 +66,19 @@ func (i *ImageType) checkWebM() (err error) {
 		return errors.New("problem decoding webm")
 	}
 
-	fmt.Printf("%s\n", cmd)
+	// allowed codecs
+	codecs := map[string]bool{
+		"vp8": true,
+		"vp9": true,
+	}
 
 	switch {
 	case avprobe.Format.FormatName != "matroska,webm":
 		os.RemoveAll(imagefile)
 		return errors.New("file is not vp8 video")
-	case avprobe.Streams[0].CodecName != "vp8" || avprobe.Streams[0].CodecName != "vp9":
+	case !codecs[strings.ToLower(avprobe.Streams[0].CodecName)]:
 		os.RemoveAll(imagefile)
-		return errors.New("file is not vp8/9 video")
+		return errors.New("file is not allowed webm codec")
 	}
 
 	duration, err := strconv.ParseFloat(avprobe.Format.Duration, 64)
