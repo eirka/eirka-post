@@ -14,7 +14,6 @@ import (
 // Input from new reply form
 type replyForm struct {
 	Key     string `form:"askey" binding:"required"`
-	Name    string `form:"name"`
 	Comment string `form:"comment"`
 	Thread  uint   `form:"thread" binding:"required"`
 }
@@ -47,7 +46,6 @@ func ReplyController(c *gin.Context) {
 	m := models.ReplyModel{
 		Uid:     userdata.Id,
 		Ip:      c.ClientIP(),
-		Name:    rf.Name,
 		Comment: rf.Comment,
 		Thread:  rf.Thread,
 		Image:   true,
@@ -86,7 +84,6 @@ func ReplyController(c *gin.Context) {
 		// Check comment in SFS and Akismet
 		check := u.CheckComment{
 			Ip:      m.Ip,
-			Name:    m.Name,
 			Ua:      req.UserAgent(),
 			Referer: req.Referer(),
 			Comment: m.Comment,

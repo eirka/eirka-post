@@ -32,16 +32,6 @@ func (i *ThreadModel) ValidateInput() (err error) {
 		return e.ErrInvalidParam
 	}
 
-	// Validate name input
-	name := u.Validate{Input: i.Name, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
-	if name.IsEmpty() {
-		i.Name = config.Settings.General.DefaultName
-	} else if name.MinLength() {
-		return e.ErrNameShort
-	} else if name.MaxLength() {
-		return e.ErrNameLong
-	}
-
 	// Validate title input
 	title := u.Validate{Input: i.Title, Max: config.Settings.Limits.TitleMaxLength, Min: config.Settings.Limits.TitleMinLength}
 	if title.IsEmpty() {
@@ -92,7 +82,7 @@ func (i *ThreadModel) Post() (err error) {
 	defer ps1.Close()
 
 	// Insert data into posts table
-	ps2, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_name,post_time,post_ip,post_text) VALUES (?,?,?,NOW(),?,?)")
+	ps2, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_time,post_ip,post_text) VALUES (?,?,NOW(),?,?)")
 	if err != nil {
 		return
 	}
@@ -118,7 +108,7 @@ func (i *ThreadModel) Post() (err error) {
 
 	i.Id = uint(t_id)
 
-	e2, err := ps2.Exec(t_id, i.Uid, i.Name, i.Ip, i.Comment)
+	e2, err := ps2.Exec(t_id, i.Uid, i.Ip, i.Comment)
 	if err != nil {
 		return
 	}

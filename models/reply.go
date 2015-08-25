@@ -33,16 +33,6 @@ func (i *ReplyModel) ValidateInput() (err error) {
 		return e.ErrInvalidParam
 	}
 
-	// Validate name input
-	name := u.Validate{Input: i.Name, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
-	if name.IsEmpty() {
-		i.Name = config.Settings.General.DefaultName
-	} else if name.MinLength() {
-		return e.ErrNameShort
-	} else if name.MaxLength() {
-		return e.ErrNameLong
-	}
-
 	// Initialize bluemonday
 	p := bluemonday.StrictPolicy()
 
@@ -138,7 +128,7 @@ func (i *ReplyModel) Post() (err error) {
 	defer tx.Rollback()
 
 	// Insert data into posts table
-	ps1, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_name,post_num,post_time,post_ip,post_text) VALUES (?,?,?,?,NOW(),?,?)")
+	ps1, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text) VALUES (?,?,?,NOW(),?,?)")
 	if err != nil {
 		return
 	}
@@ -151,7 +141,7 @@ func (i *ReplyModel) Post() (err error) {
 	}
 	defer ps2.Close()
 
-	e1, err := ps1.Exec(i.Thread, i.Uid, i.Name, i.PostNum, i.Ip, i.Comment)
+	e1, err := ps1.Exec(i.Thread, i.Uid, i.PostNum, i.Ip, i.Comment)
 	if err != nil {
 		return
 	}

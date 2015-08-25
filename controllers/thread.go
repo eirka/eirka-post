@@ -14,7 +14,6 @@ import (
 // Input from new thread form
 type threadForm struct {
 	Key     string `form:"askey" binding:"required"`
-	Name    string `form:"name"`
 	Title   string `form:"title" binding:"required"`
 	Comment string `form:"comment" binding:"required"`
 	Ib      uint   `form:"ib" binding:"required"`
@@ -48,7 +47,6 @@ func ThreadController(c *gin.Context) {
 	m := models.ThreadModel{
 		Uid:     userdata.Id,
 		Ip:      c.ClientIP(),
-		Name:    tf.Name,
 		Title:   tf.Title,
 		Comment: tf.Comment,
 		Ib:      tf.Ib,
@@ -75,7 +73,6 @@ func ThreadController(c *gin.Context) {
 	// Check comment in SFS and Akismet
 	check := u.CheckComment{
 		Ip:      m.Ip,
-		Name:    m.Name,
 		Ua:      req.UserAgent(),
 		Referer: req.Referer(),
 		Comment: m.Comment,
