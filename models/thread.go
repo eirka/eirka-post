@@ -14,7 +14,6 @@ type ThreadModel struct {
 	Ib          uint
 	Id          uint
 	Ip          string
-	Name        string
 	Title       string
 	Comment     string
 	Filename    string

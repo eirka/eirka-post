@@ -15,7 +15,6 @@ type ReplyModel struct {
 	Thread      uint
 	PostNum     uint
 	Ip          string
-	Name        string
 	Comment     string
 	Filename    string
 	Thumbnail   string
