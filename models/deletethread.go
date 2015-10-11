@@ -80,6 +80,18 @@ func (i *DeleteThreadModel) Delete() (err error) {
 		return
 	}
 
+	// delete thread from database
+	ps1, err := db.Prepare("DELETE FROM threads WHERE thread_id= ? LIMIT 1")
+	if err != nil {
+		return
+	}
+	defer ps1.Close()
+
+	_, err = ps1.Exec(i.Id)
+	if err != nil {
+		return
+	}
+
 	// delete image files
 	go func() {
 
@@ -111,18 +123,6 @@ func (i *DeleteThreadModel) Delete() (err error) {
 		}
 
 	}()
-
-	// delete thread from database
-	ps1, err := db.Prepare("DELETE FROM threads WHERE thread_id= ? LIMIT 1")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps1.Exec(i.Id)
-	if err != nil {
-		return
-	}
 
 	return
 

@@ -48,23 +48,62 @@ func (i *DeletePostModel) Status() (err error) {
 // Delete will remove the entry
 func (i *DeletePostModel) Delete() (err error) {
 
-	// Get Database handle
-	db, err := u.GetDb()
+	// Get transaction handle
+	tx, err := u.GetTransaction()
 	if err != nil {
 		return
 	}
+	defer tx.Rollback()
 
 	image := PostImage{}
 
 	img := true
 
 	// check if post has an image
-	err = db.QueryRow(`SELECT image_id,image_file,image_thumbnail FROM posts 
+	err = tx.QueryRow(`SELECT image_id,image_file,image_thumbnail FROM posts 
     INNER JOIN images on posts.post_id = images.post_id 
     WHERE posts.thread_id = ? AND posts.post_num = ? LIMIT 1`, i.Thread, i.Id).Scan(&image.Id, &image.File, &image.Thumb)
 	if err == sql.ErrNoRows {
 		img = false
 	} else if err != nil {
+		return
+	}
+
+	// delete thread from database
+	ps1, err := tx.Prepare("DELETE FROM posts WHERE thread_id= ? AND post_num = ? LIMIT 1")
+	if err != nil {
+		return
+	}
+	defer ps1.Close()
+
+	_, err = ps1.Exec(i.Thread, i.Id)
+	if err != nil {
+		return
+	}
+
+	var lasttime string
+
+	// get last post time
+	err = tx.QueryRow("SELECT post_time FROM posts WHERE thread_id = ? ORDER BY post_id DESC LIMIT 1", i.Thread).Scan(&lasttime)
+	if err != nil {
+		return
+	}
+
+	// update last post time in thread
+	ps2, err := tx.Prepare("UPDATE threads SET thread_last_post= ? WHERE thread_id= ?")
+	if err != nil {
+		return
+	}
+	defer ps1.Close()
+
+	_, err = ps2.Exec(lasttime, i.Thread)
+	if err != nil {
+		return
+	}
+
+	// Commit transaction
+	err = tx.Commit()
+	if err != nil {
 		return
 	}
 
@@ -94,38 +133,6 @@ func (i *DeletePostModel) Delete() (err error) {
 		os.RemoveAll(filepath.Join(config.Settings.General.ImageDir, image.File))
 		os.RemoveAll(filepath.Join(config.Settings.General.ThumbnailDir, image.Thumb))
 
-	}
-
-	// delete thread from database
-	ps1, err := db.Prepare("DELETE FROM posts WHERE thread_id= ? AND post_num = ? LIMIT 1")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps1.Exec(i.Thread, i.Id)
-	if err != nil {
-		return
-	}
-
-	var lasttime string
-
-	// get last post time
-	err = db.QueryRow("SELECT post_time FROM posts WHERE thread_id = ? ORDER BY post_id DESC LIMIT 1", i.Thread).Scan(&lasttime)
-	if err != nil {
-		return
-	}
-
-	// update last post time in thread
-	ps2, err := db.Prepare("UPDATE threads SET thread_last_post= ? WHERE thread_id= ?")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps2.Exec(lasttime, i.Thread)
-	if err != nil {
-		return
 	}
 
 	return
