@@ -76,9 +76,6 @@ func main() {
 
 	mod.DELETE("/tag/:id", c.DeleteTagController)
 	mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
-	//mod.DELETE("/thread/:thread", c.DeleteThreadController)
-	//mod.DELETE("/post/:thread/:id", c.DeletePostController)
-	//mod.POST("/ban/:ip", c.BanIpController)
 	//mod.POST("/sticky/:thread", c.StickyThreadController)
 	//mod.POST("/unsticky/:thread", c.UnstickyThreadController)
 	//mod.POST("/open/:thread", c.OpenThreadController)
@@ -89,6 +86,9 @@ func main() {
 	admin.Use(m.ValidateParams())
 	admin.Use(m.Auth(m.Admins))
 
+	admin.DELETE("/thread/:id", c.DeleteThreadController)
+	//admin.DELETE("/post/:thread/:id", c.DeletePostController)
+	//admin.POST("/ban/:ip", c.BanIpController)
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
 	s := &http.Server{
