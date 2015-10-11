@@ -69,6 +69,28 @@ func main() {
 	users.POST("/password", c.PasswordController)
 	users.POST("/email", c.EmailController)
 
+	// requires mod perms
+	mod := r.Group("/mod")
+	mod.Use(m.ValidateParams())
+	mod.Use(m.Auth(m.Moderators))
+
+	mod.DELETE("/tag/:id", c.DeleteTagController)
+	//mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
+	//mod.DELETE("/thread/:thread", c.DeleteThreadController)
+	//mod.DELETE("/post/:thread/:id", c.DeletePostController)
+	//mod.POST("/ban/:ip", c.BanIpController)
+	//mod.POST("/sticky/:thread", c.StickyThreadController)
+	//mod.POST("/unsticky/:thread", c.UnstickyThreadController)
+	//mod.POST("/open/:thread", c.OpenThreadController)
+	//mod.POST("/close/:thread", c.CloseThreadController)
+
+	// requires admin perms
+	admin := r.Group("/admin")
+	admin.Use(m.ValidateParams())
+	admin.Use(m.Auth(m.Admins))
+
+	//admin.DELETE("/flushcache", c.DeleteCacheController)
+
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),
 		Handler: r,
