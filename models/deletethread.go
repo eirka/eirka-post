@@ -68,7 +68,7 @@ func (i *DeleteThreadModel) Delete() (err error) {
 	for rows.Next() {
 		image := ThreadImages{}
 
-		err := rows.Scan(&images.Id, &images.File, &images.Thumb)
+		err := rows.Scan(&image.Id, &image.File, &image.Thumb)
 		if err != nil {
 			return err
 		}
