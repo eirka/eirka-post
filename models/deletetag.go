@@ -9,7 +9,7 @@ import (
 
 type DeleteTagModel struct {
 	Id   uint
-	Name uint
+	Name string
 	Ib   uint
 }
 
