@@ -12,6 +12,7 @@ import (
 var (
 	validSites          = map[string]bool{}
 	defaultAllowHeaders = []string{"Origin", "Accept", "Content-Type", "Authorization"}
+	defaultAllowMethods = []string{"POST", "DELETE"}
 )
 
 func init() {
@@ -42,7 +43,7 @@ func CORS() gin.HandlerFunc {
 		if req.Method == "OPTIONS" {
 
 			// Add allowed method header
-			c.Header("Access-Control-Allow-Methods", "POST")
+			c.Header("Access-Control-Allow-Methods", strings.Join(defaultAllowMethods, ","))
 
 			// Add allowed headers header
 			c.Header("Access-Control-Allow-Headers", strings.Join(defaultAllowHeaders, ","))
