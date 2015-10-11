@@ -117,13 +117,13 @@ func (i *DeletePostModel) Delete() (err error) {
 	}
 
 	// update last post time in thread
-	ps1, err := db.Prepare("UPDATE threads SET thread_last_post= ? WHERE thread_id= ?")
+	ps2, err := db.Prepare("UPDATE threads SET thread_last_post= ? WHERE thread_id= ?")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(lasttime, i.Thread)
+	_, err = ps2.Exec(lasttime, i.Thread)
 	if err != nil {
 		return
 	}
