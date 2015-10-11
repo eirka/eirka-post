@@ -81,44 +81,37 @@ func (i *DeleteThreadModel) Delete() (err error) {
 	}
 
 	// delete image files
-	go func() {
 
-		for _, image := range images {
+	for _, image := range images {
 
-			go func() {
+		// filename must exist to prevent deleting the directory ;D
+		if image.Thumb == "" {
 
-				// filename must exist to prevent deleting the directory ;D
-				if image.Thumb == "" {
-					fmt.Fprintln(os.Stderr, err)
-					return
-				}
-
-				if image.File == "" {
-					fmt.Fprintln(os.Stderr, err)
-					return
-				}
-
-				// delete from google cloud storage
-				u.DeleteGCS(fmt.Sprintf("src/%s", image.File))
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
-					return
-				}
-
-				u.DeleteGCS(fmt.Sprintf("thumb/%s", image.Thumb))
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
-					return
-				}
-
-				os.RemoveAll(filepath.Join(config.Settings.General.ImageDir, image.File))
-				os.RemoveAll(filepath.Join(config.Settings.General.ThumbnailDir, image.Thumb))
-
-			}()
-
+			return
 		}
 
-	}()
+		if image.File == "" {
+
+			return
+		}
+
+		// delete from google cloud storage
+		u.DeleteGCS(fmt.Sprintf("src/%s", image.File))
+		if err != nil {
+
+			return
+		}
+
+		u.DeleteGCS(fmt.Sprintf("thumb/%s", image.Thumb))
+		if err != nil {
+
+			return
+		}
+
+		os.RemoveAll(filepath.Join(config.Settings.General.ImageDir, image.File))
+		os.RemoveAll(filepath.Join(config.Settings.General.ThumbnailDir, image.Thumb))
+
+	}
 
 	// delete thread from database
 	ps1, err := db.Prepare("DELETE FROM threads WHERE thread_id= ? LIMIT 1")
