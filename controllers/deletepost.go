@@ -51,8 +51,8 @@ func DeletePostController(c *gin.Context) {
 	// Delete redis stuff
 	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
 	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
-	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Id)
-	post_key := fmt.Sprintf("%s:%d:%d", "post", m.Ib, m.Id)
+	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
+	post_key := fmt.Sprintf("%s:%d:%d", "post", m.Ib, m.Thread)
 	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
 	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
 
