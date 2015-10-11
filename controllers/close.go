@@ -10,8 +10,8 @@ import (
 	u "github.com/techjanitor/pram-post/utils"
 )
 
-// CloseController will toggle a threads Close bool
-func CloseController(c *gin.Context) {
+// CloseThreadController will toggle a threads Close bool
+func CloseThreadController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)

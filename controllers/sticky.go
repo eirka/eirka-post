@@ -11,7 +11,7 @@ import (
 )
 
 // StickyController will toggle a threads sticky bool
-func StickyController(c *gin.Context) {
+func StickyThreadController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
