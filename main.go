@@ -87,7 +87,7 @@ func main() {
 	admin.Use(m.Auth(m.Admins))
 
 	admin.DELETE("/thread/:id", c.DeleteThreadController)
-	//admin.DELETE("/post/:thread/:id", c.DeletePostController)
+	admin.DELETE("/post/:thread/:id", c.DeletePostController)
 	//admin.POST("/ban/:ip", c.BanIpController)
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 

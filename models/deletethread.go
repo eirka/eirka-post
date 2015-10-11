@@ -87,25 +87,21 @@ func (i *DeleteThreadModel) Delete() (err error) {
 
 			// filename must exist to prevent deleting the directory ;D
 			if image.Thumb == "" {
-
 				return
 			}
 
 			if image.File == "" {
-
 				return
 			}
 
 			// delete from google cloud storage
 			u.DeleteGCS(fmt.Sprintf("src/%s", image.File))
 			if err != nil {
-
 				return
 			}
 
 			u.DeleteGCS(fmt.Sprintf("thumb/%s", image.Thumb))
 			if err != nil {
-
 				return
 			}
 
