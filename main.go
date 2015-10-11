@@ -76,10 +76,8 @@ func main() {
 
 	mod.DELETE("/tag/:id", c.DeleteTagController)
 	mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
-	//mod.POST("/sticky/:thread", c.StickyThreadController)
-	//mod.POST("/unsticky/:thread", c.UnstickyThreadController)
-	//mod.POST("/open/:thread", c.OpenThreadController)
-	//mod.POST("/close/:thread", c.CloseThreadController)
+	mod.POST("/sticky/:thread", c.StickyThreadController)
+	mod.POST("/close/:thread", c.CloseThreadController)
 
 	// requires admin perms
 	admin := r.Group("/admin")
