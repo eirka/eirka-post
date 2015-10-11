@@ -75,7 +75,7 @@ func main() {
 	mod.Use(m.Auth(m.Moderators))
 
 	mod.DELETE("/tag/:id", c.DeleteTagController)
-	//mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
+	mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
 	//mod.DELETE("/thread/:thread", c.DeleteThreadController)
 	//mod.DELETE("/post/:thread/:id", c.DeletePostController)
 	//mod.POST("/ban/:ip", c.BanIpController)
