@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )
