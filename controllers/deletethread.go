@@ -54,8 +54,10 @@ func DeleteThreadController(c *gin.Context) {
 	post_key := fmt.Sprintf("%s:%d:%d", "post", m.Ib, m.Id)
 	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
 	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
+	new_key := fmt.Sprintf("%s:%d", "new", m.Ib)
+	popular_key := fmt.Sprintf("%s:%d", "popular", m.Ib)
 
-	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key)
+	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key, new_key, popular_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
