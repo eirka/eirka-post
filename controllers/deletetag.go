@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 
 	e "github.com/techjanitor/pram-post/errors"
 	"github.com/techjanitor/pram-post/models"
+	u "github.com/techjanitor/pram-post/utils"
 )
 
 // DeleteTagController will delete a tag
