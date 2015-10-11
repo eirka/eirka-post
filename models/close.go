@@ -7,7 +7,7 @@ import (
 	u "github.com/techjanitor/pram-post/utils"
 )
 
-type StickyModel struct {
+type CloseModel struct {
 	Id     uint
 	Name   string
 	Ib     uint
@@ -15,7 +15,7 @@ type StickyModel struct {
 }
 
 // Status will return info
-func (i *StickyModel) Status() (err error) {
+func (i *CloseModel) Status() (err error) {
 
 	// Get Database handle
 	db, err := u.GetDb()
@@ -36,7 +36,7 @@ func (i *StickyModel) Status() (err error) {
 }
 
 // Toggle will change the thread status
-func (i *StickyModel) Toggle() (err error) {
+func (i *CloseModel) Toggle() (err error) {
 
 	// Get Database handle
 	db, err := u.GetDb()
