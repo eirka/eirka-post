@@ -80,7 +80,7 @@ func main() {
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.Settings.General.Address, config.Settings.General.Port),
+		Addr:    fmt.Sprintf("%s:%d", config.Settings.Post.Address, config.Settings.Post.Port),
 		Handler: r,
 	}
 
