@@ -45,10 +45,20 @@ type Config struct {
 		MaxConnections int
 	}
 
+	// settings for google storage
 	Google struct {
 		Auth   string
 		Bucket string
 		Key    string
+	}
+
+	// settings for amazon s3
+	Amazon struct {
+		Region   string
+		Endpoint string
+		Bucket   string
+		Id       string
+		Key      string
 	}
 
 	Akismet struct {
@@ -66,6 +76,7 @@ type Config struct {
 		CookieValue string
 	}
 
+	// HMAC secret for bcrypt
 	Session struct {
 		Secret string
 	}
