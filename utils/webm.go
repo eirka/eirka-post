@@ -217,7 +217,7 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 
 	// upload the file to amazon if capability is set
 	if Services.Storage.Amazon {
-		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
+		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "video/webm")
 		if err != nil {
 			os.RemoveAll(thumbfile)
 			os.RemoveAll(imagefile)
