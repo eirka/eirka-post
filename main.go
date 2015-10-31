@@ -32,7 +32,7 @@ func init() {
 	config.Print()
 
 	// Print capabilities
-	u.Services.Print()
+	//u.Services.Print()
 
 	// channel for shutdown
 	c := make(chan os.Signal, 10)
