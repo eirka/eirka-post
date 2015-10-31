@@ -9,14 +9,13 @@ import (
 var Settings *Config
 
 type Config struct {
-	General struct {
+	Post struct {
 		// Settings for daemon
 		Address string
 		Port    uint
+	}
 
-		// Default name if none specified
-		DefaultName string
-
+	Directories struct {
 		// Storage directory for images
 		ImageDir     string
 		ThumbnailDir string
@@ -130,7 +129,7 @@ func Print() {
 }
 
 func init() {
-	file, err := os.Open("/etc/pram/post.conf")
+	file, err := os.Open("/etc/pram/pram.conf")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
