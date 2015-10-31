@@ -134,8 +134,8 @@ func (i *DeleteThreadModel) Delete() (err error) {
 				}
 			}
 
-			os.RemoveAll(filepath.Join(config.Settings.General.ImageDir, image.File))
-			os.RemoveAll(filepath.Join(config.Settings.General.ThumbnailDir, image.Thumb))
+			os.RemoveAll(filepath.Join(config.Settings.Directories.ImageDir, image.File))
+			os.RemoveAll(filepath.Join(config.Settings.Directories.ThumbnailDir, image.Thumb))
 
 		}
 
