@@ -21,6 +21,8 @@ type Capabilities struct {
 
 func init() {
 
+	Services = &Capabilities{}
+
 	if config.Settings.Amazon.Key != "" {
 		Services.Storage.Amazon = true
 	}
