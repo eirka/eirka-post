@@ -205,11 +205,24 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	i.ThumbWidth = img.Width
 	i.ThumbHeight = img.Height
 
-	err = UploadGCS(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
-	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
-		return
+	// upload the file to google if capability is set
+	if Services.Storage.Google {
+		err = UploadGCS(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
+		if err != nil {
+			os.RemoveAll(thumbfile)
+			os.RemoveAll(imagefile)
+			return
+		}
+	}
+
+	// upload the file to amazon if capability is set
+	if Services.Storage.Amazon {
+		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
+		if err != nil {
+			os.RemoveAll(thumbfile)
+			os.RemoveAll(imagefile)
+			return
+		}
 	}
 
 	return

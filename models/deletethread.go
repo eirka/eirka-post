@@ -106,15 +106,32 @@ func (i *DeleteThreadModel) Delete() (err error) {
 				return
 			}
 
-			// delete from google cloud storage
-			u.DeleteGCS(fmt.Sprintf("src/%s", image.File))
-			if err != nil {
-				return
+			// delete the file in google if capability is set
+			if u.Services.Storage.Google {
+				// delete from google cloud storage
+				u.DeleteGCS(fmt.Sprintf("src/%s", image.File))
+				if err != nil {
+					return
+				}
+
+				u.DeleteGCS(fmt.Sprintf("thumb/%s", image.Thumb))
+				if err != nil {
+					return
+				}
 			}
 
-			u.DeleteGCS(fmt.Sprintf("thumb/%s", image.Thumb))
-			if err != nil {
-				return
+			// delete the file in amazon if capability is set
+			if u.Services.Storage.Amazon {
+				// delete from google cloud storage
+				u.DeleteS3(fmt.Sprintf("src/%s", image.File))
+				if err != nil {
+					return
+				}
+
+				u.DeleteS3(fmt.Sprintf("thumb/%s", image.Thumb))
+				if err != nil {
+					return
+				}
 			}
 
 			os.RemoveAll(filepath.Join(config.Settings.General.ImageDir, image.File))

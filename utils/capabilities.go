@@ -12,6 +12,12 @@ var Services *Capabilities
 
 // controls capabilities for internal utils
 type Capabilities struct {
+
+	// utils
+	Utils struct {
+		Akismet bool
+	}
+
 	// storage capabilities
 	Storage struct {
 		Amazon bool
@@ -30,6 +36,11 @@ func init() {
 	if config.Settings.Google.Key != "" {
 		Services.Storage.Google = true
 	}
+
+	if config.Settings.Akismet.Key != "" {
+		Services.Utils.Akismet = true
+	}
+
 }
 
 func (c Capabilities) Print() {
