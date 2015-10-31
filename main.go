@@ -5,10 +5,7 @@ import (
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os"
-	"os/signal"
 	"runtime"
-	"syscall"
 
 	"github.com/techjanitor/pram-post/config"
 	c "github.com/techjanitor/pram-post/controllers"
