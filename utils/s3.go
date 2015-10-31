@@ -51,7 +51,7 @@ func UploadS3(filepath, filename string) (err error) {
 		ServerSideEncryption: aws.String(s3.ServerSideEncryptionAes256),
 	}
 
-	_, err := uploader.Upload(params)
+	_, err = uploader.Upload(params)
 
 	return
 
@@ -72,7 +72,7 @@ func DeleteS3(object string) (err error) {
 		Key:    aws.String(object),
 	}
 
-	_, err := svc.DeleteObject(params)
+	_, err = svc.DeleteObject(params)
 
 	return
 
