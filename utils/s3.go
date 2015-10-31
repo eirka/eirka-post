@@ -29,7 +29,7 @@ func getS3() (svc *session.Session, err error) {
 }
 
 // Upload a file to S3
-func UploadS3(filepath, filename string) (err error) {
+func UploadS3(filepath, filename, mime string) (err error) {
 
 	session, err := getS3()
 	if err != nil {
@@ -48,6 +48,7 @@ func UploadS3(filepath, filename string) (err error) {
 		Bucket:               aws.String(config.Settings.Amazon.Bucket),
 		Key:                  aws.String(filename),
 		Body:                 file,
+		ContentType:          aws.String(mime),
 		ServerSideEncryption: aws.String(s3.ServerSideEncryptionAes256),
 	}
 

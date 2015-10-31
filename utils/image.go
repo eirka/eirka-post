@@ -36,6 +36,7 @@ type ImageType struct {
 	ThumbWidth  int
 	ThumbHeight int
 	image       []byte
+	mime        string
 	duration    int
 }
 
@@ -189,9 +190,9 @@ func (i *ImageType) getMD5() (err error) {
 
 func (i *ImageType) checkMagic() (err error) {
 
-	format := http.DetectContentType(i.image)
+	i.mime = http.DetectContentType(i.image)
 
-	switch format {
+	switch i.mime {
 	case "image/png":
 		i.Ext = ".png"
 	case "image/jpeg":
@@ -274,7 +275,7 @@ func (i *ImageType) saveFile() (err error) {
 
 	// upload the file to amazon if capability is set
 	if Services.Storage.Amazon {
-		err = UploadS3(imagefile, fmt.Sprintf("src/%s", i.Filename))
+		err = UploadS3(imagefile, fmt.Sprintf("src/%s", i.Filename), i.mime)
 		if err != nil {
 			os.RemoveAll(imagefile)
 			return
@@ -344,7 +345,7 @@ func (i *ImageType) createThumbnail() (err error) {
 
 	// upload the file to amazon if capability is set
 	if Services.Storage.Amazon {
-		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
+		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg")
 		if err != nil {
 			os.RemoveAll(thumbfile)
 			os.RemoveAll(imagefile)
