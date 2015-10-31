@@ -113,4 +113,6 @@ func Shutdown() {
 		fmt.Println(err)
 	}
 
+	return
+
 }
