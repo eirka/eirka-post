@@ -57,8 +57,9 @@ func DeletePostController(c *gin.Context) {
 	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
 	new_key := fmt.Sprintf("%s:%d", "new", m.Ib)
 	popular_key := fmt.Sprintf("%s:%d", "popular", m.Ib)
+	favorited_key := fmt.Sprintf("%s:%d", "favorited", m.Ib)
 
-	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key, new_key, popular_key)
+	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key, new_key, popular_key, favorited_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
