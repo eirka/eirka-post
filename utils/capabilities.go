@@ -21,11 +21,11 @@ type Capabilities struct {
 
 func init() {
 
-	if config.Settings.Amazon {
+	if config.Settings.Amazon.Key != "" {
 		Services.Storage.Amazon = true
 	}
 
-	if config.Settings.Google {
+	if config.Settings.Google.Key != "" {
 		Services.Storage.Google = true
 	}
 }
