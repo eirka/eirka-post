@@ -54,11 +54,10 @@ type Config struct {
 
 	// settings for amazon s3
 	Amazon struct {
-		Region   string
-		Endpoint string
-		Bucket   string
-		Id       string
-		Key      string
+		Region string
+		Bucket string
+		Id     string
+		Key    string
 	}
 
 	Akismet struct {

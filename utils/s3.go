@@ -2,30 +2,26 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"io/ioutil"
 	"os"
 
 	"github.com/techjanitor/pram-post/config"
 )
 
 // Authenticate to AWS and return handler
-func getS3() (service *storage.Service, err error) {
+func getS3() (service *session.Session, err error) {
 
 	// new credentials from settings
 	creds := credentials.NewStaticCredentials(config.Settings.Amazon.Id, config.Settings.Amazon.Key, "")
 
 	// create our session
 	svc := session.New(&aws.Config{
-		Region:      config.Settings.Amazon.Region,
-		Endpoint:    config.Settings.Amazon.Endpoint,
-		Credentials: creds,
-		LogLevel:    0,
+		Region:      aws.String(config.Settings.Amazon.Region),
+		Credentials: aws.String(creds),
 	})
 
 	return
@@ -49,8 +45,8 @@ func UploadS3(filepath, filename string) (err error) {
 	uploader := s3manager.NewUploader(svc)
 
 	params := &s3manager.UploadInput{
-		Bucket:               config.Settings.Amazon.Bucket,
-		Key:                  filename,
+		Bucket:               aws.String(config.Settings.Amazon.Bucket),
+		Key:                  aws.String(filename),
 		Body:                 file,
 		ServerSideEncryption: s3.ServerSideEncryptionAes256,
 	}
