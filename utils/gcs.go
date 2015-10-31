@@ -17,10 +17,12 @@ var gckey []byte
 func init() {
 	var err error
 
-	gckey, err = ioutil.ReadFile(config.Settings.Google.Key)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if Services.Storage.Google {
+		gckey, err = ioutil.ReadFile(config.Settings.Google.Key)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 
 }
