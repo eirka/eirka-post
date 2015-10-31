@@ -14,6 +14,7 @@ import (
 	"io"
 	"math/rand"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -187,22 +188,17 @@ func (i *ImageType) getMD5() (err error) {
 }
 
 func (i *ImageType) checkMagic() (err error) {
-	buffer := bytes.NewReader(i.image)
 
-	bytes := make([]byte, 4)
+	format := http.DetectContentType(i.image)
 
-	n, _ := buffer.ReadAt(bytes, 0)
-
-	switch {
-	case n < 4:
-		return errors.New("unknown file type")
-	case bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47:
+	switch format {
+	case "image/png":
 		i.Ext = ".png"
-	case bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF:
+	case "image/jpeg":
 		i.Ext = ".jpg"
-	case bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38:
+	case "image/gif":
 		i.Ext = ".gif"
-	case bytes[0] == 0x1A && bytes[1] == 0x45 && bytes[2] == 0xDF && bytes[3] == 0xA3:
+	case "video/webm":
 		i.Ext = ".webm"
 	default:
 		return errors.New("unknown file type")
