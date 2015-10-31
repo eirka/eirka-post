@@ -13,13 +13,13 @@ import (
 )
 
 // Authenticate to AWS and return handler
-func getS3() (service *session.Session, err error) {
+func getS3() (svc *session.Session, err error) {
 
 	// new credentials from settings
 	creds := credentials.NewStaticCredentials(config.Settings.Amazon.Id, config.Settings.Amazon.Key, "")
 
 	// create our session
-	svc := session.New(&aws.Config{
+	svc = session.New(&aws.Config{
 		Region:      aws.String(config.Settings.Amazon.Region),
 		Credentials: creds,
 	})
@@ -51,7 +51,7 @@ func UploadS3(filepath, filename string) (err error) {
 		ServerSideEncryption: aws.String(s3.ServerSideEncryptionAes256),
 	}
 
-	resp, err := uploader.Upload(params)
+	_, err := uploader.Upload(params)
 
 	return
 
@@ -72,7 +72,7 @@ func DeleteS3(object string) (err error) {
 		Key:    aws.String(object),
 	}
 
-	resp, err := svc.DeleteObject(params)
+	_, err := svc.DeleteObject(params)
 
 	return
 
