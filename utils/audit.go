@@ -20,6 +20,8 @@ var (
 	AuditUnstickyThread  = "Thread Unstickied"
 	AuditDeletePost      = "Post Deleted"
 	AuditDeleteThread    = "Thread Deleted"
+	AuditPurgePost       = "Post Purged"
+	AuditPurgeThread     = "Thread Purged"
 	AuditDeleteTag       = "Tag Deleted"
 	AuditDeleteImageTag  = "Image Tag Deleted"
 	AuditPurge           = "Deleted Items Purged"
