@@ -61,12 +61,6 @@ func (i *ImageType) ProcessFile() (err error) {
 		return
 	}
 
-	// create unique filenames for image and thumbnail
-	err = i.makeFilenames()
-	if err != nil {
-		return
-	}
-
 	return
 
 }
@@ -76,6 +70,12 @@ func (i *ImageType) SaveImage() (err error) {
 
 	// check image stats
 	err = i.getStats()
+	if err != nil {
+		return
+	}
+
+	// create unique filenames for image and thumbnail
+	err = i.makeFilenames()
 	if err != nil {
 		return
 	}
@@ -132,26 +132,6 @@ func isAllowedExt(ext string) bool {
 	}
 
 	return false
-
-}
-
-// Make a random unix time filename
-func (i *ImageType) makeFilenames() (err error) {
-
-	// Create seed for random
-	rand.Seed(time.Now().UnixNano())
-	// Get random 3 digit int to append to unix time
-	rand_t := rand.Intn(899) + 100
-	// Get current unix time
-	time_t := time.Now().Unix()
-	// Append random int to unix time
-	file_t := fmt.Sprintf("%d%d", time_t, rand_t)
-	// Append ext to filename
-	i.Filename = fmt.Sprintf("%s%s", file_t, i.Ext)
-	// Append jpg to thumbnail name because it is always a jpg
-	i.Thumbnail = fmt.Sprintf("%s%s%s", file_t, "s", ".jpg")
-
-	return
 
 }
 
@@ -241,6 +221,26 @@ func (i *ImageType) getStats() (err error) {
 	case imagesize > config.Settings.Limits.ImageMaxSize:
 		return errors.New("image size too large")
 	}
+
+	return
+
+}
+
+// Make a random unix time filename
+func (i *ImageType) makeFilenames() (err error) {
+
+	// Create seed for random
+	rand.Seed(time.Now().UnixNano())
+	// Get random 3 digit int to append to unix time
+	rand_t := rand.Intn(899) + 100
+	// Get current unix time
+	time_t := time.Now().Unix()
+	// Append random int to unix time
+	file_t := fmt.Sprintf("%d%d", time_t, rand_t)
+	// Append ext to filename
+	i.Filename = fmt.Sprintf("%s%s", file_t, i.Ext)
+	// Append jpg to thumbnail name because it is always a jpg
+	i.Thumbnail = fmt.Sprintf("%s%s%s", file_t, "s", ".jpg")
 
 	return
 
