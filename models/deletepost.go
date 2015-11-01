@@ -2,11 +2,7 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
-	"path/filepath"
 
-	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -17,12 +13,6 @@ type DeletePostModel struct {
 	Ib      uint
 	Name    string
 	Deleted bool
-}
-
-type PostImage struct {
-	Id    uint
-	File  string
-	Thumb string
 }
 
 // Status will return info

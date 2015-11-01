@@ -2,11 +2,7 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
-	"path/filepath"
 
-	"github.com/techjanitor/pram-post/config"
 	e "github.com/techjanitor/pram-post/errors"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -16,12 +12,6 @@ type DeleteThreadModel struct {
 	Name    string
 	Ib      uint
 	Deleted bool
-}
-
-type ThreadImages struct {
-	Id    uint
-	File  string
-	Thumb string
 }
 
 // Status will return info
