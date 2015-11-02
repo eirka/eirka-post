@@ -77,14 +77,15 @@ func (i *ReplyModel) Status() (err error) {
 	}
 
 	var closed bool
-	var total, lastnum uint
+	var total uint
 
 	// Check if thread is closed and get the total amount of posts
-	err = db.QueryRow(`SELECT ib_id,thread_closed,count(post_num),post_num 
+	err = db.QueryRow(`SELECT ib_id,thread_closed,count(post_num) 
 	FROM ( SELECT ib_id,threads.thread_id,thread_closed,post_num 
-	FROM threads  LEFT JOIN posts on threads.thread_id = posts.thread_id 
-	WHERE threads.thread_id = ?
-	GROUP BY post_num DESC) AS b`, i.Thread).Scan(&i.Ib, &closed, &total, &lastnum)
+	FROM threads  
+	INNER JOIN posts on threads.thread_id = posts.thread_id 
+	WHERE threads.thread_id = ? AND post_deleted != 1
+	GROUP BY post_num DESC) AS b`, i.Thread).Scan(&i.Ib, &closed, &total)
 	if err != nil {
 		return
 	}
@@ -110,8 +111,6 @@ func (i *ReplyModel) Status() (err error) {
 		return e.ErrThreadClosed
 	}
 
-	i.PostNum = lastnum + 1
-
 	return
 
 }
@@ -127,7 +126,9 @@ func (i *ReplyModel) Post() (err error) {
 	defer tx.Rollback()
 
 	// Insert data into posts table
-	ps1, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text) VALUES (?,?,?,NOW(),?,?)")
+	ps1, err := tx.Prepare(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text) 
+    SELECT ?,?,max(post_num)+1,NOW(),?,?
+    FROM posts WHERE thread_id = ? AND post_deleted != 1`)
 	if err != nil {
 		return
 	}
