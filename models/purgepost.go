@@ -94,7 +94,7 @@ func (i *PurgePostModel) Delete() (err error) {
 	if err != nil {
 		return
 	}
-	defer ps1.Close()
+	defer ps2.Close()
 
 	_, err = ps2.Exec(lasttime, i.Thread)
 	if err != nil {

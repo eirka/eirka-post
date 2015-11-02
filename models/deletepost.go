@@ -41,20 +41,48 @@ func (i *DeletePostModel) Status() (err error) {
 // Delete will remove the entry
 func (i *DeletePostModel) Delete() (err error) {
 
-	// Get Database handle
-	db, err := u.GetDb()
+	// Get transaction handle
+	tx, err := u.GetTransaction()
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	var lasttime string
+
+	// get last post time
+	err = tx.QueryRow("SELECT post_time FROM posts WHERE thread_id = ? ORDER BY post_id DESC LIMIT 1", i.Thread).Scan(&lasttime)
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare(`UPDATE posts SET post_deleted = ?
+	// set post to deleted
+	ps1, err := tx.Prepare(`UPDATE posts SET post_deleted = ?
 	WHERE posts.thread_id = ? AND posts.post_num = ? LIMIT 1`)
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
+	// update last post time in thread
+	ps2, err := tx.Prepare("UPDATE threads SET thread_last_post= ? WHERE thread_id= ?")
+	if err != nil {
+		return
+	}
+	defer ps2.Close()
+
 	_, err = ps1.Exec(!i.Deleted, i.Thread, i.Id)
+	if err != nil {
+		return
+	}
+
+	_, err = ps2.Exec(lasttime, i.Thread)
+	if err != nil {
+		return
+	}
+
+	// Commit transaction
+	err = tx.Commit()
 	if err != nil {
 		return
 	}
