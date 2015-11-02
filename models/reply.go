@@ -141,7 +141,7 @@ func (i *ReplyModel) Post() (err error) {
 	}
 	defer ps2.Close()
 
-	e1, err := ps1.Exec(i.Thread, i.Uid, i.PostNum, i.Ip, i.Comment)
+	e1, err := ps1.Exec(i.Thread, i.Uid, i.PostNum, i.Ip, i.Comment, i.Thread)
 	if err != nil {
 		return
 	}
