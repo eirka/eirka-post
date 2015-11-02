@@ -128,7 +128,7 @@ func (i *ReplyModel) Post() (err error) {
 	// Insert data into posts table
 	ps1, err := tx.Prepare(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text) 
     SELECT ?,?,max(post_num)+1,NOW(),?,?
-    FROM posts WHERE thread_id = ? AND post_deleted != 1`)
+    FROM posts WHERE thread_id = ?`)
 	if err != nil {
 		return
 	}
