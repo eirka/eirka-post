@@ -48,6 +48,19 @@ func (i *DeletePostModel) Delete() (err error) {
 	}
 	defer tx.Rollback()
 
+	// set post to deleted
+	ps1, err := tx.Prepare(`UPDATE posts SET post_deleted = ?
+	WHERE posts.thread_id = ? AND posts.post_num = ? LIMIT 1`)
+	if err != nil {
+		return
+	}
+	defer ps1.Close()
+
+	_, err = ps1.Exec(!i.Deleted, i.Thread, i.Id)
+	if err != nil {
+		return
+	}
+
 	var lasttime string
 
 	// get last post time
@@ -58,25 +71,12 @@ func (i *DeletePostModel) Delete() (err error) {
 		return
 	}
 
-	// set post to deleted
-	ps1, err := tx.Prepare(`UPDATE posts SET post_deleted = ?
-	WHERE posts.thread_id = ? AND posts.post_num = ? LIMIT 1`)
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
 	// update last post time in thread
 	ps2, err := tx.Prepare("UPDATE threads SET thread_last_post= ? WHERE thread_id= ?")
 	if err != nil {
 		return
 	}
 	defer ps2.Close()
-
-	_, err = ps1.Exec(!i.Deleted, i.Thread, i.Id)
-	if err != nil {
-		return
-	}
 
 	_, err = ps2.Exec(lasttime, i.Thread)
 	if err != nil {
