@@ -51,9 +51,9 @@ func (i *DeletePostModel) Delete() (err error) {
 	var lasttime string
 
 	// get last post time
-	err = tx.QueryRow("SELECT post_time FROM posts 
+	err = tx.QueryRow(`SELECT post_time FROM posts 
 	WHERE thread_id = ? AND post_deleted != 1
-	ORDER BY post_id DESC LIMIT 1", i.Thread).Scan(&lasttime)
+	ORDER BY post_id DESC LIMIT 1`, i.Thread).Scan(&lasttime)
 	if err != nil {
 		return
 	}
