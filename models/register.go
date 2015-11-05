@@ -86,7 +86,7 @@ func (r *RegisterModel) Register() (err error) {
 		return
 	}
 
-	ps1, err := db.Prepare("INSERT into users (usergroup_id, user_name, user_email, user_password, user_confirmed) VALUES (?,?,?,?,?)")
+	ps1, err := db.Prepare("INSERT into users (usergroup_id, user_name, user_email, user_password, user_confirmed, user_avatar) VALUES (?,?,?,?,?,ROUND((RAND() * (48-1))+1))")
 	if err != nil {
 		return
 	}
