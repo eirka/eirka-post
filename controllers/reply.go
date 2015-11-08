@@ -28,7 +28,7 @@ func ReplyController(c *gin.Context) {
 	userdata := c.MustGet("userdata").(u.User)
 
 	// check size of content
-	if req.ContentLength > config.Settings.Limits.ImageMaxSize {
+	if req.ContentLength > int64(config.Settings.Limits.ImageMaxSize) {
 		c.JSON(http.StatusExpectationFailed, gin.H{"error_message": e.ErrImageSize.Error()})
 		c.Error(e.ErrImageSize)
 		return
