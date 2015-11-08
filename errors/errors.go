@@ -33,6 +33,7 @@ var (
 	ErrNoTagName       error = errors.New("Tag name required")
 	ErrDuplicateTag    error = errors.New("Duplicate tag")
 	ErrNoImage         error = errors.New("Image is required for new threads")
+	ErrImageSize       error = errors.New("Image size is too large")
 	ErrDuplicateImage  error = errors.New("Duplicate image")
 	ErrNoImageId       error = errors.New("Image id required")
 	ErrInvalidCookie   error = errors.New("Invalid cookie")

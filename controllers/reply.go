@@ -27,6 +27,16 @@ func ReplyController(c *gin.Context) {
 	// get userdata from session middleware
 	userdata := c.MustGet("userdata").(u.User)
 
+	// check size of content
+	if r.ContentLength > config.Settings.Limits.ImageMaxSize {
+		c.JSON(http.StatusExpectationFailed, gin.H{"error_message": e.ErrImageSize.Error()})
+		c.Error(e.ErrImageSize)
+		return
+	}
+
+	// set max bytes reader
+	req.Body = http.MaxBytesReader(c.Writer, req.Body, config.Settings.Limits.ImageMaxSize)
+
 	err = c.Bind(&rf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
