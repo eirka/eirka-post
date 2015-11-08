@@ -28,6 +28,16 @@ func ThreadController(c *gin.Context) {
 	// get userdata from session middleware
 	userdata := c.MustGet("userdata").(u.User)
 
+	// check size of content
+	if req.ContentLength > int64(config.Settings.Limits.ImageMaxSize) {
+		c.JSON(http.StatusExpectationFailed, gin.H{"error_message": e.ErrImageSize.Error()})
+		c.Error(e.ErrImageSize)
+		return
+	}
+
+	// set max bytes reader
+	req.Body = http.MaxBytesReader(c.Writer, req.Body, int64(config.Settings.Limits.ImageMaxSize))
+
 	err = c.Bind(&tf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
