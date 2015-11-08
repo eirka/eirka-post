@@ -166,20 +166,7 @@ func ThreadController(c *gin.Context) {
 		return
 	}
 
-	// generate redirect link
-	redir := u.Redirect{
-		Id:      m.Ib,
-		Referer: req.Referer(),
-	}
-
-	err = redir.Link()
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
-		return
-	}
-
-	c.Redirect(303, redir.Url)
+	c.Redirect(303, req.Referer())
 
 	audit := u.Audit{
 		User:   userdata.Id,
