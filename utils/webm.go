@@ -62,7 +62,6 @@ func (i *ImageType) checkWebM() (err error) {
 
 	err = json.Unmarshal(cmd, &avprobe)
 	if err != nil {
-		os.RemoveAll(imagefile)
 		return errors.New("problem decoding webm")
 	}
 
@@ -74,16 +73,13 @@ func (i *ImageType) checkWebM() (err error) {
 
 	switch {
 	case avprobe.Format.FormatName != "matroska,webm":
-		os.RemoveAll(imagefile)
 		return errors.New("file is not vp8 video")
 	case !codecs[strings.ToLower(avprobe.Streams[0].CodecName)]:
-		os.RemoveAll(imagefile)
 		return errors.New("file is not allowed webm codec")
 	}
 
 	duration, err := strconv.ParseFloat(avprobe.Format.Duration, 64)
 	if err != nil {
-		os.RemoveAll(imagefile)
 		return errors.New("problem decoding webm")
 	}
 
@@ -92,7 +88,6 @@ func (i *ImageType) checkWebM() (err error) {
 
 	orig_size, err := strconv.ParseFloat(avprobe.Format.Size, 64)
 	if err != nil {
-		os.RemoveAll(imagefile)
 		return
 	}
 
@@ -102,22 +97,16 @@ func (i *ImageType) checkWebM() (err error) {
 	// Check against maximum sizes
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
-		os.RemoveAll(imagefile)
 		return errors.New("webm width too large")
 	case i.OrigWidth < config.Settings.Limits.ImageMinWidth:
-		os.RemoveAll(imagefile)
 		return errors.New("webm width too small")
 	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
-		os.RemoveAll(imagefile)
 		return errors.New("webm height too large")
 	case i.OrigHeight < config.Settings.Limits.ImageMinHeight:
-		os.RemoveAll(imagefile)
 		return errors.New("webm height too small")
 	case int(orig_size) > config.Settings.Limits.ImageMaxSize:
-		os.RemoveAll(imagefile)
 		return errors.New("webm size too large")
 	case i.duration > config.Settings.Limits.WebmMaxLength:
-		os.RemoveAll(imagefile)
 		return errors.New("webm too long")
 	}
 
@@ -157,8 +146,6 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	// Make an image of first frame with avconv
 	_, err = exec.Command("avconv", avconvArgs...).Output()
 	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
 		return errors.New("problem decoding webm")
 	}
 
@@ -182,23 +169,17 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 
 	_, err = exec.Command("convert", args...).Output()
 	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
 		return errors.New("problem making thumbnail")
 	}
 
 	thumb, err := os.Open(thumbfile)
 	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
 		return errors.New("problem making thumbnail")
 	}
 	defer thumb.Close()
 
 	img, _, err := image.DecodeConfig(thumb)
 	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
 		return errors.New("problem decoding thumbnail")
 	}
 
@@ -209,8 +190,6 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	if Services.Storage.Google {
 		err = UploadGCS(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
 		if err != nil {
-			os.RemoveAll(thumbfile)
-			os.RemoveAll(imagefile)
 			return
 		}
 	}
@@ -219,8 +198,6 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	if Services.Storage.Amazon {
 		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "video/webm")
 		if err != nil {
-			os.RemoveAll(thumbfile)
-			os.RemoveAll(imagefile)
 			return
 		}
 	}

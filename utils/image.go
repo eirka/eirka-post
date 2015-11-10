@@ -253,14 +253,12 @@ func (i *ImageType) saveFile() (err error) {
 
 	image, err := os.Create(imagefile)
 	if err != nil {
-		os.RemoveAll(imagefile)
 		return errors.New("problem saving file")
 	}
 	defer image.Close()
 
 	_, err = io.Copy(image, buffer)
 	if err != nil {
-		os.RemoveAll(imagefile)
 		return errors.New("problem saving file")
 	}
 
@@ -268,7 +266,6 @@ func (i *ImageType) saveFile() (err error) {
 	if Services.Storage.Google {
 		err = UploadGCS(imagefile, fmt.Sprintf("src/%s", i.Filename))
 		if err != nil {
-			os.RemoveAll(imagefile)
 			return
 		}
 	}
@@ -277,7 +274,6 @@ func (i *ImageType) saveFile() (err error) {
 	if Services.Storage.Amazon {
 		err = UploadS3(imagefile, fmt.Sprintf("src/%s", i.Filename), i.mime)
 		if err != nil {
-			os.RemoveAll(imagefile)
 			return
 		}
 	}
@@ -310,23 +306,17 @@ func (i *ImageType) createThumbnail() (err error) {
 
 	_, err = exec.Command("convert", args...).Output()
 	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
 		return errors.New("problem making thumbnail")
 	}
 
 	thumb, err := os.Open(thumbfile)
 	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
 		return errors.New("problem making thumbnail")
 	}
 	defer thumb.Close()
 
 	img, _, err := image.DecodeConfig(thumb)
 	if err != nil {
-		os.RemoveAll(thumbfile)
-		os.RemoveAll(imagefile)
 		return errors.New("problem decoding thumbnail")
 	}
 
@@ -337,8 +327,6 @@ func (i *ImageType) createThumbnail() (err error) {
 	if Services.Storage.Google {
 		err = UploadGCS(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
 		if err != nil {
-			os.RemoveAll(thumbfile)
-			os.RemoveAll(imagefile)
 			return
 		}
 	}
@@ -347,8 +335,6 @@ func (i *ImageType) createThumbnail() (err error) {
 	if Services.Storage.Amazon {
 		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg")
 		if err != nil {
-			os.RemoveAll(thumbfile)
-			os.RemoveAll(imagefile)
 			return
 		}
 	}
