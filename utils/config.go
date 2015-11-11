@@ -126,6 +126,11 @@ func GetDatabaseSettings() {
 		panic(err)
 	}
 
+	err = ps.QueryRow("guest_posting").Scan(&config.Settings.General.GuestPosting)
+	if err != nil {
+		panic(err)
+	}
+
 	return
 
 }

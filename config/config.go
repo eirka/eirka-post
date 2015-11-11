@@ -15,6 +15,10 @@ type Config struct {
 		Port    uint
 	}
 
+	General struct {
+		GuestPosting bool
+	}
+
 	Directories struct {
 		// Storage directory for images
 		ImageDir     string
