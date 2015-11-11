@@ -16,7 +16,8 @@ type Config struct {
 	}
 
 	General struct {
-		GuestPosting bool
+		GuestPosting     bool
+		AutoRegistration bool
 	}
 
 	Directories struct {

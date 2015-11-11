@@ -131,6 +131,11 @@ func GetDatabaseSettings() {
 		panic(err)
 	}
 
+	err = ps.QueryRow("auto_registration").Scan(&config.Settings.General.AutoRegistration)
+	if err != nil {
+		panic(err)
+	}
+
 	return
 
 }
