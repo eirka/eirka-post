@@ -47,13 +47,14 @@ func CheckServices() {
 
 func (c Capabilities) Print() {
 
-	// Marshal the structs into JSON
-	output, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("%s\n", output)
+	fmt.Printf("%-20v\n\n", "Available Services")
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "Utils")
+	fmt.Printf("%-20v%40v\n", "Akismet", Services.Utils.Akismet)
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "Storage")
+	fmt.Printf("%-20v%40v\n", "Amazon", Services.Storage.Amazon)
+	fmt.Printf("%-20v%40v\n", "Google", Services.Storage.Google)
+	fmt.Println(strings.Repeat("*", 60))
 
 }
