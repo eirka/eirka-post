@@ -40,8 +40,14 @@ var (
 // Submit will insert audit info into the audit log
 func (a *Audit) Submit() (err error) {
 
+	// Get Database handle
+	dbase, err := db.GetDb()
+	if err != nil {
+		return
+	}
+
 	// Insert data into audit table
-	ps, err := db.Prepare("INSERT INTO audit (user_id,ib_id,audit_ip,audit_time,audit_action,audit_info) VALUES (?,?,?,NOW(),?,?)")
+	ps, err := dbase.Prepare("INSERT INTO audit (user_id,ib_id,audit_ip,audit_time,audit_action,audit_info) VALUES (?,?,?,NOW(),?,?)")
 	if err != nil {
 		return
 	}
