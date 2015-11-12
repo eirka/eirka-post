@@ -47,7 +47,7 @@ func CheckServices() {
 func (c Capabilities) Print() {
 
 	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "Available Services")
+	fmt.Printf("%-20v\n", "Available Services")
 	fmt.Println(strings.Repeat("*", 60))
 	fmt.Printf("%-20v\n\n", "Utils")
 	fmt.Printf("%-20v%40v\n", "Akismet", Services.Utils.Akismet)
