@@ -129,7 +129,6 @@ func StartInfo() {
 
 	fmt.Println(strings.Repeat("*", 60))
 	fmt.Printf("%-20v\n\n", "PRAM-POST")
-	fmt.Printf("%-20v\n\n", "Information")
 	fmt.Printf("%-20v%40v\n", "Version", version)
 	fmt.Println(strings.Repeat("*", 60))
 
