@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/techjanitor/pram-libs/config"
