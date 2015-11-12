@@ -49,7 +49,7 @@ func init() {
 	auth.Secret = local.Settings.Session.Secret
 
 	// set cors domains
-	cors.Domains = local.Settings.CORS.Sites
+	cors.SetDomains(local.Settings.CORS.Sites)
 
 	// print the starting info
 	StartInfo()
