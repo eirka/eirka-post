@@ -5,7 +5,6 @@ import (
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"runtime"
 
 	"github.com/techjanitor/pram-libs/auth"
 	"github.com/techjanitor/pram-libs/config"
@@ -36,22 +35,22 @@ func init() {
 	dbase.NewDb()
 
 	// Get limits and stuff from database
-	db.GetDatabaseSettings()
+	config.GetDatabaseSettings()
 
 	// Set up Redis connection
 	u.NewRedisCache()
-
-	// Print out config
-	config.Print()
-
-	// Print out config
-	local.Print()
 
 	// set auth middleware secret
 	auth.Secret = local.Settings.Session.Secret
 
 	// set cors domains
 	cors.Domains = local.Settings.CORS.Sites
+
+	// Print out config
+	config.Print()
+
+	// Print out config
+	local.Print()
 
 	// Print capabilities
 	u.Services.Print()
