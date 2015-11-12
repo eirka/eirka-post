@@ -66,6 +66,7 @@ type Config struct {
 
 func Print() {
 
+	fmt.Println(strings.Repeat("*", 60))
 	fmt.Printf("%-20v\n\n", "Local Config")
 	fmt.Println(strings.Repeat("*", 60))
 	fmt.Printf("%-20v\n\n", "Server")
