@@ -7,23 +7,27 @@ import (
 	"net/http"
 	"runtime"
 
-	"github.com/techjanitor/pram-post/config"
+	"github.com/techjanitor/pram-libs/auth"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/cors"
+	"github.com/techjanitor/pram-libs/db"
+	"github.com/techjanitor/pram-libs/validate"
+
 	c "github.com/techjanitor/pram-post/controllers"
 	m "github.com/techjanitor/pram-post/middleware"
 	u "github.com/techjanitor/pram-post/utils"
 )
 
 func init() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// Set up DB connection
-	u.NewDb()
+	db.NewDb()
+
+	// Get limits and stuff from database
+	db.GetDatabaseSettings()
 
 	// Set up Redis connection
 	u.NewRedisCache()
-
-	// Get limits and stuff from database
-	u.GetDatabaseSettings()
 
 	// Print out config
 	config.Print()
@@ -36,13 +40,13 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	r.Use(m.CORS())
+	r.Use(cors.CORS())
 
 	r.NoRoute(c.ErrorController)
 
 	// all users
 	public := r.Group("/")
-	public.Use(m.Auth(m.All))
+	public.Use(auth.Auth(auth.All))
 
 	public.POST("/thread/new", m.GetAntiSpamCookie(), c.ThreadController)
 	public.POST("/thread/reply", m.GetAntiSpamCookie(), c.ReplyController)
@@ -53,7 +57,7 @@ func main() {
 
 	// requires user perms
 	users := r.Group("/user")
-	users.Use(m.Auth(m.Registered))
+	users.Use(auth.Auth(auth.Registered))
 
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
@@ -61,8 +65,8 @@ func main() {
 
 	// requires mod perms
 	mod := r.Group("/mod")
-	mod.Use(m.ValidateParams())
-	mod.Use(m.Auth(m.Moderators))
+	mod.Use(validate.ValidateParams())
+	mod.Use(auth.Auth(auth.Moderators))
 
 	mod.DELETE("/tag/:id", c.DeleteTagController)
 	mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
@@ -73,8 +77,8 @@ func main() {
 
 	// requires admin perms
 	admin := r.Group("/admin")
-	admin.Use(m.ValidateParams())
-	admin.Use(m.Auth(m.Admins))
+	admin.Use(validate.ValidateParams())
+	admin.Use(auth.Auth(auth.Admins))
 
 	admin.DELETE("/thread/:id", c.PurgeThreadController)
 	admin.DELETE("/post/:thread/:id", c.PurgePostController)
