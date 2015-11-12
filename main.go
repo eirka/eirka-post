@@ -46,7 +46,7 @@ func init() {
 	u.NewRedisCache()
 
 	// set cors domains
-	cors.SetDomains(local.Settings.CORS.Sites)
+	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("POST,DELETE", ","))
 
 	// set auth middleware secret
 	auth.Secret = local.Settings.Session.Secret
