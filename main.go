@@ -13,6 +13,7 @@ import (
 	"github.com/techjanitor/pram-libs/db"
 	"github.com/techjanitor/pram-libs/validate"
 
+	local "github.com/techjanitor/pram-post/config"
 	c "github.com/techjanitor/pram-post/controllers"
 	m "github.com/techjanitor/pram-post/middleware"
 	u "github.com/techjanitor/pram-post/utils"
@@ -20,8 +21,19 @@ import (
 
 func init() {
 
+	dbase := db.Database{
+		// Database connection settings
+		User:           local.Settings.Database.User,
+		Password:       local.Settings.Database.Password,
+		Proto:          local.Settings.Database.Proto,
+		Host:           local.Settings.Database.Host,
+		Database:       local.Settings.Database.Database,
+		MaxIdle:        local.Settings.Database.MaxIdle,
+		MaxConnections: local.Settings.Database.MaxConnections,
+	}
+
 	// Set up DB connection
-	db.NewDb()
+	dbase.NewDb()
 
 	// Get limits and stuff from database
 	db.GetDatabaseSettings()
@@ -31,6 +43,9 @@ func init() {
 
 	// Print out config
 	config.Print()
+
+	// Print out config
+	local.Print()
 
 	// Print capabilities
 	u.Services.Print()
@@ -86,7 +101,7 @@ func main() {
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.Settings.Post.Address, config.Settings.Post.Port),
+		Addr:    fmt.Sprintf("%s:%d", local.Settings.Post.Address, local.Settings.Post.Port),
 		Handler: r,
 	}
 
