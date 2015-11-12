@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/techjanitor/pram-post/config"
+	"github.com/techjanitor/pram-libs/config"
 )
 
 var gckey []byte

@@ -5,7 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/auth"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -17,7 +19,7 @@ func CloseThreadController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
+	userdata := c.MustGet("userdata").(auth.User)
 
 	// Initialize model struct
 	m := &models.CloseModel{

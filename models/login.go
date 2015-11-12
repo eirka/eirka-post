@@ -3,9 +3,10 @@ package models
 import (
 	"database/sql"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
 )
 
 // loginmodel contains user name and password
@@ -20,7 +21,7 @@ type LoginModel struct {
 func (r *LoginModel) Validate() (err error) {
 
 	// Validate name input
-	name := u.Validate{Input: r.Name, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	name := validate.Validate{Input: r.Name, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
 	if name.IsEmpty() {
 		return e.ErrNameEmpty
 	} else if name.MinLength() {
@@ -32,7 +33,7 @@ func (r *LoginModel) Validate() (err error) {
 	}
 
 	// Validate password input
-	password := u.Validate{Input: r.Password, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	password := validate.Validate{Input: r.Password, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
 	if password.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if password.MinLength() {
@@ -49,13 +50,13 @@ func (r *LoginModel) Validate() (err error) {
 func (r *LoginModel) Query() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return e.ErrInternalError
 	}
 
 	// get hashed password from database
-	err = db.QueryRow("select user_id, user_password from users where user_name = ?", r.Name).Scan(&r.Id, &r.Hash)
+	err = dbase.QueryRow("select user_id, user_password from users where user_name = ?", r.Name).Scan(&r.Id, &r.Hash)
 	if err == sql.ErrNoRows {
 		return e.ErrInvalidUser
 	} else if err != nil {

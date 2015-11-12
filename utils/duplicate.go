@@ -1,7 +1,8 @@
 package utils
 
 import (
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 type CheckDuplicate struct {
@@ -14,12 +15,12 @@ type CheckDuplicate struct {
 
 func (c *CheckDuplicate) Get() (err error) {
 	// Get Database handle
-	db, err := GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	err = db.QueryRow(`select count(1),posts.post_num,threads.thread_id from threads 
+	err = dbase.QueryRow(`select count(1),posts.post_num,threads.thread_id from threads 
 	LEFT JOIN posts on threads.thread_id = posts.thread_id 
 	LEFT JOIN images on posts.post_id = images.post_id 
 	WHERE image_hash = ? AND ib_id = ?`, c.MD5, c.Ib).Scan(&c.check, &c.Post, &c.Thread)

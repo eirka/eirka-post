@@ -2,6 +2,8 @@ package utils
 
 import (
 	"net/url"
+
+	"github.com/techjanitor/pram-libs/db"
 )
 
 type Redirect struct {
@@ -15,13 +17,13 @@ type Redirect struct {
 func (r *Redirect) Link() (err error) {
 
 	// Get Database handle
-	db, err := GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Get the url of the imageboard from the database
-	err = db.QueryRow("SELECT ib_domain FROM imageboards WHERE ib_id = ?", r.Id).Scan(&r.Host)
+	err = dbase.QueryRow("SELECT ib_domain FROM imageboards WHERE ib_id = ?", r.Id).Scan(&r.Host)
 	if err != nil {
 		return
 	}

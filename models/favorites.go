@@ -1,8 +1,8 @@
 package models
 
 import (
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 type FavoritesModel struct {
@@ -30,7 +30,7 @@ func (i *FavoritesModel) ValidateInput() (err error) {
 func (i *FavoritesModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -38,7 +38,7 @@ func (i *FavoritesModel) Status() (err error) {
 	var check bool
 
 	// Check if favorite is already there
-	err = db.QueryRow("SELECT count(1) FROM favorites WHERE image_id = ? AND user_id = ?", i.Image, i.Uid).Scan(&check)
+	err = dbase.QueryRow("SELECT count(1) FROM favorites WHERE image_id = ? AND user_id = ?", i.Image, i.Uid).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -46,7 +46,7 @@ func (i *FavoritesModel) Status() (err error) {
 	// delete if it does
 	if check {
 
-		ps1, err := db.Prepare("DELETE FROM favorites WHERE image_id = ? AND user_id = ? LIMIT 1")
+		ps1, err := dbase.Prepare("DELETE FROM favorites WHERE image_id = ? AND user_id = ? LIMIT 1")
 		if err != nil {
 			return err
 		}
@@ -69,12 +69,12 @@ func (i *FavoritesModel) Status() (err error) {
 func (i *FavoritesModel) Post() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("INSERT into favorites (image_id, user_id) VALUES (?,?)")
+	ps1, err := dbase.Prepare("INSERT into favorites (image_id, user_id) VALUES (?,?)")
 	if err != nil {
 		return
 	}

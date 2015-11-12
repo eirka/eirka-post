@@ -4,9 +4,10 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"html"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
 )
 
 type ThreadModel struct {
@@ -32,7 +33,7 @@ func (i *ThreadModel) ValidateInput() (err error) {
 	}
 
 	// Validate title input
-	title := u.Validate{Input: i.Title, Max: config.Settings.Limits.TitleMaxLength, Min: config.Settings.Limits.TitleMinLength}
+	title := validate.Validate{Input: i.Title, Max: config.Settings.Limits.TitleMaxLength, Min: config.Settings.Limits.TitleMinLength}
 	if title.IsEmpty() {
 		return e.ErrNoTitle
 	} else if title.MinLength() {
@@ -50,7 +51,7 @@ func (i *ThreadModel) ValidateInput() (err error) {
 	i.Comment = html.UnescapeString(i.Comment)
 
 	// Validate comment input
-	comment := u.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
+	comment := validate.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
 	if comment.IsEmpty() {
 		return e.ErrNoComment
 	} else if comment.MinLength() {
@@ -67,7 +68,7 @@ func (i *ThreadModel) ValidateInput() (err error) {
 func (i *ThreadModel) Post() (err error) {
 
 	// Get transaction handle
-	tx, err := u.GetTransaction()
+	tx, err := db.GetTransaction()
 	if err != nil {
 		return
 	}

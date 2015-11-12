@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/auth"
+	"github.com/techjanitor/pram-libs/config"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -64,7 +66,7 @@ func LoginController(c *gin.Context) {
 	}
 
 	// rate limit login
-	err = u.LoginCounter(m.Id)
+	err = auth.LoginCounter(m.Id)
 	if err != nil {
 		c.JSON(429, gin.H{"error_message": err.Error()})
 		c.Error(err)
@@ -84,7 +86,7 @@ func LoginController(c *gin.Context) {
 	}
 
 	// set uset struct
-	user := u.User{
+	user := auth.User{
 		Id: m.Id,
 	}
 

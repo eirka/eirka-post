@@ -1,8 +1,8 @@
 package models
 
 import (
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 type AddTagModel struct {
@@ -35,7 +35,7 @@ func (i *AddTagModel) ValidateInput() (err error) {
 func (i *AddTagModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -43,7 +43,7 @@ func (i *AddTagModel) Status() (err error) {
 	var check bool
 
 	// check to see if this image is in the right ib
-	err = db.QueryRow(`SELECT count(1) FROM images
+	err = dbase.QueryRow(`SELECT count(1) FROM images
 	LEFT JOIN posts on images.post_id = posts.post_id
 	LEFT JOIN threads on posts.thread_id = threads.thread_id
 	WHERE image_id = ? AND ib_id = ?`, i.Image, i.Ib).Scan(&check)
@@ -57,7 +57,7 @@ func (i *AddTagModel) Status() (err error) {
 	}
 
 	// Check if tag is already there
-	err = db.QueryRow("select count(1) from tagmap where tag_id = ? AND image_id = ?", i.Tag, i.Image).Scan(&check)
+	err = dbase.QueryRow("select count(1) from tagmap where tag_id = ? AND image_id = ?", i.Tag, i.Image).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -75,12 +75,12 @@ func (i *AddTagModel) Status() (err error) {
 func (i *AddTagModel) Post() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("INSERT into tagmap (image_id, tag_id) VALUES (?,?)")
+	ps1, err := dbase.Prepare("INSERT into tagmap (image_id, tag_id) VALUES (?,?)")
 	if err != nil {
 		return
 	}

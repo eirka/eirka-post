@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 type DeleteThreadModel struct {
@@ -18,13 +18,13 @@ type DeleteThreadModel struct {
 func (i *DeleteThreadModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Check if favorite is already there
-	err = db.QueryRow("SELECT ib_id, thread_title, thread_deleted FROM threads WHERE thread_id = ? LIMIT 1", i.Id).Scan(&i.Ib, &i.Name, &i.Deleted)
+	err = dbase.QueryRow("SELECT ib_id, thread_title, thread_deleted FROM threads WHERE thread_id = ? LIMIT 1", i.Id).Scan(&i.Ib, &i.Name, &i.Deleted)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -39,12 +39,12 @@ func (i *DeleteThreadModel) Status() (err error) {
 func (i *DeleteThreadModel) Delete() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("UPDATE threads SET thread_deleted = ? WHERE thread_id = ?")
+	ps1, err := dbase.Prepare("UPDATE threads SET thread_deleted = ? WHERE thread_id = ?")
 	if err != nil {
 		return
 	}

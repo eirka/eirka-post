@@ -1,5 +1,7 @@
 package utils
 
+import "github.com/techjanitor/pram-libs/db"
+
 // Audit adds an action to the audit log
 type Audit struct {
 	User   uint

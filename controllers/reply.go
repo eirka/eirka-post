@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/auth"
+	"github.com/techjanitor/pram-libs/config"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -25,7 +27,7 @@ func ReplyController(c *gin.Context) {
 	req := c.Request
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
+	userdata := c.MustGet("userdata").(auth.User)
 
 	// check size of content
 	if req.ContentLength > int64(config.Settings.Limits.ImageMaxSize) {

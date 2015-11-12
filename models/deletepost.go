@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 type DeletePostModel struct {
@@ -19,13 +19,13 @@ type DeletePostModel struct {
 func (i *DeletePostModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// get thread ib and title
-	err = db.QueryRow(`SELECT ib_id, thread_title, post_deleted FROM threads 
+	err = dbase.QueryRow(`SELECT ib_id, thread_title, post_deleted FROM threads 
 	INNER JOIN posts on threads.thread_id = posts.thread_id
 	WHERE threads.thread_id = ? LIMIT 1`, i.Thread).Scan(&i.Ib, &i.Name, &i.Deleted)
 	if err == sql.ErrNoRows {
@@ -42,7 +42,7 @@ func (i *DeletePostModel) Status() (err error) {
 func (i *DeletePostModel) Delete() (err error) {
 
 	// Get transaction handle
-	tx, err := u.GetTransaction()
+	tx, err := db.GetTransaction()
 	if err != nil {
 		return
 	}

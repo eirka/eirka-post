@@ -1,9 +1,10 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
 )
 
 type NewTagModel struct {
@@ -25,7 +26,7 @@ func (i *NewTagModel) ValidateInput() (err error) {
 	}
 
 	// Validate name input
-	tag := u.Validate{Input: i.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
+	tag := validate.Validate{Input: i.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
 	if tag.IsEmpty() {
 		return e.ErrNoTagName
 	} else if tag.MinLength() {
@@ -42,7 +43,7 @@ func (i *NewTagModel) ValidateInput() (err error) {
 func (i *NewTagModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -50,7 +51,7 @@ func (i *NewTagModel) Status() (err error) {
 	var check bool
 
 	// Check if tag is already there
-	err = db.QueryRow("select count(1) from tags where ib_id = ? AND tag_name = ?", i.Ib, i.Tag).Scan(&check)
+	err = dbase.QueryRow("select count(1) from tags where ib_id = ? AND tag_name = ?", i.Ib, i.Tag).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -68,12 +69,12 @@ func (i *NewTagModel) Status() (err error) {
 func (i *NewTagModel) Post() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)")
+	ps1, err := dbase.Prepare("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)")
 	if err != nil {
 		return
 	}

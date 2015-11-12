@@ -6,8 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	u "github.com/techjanitor/pram-post/utils"
 )
 
@@ -27,13 +29,13 @@ type ThreadImages struct {
 func (i *PurgeThreadModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Check if favorite is already there
-	err = db.QueryRow("SELECT ib_id, thread_title FROM threads WHERE thread_id = ? LIMIT 1", i.Id).Scan(&i.Ib, &i.Name)
+	err = dbase.QueryRow("SELECT ib_id, thread_title FROM threads WHERE thread_id = ? LIMIT 1", i.Id).Scan(&i.Ib, &i.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -48,7 +50,7 @@ func (i *PurgeThreadModel) Status() (err error) {
 func (i *PurgeThreadModel) Delete() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -56,7 +58,7 @@ func (i *PurgeThreadModel) Delete() (err error) {
 	images := []ThreadImages{}
 
 	// Get thread images
-	rows, err := db.Query(`SELECT image_id,image_file,image_thumbnail FROM images
+	rows, err := dbase.Query(`SELECT image_id,image_file,image_thumbnail FROM images
     INNER JOIN posts on images.post_id = posts.post_id
     INNER JOIN threads on threads.thread_id = posts.thread_id
     WHERE threads.thread_id = ?`, i.Id)
@@ -81,7 +83,7 @@ func (i *PurgeThreadModel) Delete() (err error) {
 	}
 
 	// delete thread from database
-	ps1, err := db.Prepare("DELETE FROM threads WHERE thread_id= ? LIMIT 1")
+	ps1, err := dbase.Prepare("DELETE FROM threads WHERE thread_id= ? LIMIT 1")
 	if err != nil {
 		return
 	}

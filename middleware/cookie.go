@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/config"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 func GetAntiSpamCookie() gin.HandlerFunc {

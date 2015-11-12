@@ -3,9 +3,10 @@ package models
 import (
 	"github.com/asaskevich/govalidator"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
 )
 
 // Register contains information for initial account creation
@@ -20,7 +21,7 @@ type RegisterModel struct {
 func (r *RegisterModel) Validate() (err error) {
 
 	// Validate name input
-	name := u.Validate{Input: r.Name, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	name := validate.Validate{Input: r.Name, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
 	if name.IsEmpty() {
 		return e.ErrNameEmpty
 	} else if name.MinLength() {
@@ -32,7 +33,7 @@ func (r *RegisterModel) Validate() (err error) {
 	}
 
 	// Validate password input
-	password := u.Validate{Input: r.Password, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	password := validate.Validate{Input: r.Password, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
 	if password.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if password.MinLength() {
@@ -56,14 +57,14 @@ func (r *RegisterModel) Validate() (err error) {
 func (r *RegisterModel) CheckDuplicate() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	var check bool
 
-	err = db.QueryRow("select count(*) from users where user_name = ?", r.Name).Scan(&check)
+	err = dbase.QueryRow("select count(*) from users where user_name = ?", r.Name).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -81,12 +82,12 @@ func (r *RegisterModel) CheckDuplicate() (err error) {
 func (r *RegisterModel) Register() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("INSERT into users (usergroup_id, user_name, user_email, user_password, user_confirmed, user_avatar) VALUES (?,?,?,?,?,ROUND((RAND() * (48-1))+1))")
+	ps1, err := dbase.Prepare("INSERT into users (usergroup_id, user_name, user_email, user_password, user_confirmed, user_avatar) VALUES (?,?,?,?,?,ROUND((RAND() * (48-1))+1))")
 	if err != nil {
 		return
 	}

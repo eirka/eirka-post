@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/techjanitor/pram-post/config"
+	"github.com/techjanitor/pram-libs/config"
 )
 
 func (i *ImageType) SaveWebM() (err error) {

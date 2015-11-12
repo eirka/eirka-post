@@ -3,8 +3,8 @@ package models
 import (
 	"github.com/asaskevich/govalidator"
 
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 // EmailModel contains new email
@@ -29,12 +29,12 @@ func (r *EmailModel) Validate() (err error) {
 func (r *EmailModel) Update() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("UPDATE users SET user_email = ? WHERE user_id = ?")
+	ps1, err := dbase.Prepare("UPDATE users SET user_email = ? WHERE user_id = ?")
 	if err != nil {
 		return
 	}

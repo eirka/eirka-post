@@ -5,7 +5,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"strconv"
 
-	e "github.com/techjanitor/pram-post/errors"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 var (

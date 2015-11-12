@@ -4,9 +4,10 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"html"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
 )
 
 type ReplyModel struct {
@@ -42,7 +43,7 @@ func (i *ReplyModel) ValidateInput() (err error) {
 
 	// There must either be a comment, an image, or an image with a comment
 	// If theres no image a comment is required
-	comment := u.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
+	comment := validate.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
 
 	if !i.Image {
 		if comment.IsEmpty() {
@@ -71,7 +72,7 @@ func (i *ReplyModel) ValidateInput() (err error) {
 func (i *ReplyModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
@@ -80,7 +81,7 @@ func (i *ReplyModel) Status() (err error) {
 	var total uint
 
 	// Check if thread is closed and get the total amount of posts
-	err = db.QueryRow(`SELECT ib_id,thread_closed,count(post_num) 
+	err = dbase.QueryRow(`SELECT ib_id,thread_closed,count(post_num) 
 	FROM ( SELECT ib_id,threads.thread_id,thread_closed,post_num 
 	FROM threads  
 	INNER JOIN posts on threads.thread_id = posts.thread_id 
@@ -97,7 +98,7 @@ func (i *ReplyModel) Status() (err error) {
 
 	// Close thread if above max posts
 	if total > config.Settings.Limits.PostsMax {
-		updatestatus, err := db.Prepare("UPDATE threads SET thread_closed=1 WHERE thread_id = ?")
+		updatestatus, err := dbase.Prepare("UPDATE threads SET thread_closed=1 WHERE thread_id = ?")
 		if err != nil {
 			return err
 		}
@@ -119,7 +120,7 @@ func (i *ReplyModel) Status() (err error) {
 func (i *ReplyModel) Post() (err error) {
 
 	// Get transaction handle
-	tx, err := u.GetTransaction()
+	tx, err := db.GetTransaction()
 	if err != nil {
 		return
 	}

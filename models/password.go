@@ -1,9 +1,10 @@
 package models
 
 import (
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/config"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/validate"
 )
 
 // Password contains information for initial account creation
@@ -19,7 +20,7 @@ type PasswordModel struct {
 func (r *PasswordModel) Validate() (err error) {
 
 	// Validate new password input
-	newpassword := u.Validate{Input: r.NewPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	newpassword := validate.Validate{Input: r.NewPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
 	if newpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if newpassword.MinLength() {
@@ -29,7 +30,7 @@ func (r *PasswordModel) Validate() (err error) {
 	}
 
 	// Validate old password input
-	oldpassword := u.Validate{Input: r.OldPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	oldpassword := validate.Validate{Input: r.OldPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
 	if oldpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if oldpassword.MinLength() {
@@ -46,13 +47,13 @@ func (r *PasswordModel) Validate() (err error) {
 func (r *PasswordModel) GetOldPassword() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// get stored password
-	err = db.QueryRow("select user_password from users where user_id = ?", r.Uid).Scan(&r.OldHashed)
+	err = dbase.QueryRow("select user_password from users where user_id = ?", r.Uid).Scan(&r.OldHashed)
 	if err != nil {
 		return
 	}
@@ -65,12 +66,12 @@ func (r *PasswordModel) GetOldPassword() (err error) {
 func (r *PasswordModel) Update() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("UPDATE users SET user_password = ? WHERE user_id = ?")
+	ps1, err := dbase.Prepare("UPDATE users SET user_password = ? WHERE user_id = ?")
 	if err != nil {
 		return
 	}

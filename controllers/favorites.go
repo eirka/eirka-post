@@ -4,7 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/auth"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -20,7 +22,7 @@ func FavoritesController(c *gin.Context) {
 	var ff favoritesForm
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
+	userdata := c.MustGet("userdata").(auth.User)
 
 	err = c.Bind(&ff)
 	if err != nil {

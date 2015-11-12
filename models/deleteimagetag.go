@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 
-	e "github.com/techjanitor/pram-post/errors"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/techjanitor/pram-libs/db"
+	e "github.com/techjanitor/pram-libs/errors"
 )
 
 type DeleteImageTagModel struct {
@@ -18,13 +18,13 @@ type DeleteImageTagModel struct {
 func (i *DeleteImageTagModel) Status() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
 	// Check if the tag is there
-	err = db.QueryRow("SELECT ib_id, tag_name FROM tags WHERE tag_id = ? LIMIT 1", i.Tag).Scan(&i.Ib, &i.Name)
+	err = dbase.QueryRow("SELECT ib_id, tag_name FROM tags WHERE tag_id = ? LIMIT 1", i.Tag).Scan(&i.Ib, &i.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -39,12 +39,12 @@ func (i *DeleteImageTagModel) Status() (err error) {
 func (i *DeleteImageTagModel) Delete() (err error) {
 
 	// Get Database handle
-	db, err := u.GetDb()
+	dbase, err := db.GetDb()
 	if err != nil {
 		return
 	}
 
-	ps1, err := db.Prepare("DELETE FROM tagmap WHERE image_id = ? AND tag_id = ? LIMIT 1")
+	ps1, err := dbase.Prepare("DELETE FROM tagmap WHERE image_id = ? AND tag_id = ? LIMIT 1")
 	if err != nil {
 		return
 	}

@@ -5,8 +5,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
-	"github.com/techjanitor/pram-post/config"
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/auth"
+	"github.com/techjanitor/pram-libs/config"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -26,7 +28,7 @@ func RegisterController(c *gin.Context) {
 	var rf registerForm
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
+	userdata := c.MustGet("userdata").(auth.User)
 
 	err = c.Bind(&rf)
 	if err != nil {

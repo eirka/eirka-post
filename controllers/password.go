@@ -5,7 +5,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
-	e "github.com/techjanitor/pram-post/errors"
+	"github.com/techjanitor/pram-libs/auth"
+	e "github.com/techjanitor/pram-libs/errors"
+
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -23,7 +25,7 @@ func PasswordController(c *gin.Context) {
 	var pf passwordForm
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(u.User)
+	userdata := c.MustGet("userdata").(auth.User)
 
 	err = c.Bind(&pf)
 	if err != nil {

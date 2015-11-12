@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/techjanitor/pram-post/config"
+	"github.com/techjanitor/pram-libs/config"
 )
 
 var Services *Capabilities
