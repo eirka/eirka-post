@@ -5,6 +5,7 @@ import (
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 
 	"github.com/techjanitor/pram-libs/auth"
 	"github.com/techjanitor/pram-libs/config"
