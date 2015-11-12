@@ -18,6 +18,10 @@ import (
 	u "github.com/techjanitor/pram-post/utils"
 )
 
+var (
+	version = "0.9.1"
+)
+
 func init() {
 
 	dbase := db.Database{
@@ -45,6 +49,9 @@ func init() {
 
 	// set cors domains
 	cors.Domains = local.Settings.CORS.Sites
+
+	// print the starting info
+	StartInfo()
 
 	// Print out config
 	config.Print()
@@ -114,5 +121,15 @@ func main() {
 	}
 
 	gracehttp.Serve(s)
+
+}
+
+func StartInfo() {
+
+	fmt.Println(strings.Repeat("*", 60))
+	fmt.Printf("%-20v\n\n", "PRAM-POST")
+	fmt.Printf("%-20v\n\n", "Information")
+	fmt.Printf("%-20v%40v\n", "Version", version)
+	fmt.Println(strings.Repeat("*", 60))
 
 }
