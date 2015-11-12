@@ -50,6 +50,9 @@ func init() {
 	// set auth middleware secret
 	auth.Secret = local.Settings.Session.Secret
 
+	// set cors domains
+	cors.Domains = local.Settings.CORS.Sites
+
 	// Print capabilities
 	u.Services.Print()
 
