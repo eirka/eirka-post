@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 
+	local "github.com/techjanitor/pram-post/config"
+
 	"github.com/techjanitor/pram-libs/config"
 )
 
@@ -41,7 +43,7 @@ func (i *ImageType) SaveWebM() (err error) {
 
 // check webm metadata to make sure its the correct type of video, size, etc
 func (i *ImageType) checkWebM() (err error) {
-	imagefile := filepath.Join(config.Settings.Directories.ImageDir, i.Filename)
+	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
 
 	avprobeArgs := []string{
 		"-v",
@@ -116,8 +118,8 @@ func (i *ImageType) checkWebM() (err error) {
 
 // create a webm thumbnail from the first frames
 func (i *ImageType) createWebMThumbnail() (err error) {
-	imagefile := filepath.Join(config.Settings.Directories.ImageDir, i.Filename)
-	thumbfile := filepath.Join(config.Settings.Directories.ThumbnailDir, i.Thumbnail)
+	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
+	thumbfile := filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
 
 	var timepoint string
 

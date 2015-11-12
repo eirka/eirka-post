@@ -21,6 +21,8 @@ import (
 	"strings"
 	"time"
 
+	local "github.com/techjanitor/pram-post/config"
+
 	"github.com/techjanitor/pram-libs/config"
 )
 
@@ -249,7 +251,7 @@ func (i *ImageType) makeFilenames() (err error) {
 func (i *ImageType) saveFile() (err error) {
 	buffer := bytes.NewReader(i.image)
 
-	imagefile := filepath.Join(config.Settings.Directories.ImageDir, i.Filename)
+	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
 
 	image, err := os.Create(imagefile)
 	if err != nil {
@@ -283,8 +285,8 @@ func (i *ImageType) saveFile() (err error) {
 }
 
 func (i *ImageType) createThumbnail() (err error) {
-	imagefile := filepath.Join(config.Settings.Directories.ImageDir, i.Filename)
-	thumbfile := filepath.Join(config.Settings.Directories.ThumbnailDir, i.Thumbnail)
+	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
+	thumbfile := filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
 
 	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
 	thumb_dimensions := fmt.Sprintf("%dx%d>", config.Settings.Limits.ThumbnailMaxWidth, config.Settings.Limits.ThumbnailMaxHeight)
