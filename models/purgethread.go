@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/techjanitor/pram-libs/config"
 	"github.com/techjanitor/pram-libs/db"
 	e "github.com/techjanitor/pram-libs/errors"
 
+	local "github.com/techjanitor/pram-post/config"
 	u "github.com/techjanitor/pram-post/utils"
 )
 
@@ -136,8 +136,8 @@ func (i *PurgeThreadModel) Delete() (err error) {
 				}
 			}
 
-			os.RemoveAll(filepath.Join(config.Settings.Directories.ImageDir, image.File))
-			os.RemoveAll(filepath.Join(config.Settings.Directories.ThumbnailDir, image.Thumb))
+			os.RemoveAll(filepath.Join(local.Settings.Directories.ImageDir, image.File))
+			os.RemoveAll(filepath.Join(local.Settings.Directories.ThumbnailDir, image.Thumb))
 
 		}
 
