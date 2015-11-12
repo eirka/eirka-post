@@ -11,6 +11,7 @@ import (
 	"github.com/techjanitor/pram-libs/config"
 	e "github.com/techjanitor/pram-libs/errors"
 
+	local "github.com/techjanitor/pram-post/config"
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
@@ -66,7 +67,7 @@ func LoginController(c *gin.Context) {
 	}
 
 	// rate limit login
-	err = auth.LoginCounter(m.Id)
+	err = u.LoginCounter(m.Id)
 	if err != nil {
 		c.JSON(429, gin.H{"error_message": err.Error()})
 		c.Error(err)
@@ -108,7 +109,7 @@ func LoginController(c *gin.Context) {
 	token.Claims["user_id"] = m.Id
 
 	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString([]byte(config.Settings.Session.Secret))
+	tokenString, err := token.SignedString([]byte(local.Settings.Session.Secret))
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
