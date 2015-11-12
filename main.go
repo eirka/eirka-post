@@ -47,6 +47,9 @@ func init() {
 	// Print out config
 	local.Print()
 
+	// set auth middleware secret
+	auth.Secret = local.Settings.Session.Secret
+
 	// Print capabilities
 	u.Services.Print()
 
