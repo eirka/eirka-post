@@ -52,6 +52,9 @@ func init() {
 	// Print out config
 	local.Print()
 
+	// check what services are available
+	u.CheckServices()
+
 	// Print capabilities
 	u.Services.Print()
 

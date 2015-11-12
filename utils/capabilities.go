@@ -25,7 +25,7 @@ type Capabilities struct {
 	}
 }
 
-func init() {
+func CheckServices() {
 
 	Services = &Capabilities{}
 
