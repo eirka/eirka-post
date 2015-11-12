@@ -25,9 +25,11 @@ type Capabilities struct {
 	}
 }
 
-func CheckServices() {
-
+func init() {
 	Services = &Capabilities{}
+}
+
+func CheckServices() {
 
 	if config.Settings.Amazon.Key != "" {
 		Services.Storage.Amazon = true
