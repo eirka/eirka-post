@@ -11,7 +11,6 @@ import (
 	e "github.com/techjanitor/pram-libs/errors"
 
 	"github.com/techjanitor/pram-post/models"
-	u "github.com/techjanitor/pram-post/utils"
 )
 
 // Input from new thread form

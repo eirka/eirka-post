@@ -10,7 +10,6 @@ import (
 	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
-	u "github.com/techjanitor/pram-post/utils"
 )
 
 // Add a favorites
@@ -51,7 +50,7 @@ func FavoritesController(c *gin.Context) {
 	// Check fav, if its there delete it because i dont want this to be too complicated
 	err = m.Status()
 	if err == e.ErrFavoriteRemoved {
-		c.JSON(http.StatusOK, gin.H{"success_message": u.AuditFavoriteRemoved})
+		c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditFavoriteRemoved})
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
@@ -67,7 +66,7 @@ func FavoritesController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditFavoriteAdded})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditFavoriteAdded})
 
 	return
 

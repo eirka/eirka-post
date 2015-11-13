@@ -12,7 +12,6 @@ import (
 	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
-	u "github.com/techjanitor/pram-post/utils"
 )
 
 // New tag input

@@ -11,7 +11,6 @@ import (
 	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
-	u "github.com/techjanitor/pram-post/utils"
 )
 
 // CloseThreadController will toggle a threads Close bool

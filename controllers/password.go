@@ -10,7 +10,6 @@ import (
 	e "github.com/techjanitor/pram-libs/errors"
 
 	"github.com/techjanitor/pram-post/models"
-	u "github.com/techjanitor/pram-post/utils"
 )
 
 // Input from change password form
