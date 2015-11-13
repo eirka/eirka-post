@@ -54,7 +54,7 @@ func init() {
 	}
 
 	// Set up Redis connection
-	redis.NewRedisCache()
+	r.NewRedisCache()
 
 	// set auth middleware secret
 	auth.Secret = local.Settings.Session.Secret
