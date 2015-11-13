@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	e "github.com/techjanitor/pram-libs/errors"
-	"github.com/techjanitor/pram-libs/redis"
+	r "github.com/techjanitor/pram-libs/redis"
 )
 
 var (
@@ -21,7 +21,7 @@ func LoginCounter(userid uint) (err error) {
 	uid := strconv.Itoa(int(userid))
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := r.RedisCache
 
 	// key is like login:21
 	key := fmt.Sprintf("login:%s", uid)
