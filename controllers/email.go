@@ -4,8 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -54,13 +56,13 @@ func EmailController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditEmailUpdate})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditEmailUpdate})
 
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     ef.Ib,
 		Ip:     c.ClientIP(),
-		Action: u.AuditEmailUpdate,
+		Action: audit.AuditEmailUpdate,
 		Info:   userdata.Name,
 	}
 

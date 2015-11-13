@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -48,7 +50,7 @@ func PurgePostController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := u.RedisCache
+	cache := redis.RedisCache
 
 	// Delete redis stuff
 	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
@@ -69,14 +71,14 @@ func PurgePostController(c *gin.Context) {
 	}
 
 	// response message
-	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditPurgePost})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditPurgePost})
 
 	// audit log
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     c.ClientIP(),
-		Action: u.AuditPurgePost,
+		Action: audit.AuditPurgePost,
 		Info:   fmt.Sprintf("%s/%d", m.Name, m.Id),
 	}
 

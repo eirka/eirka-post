@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -47,7 +49,7 @@ func CloseThreadController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := u.RedisCache
+	cache := redis.RedisCache
 
 	// Delete redis stuff
 	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
@@ -64,16 +66,16 @@ func CloseThreadController(c *gin.Context) {
 	var success_message string
 
 	if m.Closed {
-		success_message = u.AuditOpenThread
+		success_message = audit.AuditOpenThread
 	} else {
-		success_message = u.AuditCloseThread
+		success_message = audit.AuditCloseThread
 	}
 
 	// response message
 	c.JSON(http.StatusOK, gin.H{"success_message": success_message})
 
 	// audit log
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     c.ClientIP(),

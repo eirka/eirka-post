@@ -11,6 +11,7 @@ import (
 	"github.com/techjanitor/pram-libs/config"
 	"github.com/techjanitor/pram-libs/cors"
 	"github.com/techjanitor/pram-libs/db"
+	"github.com/techjanitor/pram-libs/redis"
 	"github.com/techjanitor/pram-libs/validate"
 
 	local "github.com/techjanitor/pram-post/config"
@@ -25,8 +26,9 @@ var (
 
 func init() {
 
+	// Database connection settings
 	dbase := db.Database{
-		// Database connection settings
+
 		User:           local.Settings.Database.User,
 		Password:       local.Settings.Database.Password,
 		Proto:          local.Settings.Database.Proto,
@@ -42,8 +44,17 @@ func init() {
 	// Get limits and stuff from database
 	config.GetDatabaseSettings()
 
+	// redis settings
+	r := redis.Redis{
+		// Redis address and max pool connections
+		Protocol:       local.Settings.Redis.Protocol,
+		Address:        local.Settings.Redis.Address,
+		MaxIdle:        local.Settings.Redis.MaxIdle,
+		MaxConnections: local.Settings.Redis.MaxConnections,
+	}
+
 	// Set up Redis connection
-	u.NewRedisCache()
+	redis.NewRedisCache()
 
 	// set auth middleware secret
 	auth.Secret = local.Settings.Session.Secret

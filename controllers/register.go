@@ -5,6 +5,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	"github.com/techjanitor/pram-libs/config"
 	e "github.com/techjanitor/pram-libs/errors"
@@ -88,13 +89,13 @@ func RegisterController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditRegister})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditRegister})
 
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     rf.Ib,
 		Ip:     c.ClientIP(),
-		Action: u.AuditRegister,
+		Action: audit.AuditRegister,
 		Info:   m.Name,
 	}
 

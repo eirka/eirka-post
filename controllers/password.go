@@ -5,6 +5,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
 
@@ -89,13 +90,13 @@ func PasswordController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditChangePassword})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditChangePassword})
 
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     pf.Ib,
 		Ip:     c.ClientIP(),
-		Action: u.AuditChangePassword,
+		Action: audit.AuditChangePassword,
 		Info:   userdata.Name,
 	}
 

@@ -5,9 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	"github.com/techjanitor/pram-libs/config"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -182,7 +184,7 @@ func ReplyController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := u.RedisCache
+	cache := redis.RedisCache
 
 	// Delete redis stuff
 	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
@@ -199,11 +201,11 @@ func ReplyController(c *gin.Context) {
 
 	c.Redirect(303, req.Referer())
 
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
-		Action: u.AuditReply,
+		Action: audit.AuditReply,
 		Info:   fmt.Sprintf("%d/%d", m.Thread, m.PostNum),
 	}
 

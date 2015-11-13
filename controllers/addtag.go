@@ -5,9 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	"github.com/techjanitor/pram-libs/config"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -82,7 +84,7 @@ func AddTagController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := u.RedisCache
+	cache := redis.RedisCache
 
 	// Delete redis stuff
 	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
@@ -96,13 +98,13 @@ func AddTagController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditAddTag})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditAddTag})
 
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     m.Ip,
-		Action: u.AuditAddTag,
+		Action: audit.AuditAddTag,
 		Info:   fmt.Sprintf("%d", m.Image),
 	}
 

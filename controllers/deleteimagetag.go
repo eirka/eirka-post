@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
+	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
@@ -48,7 +50,7 @@ func DeleteImageTagController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := u.RedisCache
+	cache := redis.RedisCache
 
 	// Delete redis stuff
 	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
@@ -63,14 +65,14 @@ func DeleteImageTagController(c *gin.Context) {
 	}
 
 	// response message
-	c.JSON(http.StatusOK, gin.H{"success_message": u.AuditDeleteImageTag})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditDeleteImageTag})
 
 	// audit log
-	audit := u.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     c.ClientIP(),
-		Action: u.AuditDeleteImageTag,
+		Action: audit.AuditDeleteImageTag,
 		Info:   fmt.Sprintf("%d/%s", m.Image, m.Name),
 	}
 
