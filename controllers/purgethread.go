@@ -72,11 +72,11 @@ func PurgeThreadController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditPurgeThread})
 
 	// audit log
-	audit := redis.Audit{
+	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
 		Ip:     c.ClientIP(),
-		Action: redis.AuditPurgeThread,
+		Action: audit.AuditPurgeThread,
 		Info:   fmt.Sprintf("%s", m.Name),
 	}
 
