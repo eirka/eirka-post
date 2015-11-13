@@ -10,19 +10,7 @@ import (
 var Settings *Config
 
 type Config struct {
-	Get struct {
-		// Settings for daemon
-		Address string
-		Port    uint
-	}
-
 	Post struct {
-		// Settings for daemon
-		Address string
-		Port    uint
-	}
-
-	Admin struct {
 		// Settings for daemon
 		Address string
 		Port    uint
@@ -70,7 +58,7 @@ func Print() {
 	fmt.Printf("%-20v\n", "Local Config")
 	fmt.Println(strings.Repeat("*", 60))
 	fmt.Printf("%-20v\n\n", "Server")
-	fmt.Printf("%-20v%40v\n", "Type", "Post")
+	fmt.Printf("%-20v%40v\n", "Type", "POST")
 	fmt.Printf("%-20v%40v\n", "Address", Settings.Post.Address)
 	fmt.Printf("%-20v%40v\n", "Port", Settings.Post.Port)
 	fmt.Println(strings.Repeat("*", 60))
