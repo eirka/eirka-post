@@ -2,11 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
 	"strconv"
 
 	e "github.com/techjanitor/pram-libs/errors"
-	r "github.com/techjanitor/pram-libs/redis"
+	"github.com/techjanitor/pram-libs/redis"
 )
 
 var (
@@ -21,7 +20,7 @@ func LoginCounter(userid uint) (err error) {
 	uid := strconv.Itoa(int(userid))
 
 	// Initialize cache handle
-	cache := r.RedisCache
+	cache := redis.RedisCache
 
 	// key is like login:21
 	key := fmt.Sprintf("login:%s", uid)
