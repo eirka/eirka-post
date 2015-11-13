@@ -75,7 +75,7 @@ func init() {
 	u.Services.Print()
 
 	// set cors domains
-	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("POST,DELETE", ","))
+	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("POST", ","))
 
 }
 
@@ -104,28 +104,6 @@ func main() {
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
 	users.POST("/email", c.EmailController)
-
-	// requires mod perms
-	mod := r.Group("/mod")
-	mod.Use(validate.ValidateParams())
-	mod.Use(auth.Auth(auth.Moderators))
-
-	mod.DELETE("/tag/:id", c.DeleteTagController)
-	mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
-	mod.DELETE("/thread/:id", c.DeleteThreadController)
-	mod.DELETE("/post/:thread/:id", c.DeletePostController)
-	mod.POST("/sticky/:thread", c.StickyThreadController)
-	mod.POST("/close/:thread", c.CloseThreadController)
-
-	// requires admin perms
-	admin := r.Group("/admin")
-	admin.Use(validate.ValidateParams())
-	admin.Use(auth.Auth(auth.Admins))
-
-	admin.DELETE("/thread/:id", c.PurgeThreadController)
-	admin.DELETE("/post/:thread/:id", c.PurgePostController)
-	//admin.POST("/ban/:ip", c.BanIpController)
-	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", local.Settings.Post.Address, local.Settings.Post.Port),
