@@ -7,7 +7,7 @@ import (
 )
 
 // Redirect to the correct imageboard after post
-func Link(id uint, referer string) (url string, err error) {
+func Link(id uint, referer string) (host string, err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -41,7 +41,7 @@ func Link(id uint, referer string) (url string, err error) {
 	}
 
 	// set the link
-	url = redir.String()
+	host = redir.String()
 
 	return
 
