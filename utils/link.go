@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"net/url"
-
 	"github.com/techjanitor/pram-libs/db"
 )
 
@@ -16,7 +14,7 @@ func Link(id uint) (host string, err error) {
 	}
 
 	// Get the url of the imageboard from the database
-	err = dbase.QueryRow("SELECT ib_domain FROM imageboards WHERE ib_id = ?", r.Id).Scan(&host)
+	err = dbase.QueryRow("SELECT ib_domain FROM imageboards WHERE ib_id = ?", id).Scan(&host)
 	if err != nil {
 		return
 	}
