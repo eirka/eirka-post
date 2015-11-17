@@ -7,7 +7,7 @@ import (
 )
 
 // Redirect to the correct imageboard after post
-func Link(id uint) (err error) (host string, err error) {
+func Link(id uint) (host string, err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
