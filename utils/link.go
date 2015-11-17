@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"net/url"
+
 	"github.com/techjanitor/pram-libs/db"
 )
 
 // Redirect to the correct imageboard after post
-func Link(id uint) (host string, err error) {
+func Link(id uint, referer string) (url string, err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -19,7 +21,27 @@ func Link(id uint) (host string, err error) {
 		return
 	}
 
-	host = "//" + host
+	// Get the scheme from the referer
+	refer, err := url.Parse(referer)
+	if err != nil {
+		return
+	}
+
+	// Get the domain from the database
+	base, err := url.Parse(host)
+	if err != nil {
+		return
+	}
+
+	// Create url
+	redir := &url.URL{
+		Scheme: refer.Scheme,
+		Host:   base.Host,
+		Path:   base.Path,
+	}
+
+	// set the link
+	url = redir.String()
 
 	return
 

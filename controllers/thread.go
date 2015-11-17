@@ -181,7 +181,7 @@ func ThreadController(c *gin.Context) {
 	}
 
 	// get board domain and redirect to it
-	redirect, err := u.Link(m.Ib)
+	redirect, err := u.Link(m.Ib, req.Referer())
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
