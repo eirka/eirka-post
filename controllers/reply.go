@@ -199,7 +199,15 @@ func ReplyController(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, req.Referer())
+	// get board domain and redirect to it
+	redirect, err := u.Link(m.Ib)
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
+	}
+
+	c.Redirect(303, redirect)
 
 	audit := audit.Audit{
 		User:   userdata.Id,
