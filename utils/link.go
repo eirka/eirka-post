@@ -19,6 +19,8 @@ func Link(id uint) (host string, err error) {
 		return
 	}
 
+	host = "//" + derp
+
 	return
 
 }
