@@ -93,7 +93,7 @@ func (r *RegisterModel) Register() (err error) {
 	}
 	defer ps1.Close()
 
-	e1, err = ps1.Exec(r.Name, r.Email, r.Hashed, 1)
+	e1, err := ps1.Exec(r.Name, r.Email, r.Hashed, 1)
 	if err != nil {
 		return
 	}
