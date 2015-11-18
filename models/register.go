@@ -87,13 +87,29 @@ func (r *RegisterModel) Register() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("INSERT into users (usergroup_id, user_name, user_email, user_password, user_confirmed, user_avatar) VALUES (?,?,?,?,?,ROUND((RAND() * (48-1))+1))")
+	ps1, err := dbase.Prepare("INSERT into users (user_name, user_email, user_password, user_confirmed, user_avatar) VALUES (?,?,?,?,ROUND((RAND() * (48-1))+1))")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(2, r.Name, r.Email, r.Hashed, 1)
+	_, err = ps1.Exec(r.Name, r.Email, r.Hashed, 1)
+	if err != nil {
+		return
+	}
+
+	user_id, err := ps1.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	ps2, err := dbase.Prepare("INSERT into user_group_map VALUES (?,?)")
+	if err != nil {
+		return
+	}
+	defer ps1.Close()
+
+	_, err = ps2.Exec(user_id, 2)
 	if err != nil {
 		return
 	}
