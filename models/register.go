@@ -103,7 +103,7 @@ func (r *RegisterModel) Register() (err error) {
 		return err
 	}
 
-	ps2, err := dbase.Prepare("INSERT into user_group_map VALUES (?,?)")
+	ps2, err := dbase.Prepare("INSERT into user_role_map VALUES (?,?)")
 	if err != nil {
 		return
 	}
