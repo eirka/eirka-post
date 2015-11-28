@@ -83,19 +83,6 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	// set user struct
-	user := auth.User{
-		Id: m.Id,
-	}
-
-	// get the rest of the user info
-	err = user.Info()
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
-		return
-	}
-
 	// create our jwt token for the response
 	token, err := auth.CreateToken(m.Id)
 	if err != nil {

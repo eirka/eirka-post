@@ -96,7 +96,7 @@ func PasswordController(c *gin.Context) {
 		Ib:     pf.Ib,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditChangePassword,
-		Info:   userdata.Name,
+		Info:   userdata.Id,
 	}
 
 	err = audit.Submit()

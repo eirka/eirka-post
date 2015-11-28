@@ -61,7 +61,7 @@ func EmailController(c *gin.Context) {
 		Ib:     ef.Ib,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditEmailUpdate,
-		Info:   userdata.Name,
+		Info:   userdata.Id,
 	}
 
 	err = audit.Submit()

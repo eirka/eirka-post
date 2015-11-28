@@ -87,7 +87,6 @@ func ThreadController(c *gin.Context) {
 	// Check comment in SFS and Akismet
 	check := u.CheckComment{
 		Ip:      m.Ip,
-		Name:    userdata.Name,
 		Ua:      req.UserAgent(),
 		Referer: req.Referer(),
 		Comment: m.Comment,
