@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"github.com/asaskevich/govalidator"
 
 	"github.com/techjanitor/pram-libs/db"
