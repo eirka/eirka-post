@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"time"
 
 	"github.com/techjanitor/pram-libs/auth"
 	"github.com/techjanitor/pram-libs/config"
@@ -86,7 +84,7 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	// set uset struct
+	// set user struct
 	user := auth.User{
 		Id: m.Id,
 	}
@@ -94,29 +92,20 @@ func LoginController(c *gin.Context) {
 	// get the rest of the user info
 	err = user.Info()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
-		c.Abort()
 		return
 	}
 
-	// Create the token
-	token := jwt.New(jwt.SigningMethodHS256)
-	// Set some claims
-	token.Claims["iss"] = "pram"
-	token.Claims["iat"] = time.Now().Unix()
-	token.Claims["exp"] = time.Now().Add(time.Hour * 24 * 90).Unix()
-	token.Claims["user_id"] = m.Id
-
-	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString([]byte(local.Settings.Session.Secret))
+	// create our jwt token for the response
+	token, err := auth.CreateToken(m.Id)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful", "token": tokenString})
+	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful", "token": token})
 
 	return
 

@@ -87,7 +87,7 @@ func main() {
 
 	// all users
 	public := r.Group("/")
-	public.Use(auth.Auth(auth.All))
+	public.Use(auth.Auth(false))
 
 	public.POST("/thread/new", m.GetAntiSpamCookie(), c.ThreadController)
 	public.POST("/thread/reply", m.GetAntiSpamCookie(), c.ReplyController)
@@ -98,7 +98,7 @@ func main() {
 
 	// requires user perms
 	users := r.Group("/user")
-	users.Use(auth.Auth(auth.Registered))
+	users.Use(auth.Auth(true))
 
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
