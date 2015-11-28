@@ -10,6 +10,7 @@ import (
 // Password contains information for initial account creation
 type PasswordModel struct {
 	Uid       uint
+	Name      string
 	OldPw     string
 	NewPw     string
 	OldHashed []byte
@@ -53,7 +54,7 @@ func (r *PasswordModel) GetOldPassword() (err error) {
 	}
 
 	// get stored password
-	err = dbase.QueryRow("select user_password from users where user_id = ?", r.Uid).Scan(&r.OldHashed)
+	err = dbase.QueryRow("SELECT user_name,user_password FROM users WHERE user_id = ?", r.Uid).Scan(&r.Name, &r.OldHashed)
 	if err != nil {
 		return
 	}

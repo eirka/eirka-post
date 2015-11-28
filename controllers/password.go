@@ -51,11 +51,7 @@ func PasswordController(c *gin.Context) {
 
 	// Get old password in db to provided
 	err = m.GetOldPassword()
-	if err == e.ErrInvalidPassword {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
-		return
-	} else if err != nil {
+	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
 		return
@@ -96,7 +92,7 @@ func PasswordController(c *gin.Context) {
 		Ib:     pf.Ib,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditChangePassword,
-		Info:   userdata.Id,
+		Info:   m.Name,
 	}
 
 	err = audit.Submit()
