@@ -9,7 +9,6 @@ import (
 	"github.com/techjanitor/pram-libs/config"
 	e "github.com/techjanitor/pram-libs/errors"
 
-	local "github.com/techjanitor/pram-post/config"
 	"github.com/techjanitor/pram-post/models"
 	u "github.com/techjanitor/pram-post/utils"
 )
