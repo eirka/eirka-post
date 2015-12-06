@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/lambda"
-
-	"github.com/techjanitor/pram-libs/config"
 )
 
 // the format for the lambda thumbnail
@@ -48,7 +47,7 @@ func (t *LambdaThumbnail) Execute() (width, height int, err error) {
 	}
 
 	// invoke lambda function
-	resp, err := svc.Invoke(params)
+	resp, err := session.Invoke(params)
 	if err != nil {
 		return
 	}
