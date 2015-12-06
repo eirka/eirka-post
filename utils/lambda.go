@@ -42,12 +42,14 @@ func (t *LambdaThumbnail) Execute() (width, height int, err error) {
 	// params for lambda invocation
 	params := &lambda.InvokeInput{
 		FunctionName:   aws.String("resize_image"),
-		InvocationType: lambda.InvocationTypeRequestResponse,
+		InvocationType: aws.String(lambda.InvocationTypeRequestResponse),
 		Payload:        output,
 	}
 
+	svc := lambda.New(session)
+
 	// invoke lambda function
-	resp, err := session.Invoke(params)
+	resp, err := svc.Invoke(params)
 	if err != nil {
 		return
 	}
