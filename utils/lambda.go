@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 
 	"github.com/techjanitor/pram-libs/config"
 )
