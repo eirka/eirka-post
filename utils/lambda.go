@@ -54,16 +54,15 @@ func (t *LambdaThumbnail) Execute() (width, height int, err error) {
 		return
 	}
 
-	if resp.FunctionError != "" {
-		err = errors.New(fmt.Sprintf("Error creating thumbnail: %s", resp.FunctionError))
-		return
-	}
-
 	response := LambdaResponse{}
 
 	err = json.Unmarshal(resp.Payload, &response)
 	if err != nil {
 		return
+	}
+
+	if response.Error != "" {
+		return errors.New(fmt.Sprintf("Error creating thumbnail: %s", response.Error))
 	}
 
 	// return our values
