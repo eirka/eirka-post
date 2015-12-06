@@ -24,10 +24,12 @@ type LambdaThumbnail struct {
 type LambdaResponse struct {
 	Success string `json:"successMessage"`
 	Error   string `json:"errorMessage"`
+	Width   int    `json:"thumbWidth"`
+	Height  int    `json:"thumbHeight"`
 }
 
 // posts to our api endpoint
-func (t *LambdaThumbnail) Create() (err error) {
+func (t *LambdaThumbnail) Create() (width, height int, err error) {
 
 	// Marshal the structs into JSON
 	output, err := json.Marshal(t)
@@ -69,6 +71,10 @@ func (t *LambdaThumbnail) Create() (err error) {
 	if response.Error != "" {
 		return errors.New(fmt.Sprintf("Error creating thumbnail: %s", response.Error))
 	}
+
+	// return our values
+	width = response.Width
+	height = response.Height
 
 	return
 

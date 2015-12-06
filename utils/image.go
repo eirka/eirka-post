@@ -293,7 +293,8 @@ func (i *ImageType) createThumbnail() (err error) {
 		MaxHeight: config.Settings.Limits.ThumbnailMaxHeight,
 	}
 
-	err = lambda.Create()
+	// run our lambda job and get the dimensions
+	i.ThumbWidth, i.ThumbHeight, err = lambda.Create()
 	if err != nil {
 		return
 	}
