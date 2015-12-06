@@ -69,7 +69,8 @@ func (t *LambdaThumbnail) Create() (width, height int, err error) {
 	}
 
 	if response.Error != "" {
-		return errors.New(fmt.Sprintf("Error creating thumbnail: %s", response.Error))
+		err = errors.New(fmt.Sprintf("Error creating thumbnail: %s", response.Error))
+		return
 	}
 
 	// return our values
