@@ -285,60 +285,18 @@ func (i *ImageType) saveFile() (err error) {
 }
 
 func (i *ImageType) createThumbnail() (err error) {
-	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
-	thumbfile := filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
 
-	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
-	thumb_dimensions := fmt.Sprintf("%dx%d>", config.Settings.Limits.ThumbnailMaxWidth, config.Settings.Limits.ThumbnailMaxHeight)
-	imagef := fmt.Sprintf("%s[0]", imagefile)
-
-	args := []string{
-		"-background",
-		"white",
-		"-flatten",
-		"-size",
-		orig_dimensions,
-		"-resize",
-		thumb_dimensions,
-		"-quality",
-		"90",
-		imagef,
-		thumbfile,
+	lambda := LambdaThumbnail{
+		Bucket:    config.Settings.Amazon.Bucket,
+		Filename:  i.Filename,
+		Thumbnail: i.Thumbnail,
+		MaxWidth:  config.Settings.Limits.ThumbnailMaxWidth,
+		MaxHeight: config.Settings.Limits.ThumbnailMaxHeight,
 	}
 
-	_, err = exec.Command("convert", args...).Output()
+	err = lambda.Create()
 	if err != nil {
-		return errors.New("problem making thumbnail")
-	}
-
-	thumb, err := os.Open(thumbfile)
-	if err != nil {
-		return errors.New("problem making thumbnail")
-	}
-	defer thumb.Close()
-
-	img, _, err := image.DecodeConfig(thumb)
-	if err != nil {
-		return errors.New("problem decoding thumbnail")
-	}
-
-	i.ThumbWidth = img.Width
-	i.ThumbHeight = img.Height
-
-	// upload the file to google if capability is set
-	if Services.Storage.Google {
-		err = UploadGCS(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
-		if err != nil {
-			return
-		}
-	}
-
-	// upload the file to amazon if capability is set
-	if Services.Storage.Amazon {
-		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg")
-		if err != nil {
-			return
-		}
+		return
 	}
 
 	return
