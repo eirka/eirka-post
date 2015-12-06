@@ -16,8 +16,8 @@ type LambdaThumbnail struct {
 	Bucket    string `json:"bucket"`
 	Filename  string `json:"filename"`
 	Thumbnail string `json:"thumbnail"`
-	MaxWidth  uint   `json:"max_width"`
-	MaxHeight uint   `json:"max_height"`
+	MaxWidth  int    `json:"max_width"`
+	MaxHeight int    `json:"max_height"`
 }
 
 // the format of the lambda context response
@@ -43,8 +43,8 @@ func (t *LambdaThumbnail) Create() (err error) {
 		return
 	}
 
-	res.Header.Add("x-api-key", config.Settings.Lambda.Thumbnail.Key)
-	res.Header.Add("User-Agent", "Pram/1.2")
+	req.Header.Add("x-api-key", config.Settings.Lambda.Thumbnail.Key)
+	req.Header.Add("User-Agent", "Pram/1.2")
 
 	client := &http.Client{}
 
