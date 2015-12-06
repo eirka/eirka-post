@@ -54,7 +54,7 @@ func (t *LambdaThumbnail) Create() (err error) {
 	}
 	defer res.Body.Close()
 
-	body, err := httputil.DumpResponse(res, true)
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return
 	}
