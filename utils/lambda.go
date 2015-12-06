@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
-	"net/http"
+	"github.com/aws/aws-sdk-go/service/lambda"
 
 	"github.com/techjanitor/pram-libs/config"
 )
@@ -29,7 +27,7 @@ type LambdaResponse struct {
 }
 
 // posts to our api endpoint
-func (t *LambdaThumbnail) Create() (width, height int, err error) {
+func (t *LambdaThumbnail) Execute() (width, height int, err error) {
 
 	// Marshal the structs into JSON
 	output, err := json.Marshal(t)
@@ -37,39 +35,33 @@ func (t *LambdaThumbnail) Create() (width, height int, err error) {
 		return
 	}
 
-	b := bytes.NewReader(output)
-
-	// Make a post request with our writer
-	req, err := http.NewRequest("POST", config.Settings.Lambda.Thumbnail.Endpoint, b)
+	session, err := AWSSession()
 	if err != nil {
 		return
 	}
 
-	req.Header.Add("x-api-key", config.Settings.Lambda.Thumbnail.Key)
-	req.Header.Add("User-Agent", "Pram/1.2")
+	// params for lambda invocation
+	params := &lambda.InvokeInput{
+		FunctionName:   aws.String("resize_image"),
+		InvocationType: lambda.InvocationTypeRequestResponse,
+		Payload:        output,
+	}
 
-	client := &http.Client{}
-
-	res, err := client.Do(req)
+	// invoke lambda function
+	resp, err := svc.Invoke(params)
 	if err != nil {
 		return
 	}
-	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
+	if resp.FunctionError != "" {
+		err = errors.New(fmt.Sprintf("Error creating thumbnail: %s", resp.FunctionError))
 		return
 	}
 
 	response := LambdaResponse{}
 
-	err = json.Unmarshal(body, &response)
+	err = json.Unmarshal(resp.Payload, &response)
 	if err != nil {
-		return
-	}
-
-	if response.Error != "" {
-		err = errors.New(fmt.Sprintf("Error creating thumbnail: %s", response.Error))
 		return
 	}
 

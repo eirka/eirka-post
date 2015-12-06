@@ -294,7 +294,7 @@ func (i *ImageType) createThumbnail() (err error) {
 	}
 
 	// run our lambda job and get the dimensions
-	i.ThumbWidth, i.ThumbHeight, err = lambda.Create()
+	i.ThumbWidth, i.ThumbHeight, err = lambda.Execute()
 	if err != nil {
 		return
 	}

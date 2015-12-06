@@ -13,7 +13,7 @@ import (
 )
 
 // Authenticate to AWS and return handler
-func getS3() (svc *session.Session, err error) {
+func AWSSession() (svc *session.Session, err error) {
 
 	// new credentials from settings
 	creds := credentials.NewStaticCredentials(config.Settings.Amazon.Id, config.Settings.Amazon.Key, "")
@@ -31,7 +31,7 @@ func getS3() (svc *session.Session, err error) {
 // Upload a file to S3
 func UploadS3(filepath, filename, mime string) (err error) {
 
-	session, err := getS3()
+	session, err := AWSSession()
 	if err != nil {
 		return
 	}
@@ -61,7 +61,7 @@ func UploadS3(filepath, filename, mime string) (err error) {
 // Delete a file from S3
 func DeleteS3(object string) (err error) {
 
-	session, err := getS3()
+	session, err := AWSSession()
 	if err != nil {
 		return
 	}
