@@ -8,7 +8,6 @@ import (
 type FavoritesModel struct {
 	Uid   uint
 	Image uint
-	Ip    string
 }
 
 // ValidateInput will make sure all the parameters are valid

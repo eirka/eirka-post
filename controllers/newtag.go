@@ -39,8 +39,6 @@ func NewTagController(c *gin.Context) {
 
 	// Set parameters to NewTagModel
 	m := models.NewTagModel{
-		Uid:     userdata.Id,
-		Ip:      c.ClientIP(),
 		Ib:      ntf.Ib,
 		Tag:     ntf.Tag,
 		TagType: ntf.Type,

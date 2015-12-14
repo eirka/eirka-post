@@ -8,11 +8,9 @@ import (
 )
 
 type NewTagModel struct {
-	Uid     uint
 	Ib      uint
 	Tag     string
 	TagType uint
-	Ip      string
 }
 
 // ValidateInput will make sure all the parameters are valid

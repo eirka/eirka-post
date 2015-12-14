@@ -6,11 +6,9 @@ import (
 )
 
 type AddTagModel struct {
-	Uid   uint
 	Ib    uint
 	Tag   uint
 	Image uint
-	Ip    string
 }
 
 // ValidateInput will make sure all the parameters are valid
