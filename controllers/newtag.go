@@ -98,7 +98,7 @@ func NewTagController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
-		Ip:     m.Ip,
+		Ip:     c.ClientIP(),
 		Action: audit.AuditNewTag,
 		Info:   fmt.Sprintf("%s", m.Tag),
 	}

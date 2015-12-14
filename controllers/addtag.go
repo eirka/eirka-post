@@ -100,7 +100,7 @@ func AddTagController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
-		Ip:     m.Ip,
+		Ip:     c.ClientIP(),
 		Action: audit.AuditAddTag,
 		Info:   fmt.Sprintf("%d", m.Image),
 	}
