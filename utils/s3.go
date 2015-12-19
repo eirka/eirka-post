@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"os"
 
-	"github.com/techjanitor/pram-libs/config"
+	"github.com/eirka/eirka-libs/config"
 )
 
 // Authenticate to AWS and return handler

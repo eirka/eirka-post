@@ -3,10 +3,10 @@ package models
 import (
 	"github.com/asaskevich/govalidator"
 
-	"github.com/techjanitor/pram-libs/config"
-	"github.com/techjanitor/pram-libs/db"
-	e "github.com/techjanitor/pram-libs/errors"
-	"github.com/techjanitor/pram-libs/validate"
+	"github.com/eirka/eirka-libs/config"
+	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/validate"
 )
 
 // Register contains information for initial account creation

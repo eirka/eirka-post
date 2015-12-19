@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/techjanitor/pram-libs/config"
+	"github.com/eirka/eirka-libs/config"
 )
 
 var gckey []byte

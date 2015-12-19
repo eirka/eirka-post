@@ -3,7 +3,7 @@ package utils
 import (
 	"net/url"
 
-	"github.com/techjanitor/pram-libs/db"
+	"github.com/eirka/eirka-libs/db"
 )
 
 // Redirect to the correct imageboard after post

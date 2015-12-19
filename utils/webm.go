@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"strings"
 
-	local "github.com/techjanitor/pram-post/config"
+	local "github.com/eirka/eirka-post/config"
 
-	"github.com/techjanitor/pram-libs/config"
+	"github.com/eirka/eirka-libs/config"
 )
 
 func (i *ImageType) SaveWebM() (err error) {

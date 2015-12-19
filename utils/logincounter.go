@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	e "github.com/techjanitor/pram-libs/errors"
-	"github.com/techjanitor/pram-libs/redis"
+	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/redis"
 )
 
 var (

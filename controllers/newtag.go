@@ -5,13 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/techjanitor/pram-libs/audit"
-	"github.com/techjanitor/pram-libs/auth"
-	"github.com/techjanitor/pram-libs/config"
-	e "github.com/techjanitor/pram-libs/errors"
-	"github.com/techjanitor/pram-libs/redis"
+	"github.com/eirka/eirka-libs/audit"
+	"github.com/eirka/eirka-libs/auth"
+	"github.com/eirka/eirka-libs/config"
+	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/redis"
 
-	"github.com/techjanitor/pram-post/models"
+	"github.com/eirka/eirka-post/models"
 )
 
 // New tag input

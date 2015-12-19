@@ -5,14 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/techjanitor/pram-libs/audit"
-	"github.com/techjanitor/pram-libs/auth"
-	"github.com/techjanitor/pram-libs/config"
-	e "github.com/techjanitor/pram-libs/errors"
-	"github.com/techjanitor/pram-libs/redis"
+	"github.com/eirka/eirka-libs/audit"
+	"github.com/eirka/eirka-libs/auth"
+	"github.com/eirka/eirka-libs/config"
+	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/redis"
 
-	"github.com/techjanitor/pram-post/models"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/eirka/eirka-post/models"
+	u "github.com/eirka/eirka-post/utils"
 )
 
 // Input from new thread form

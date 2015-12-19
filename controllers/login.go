@@ -5,12 +5,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
-	"github.com/techjanitor/pram-libs/auth"
-	"github.com/techjanitor/pram-libs/config"
-	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/eirka/eirka-libs/auth"
+	"github.com/eirka/eirka-libs/config"
+	e "github.com/eirka/eirka-libs/errors"
 
-	"github.com/techjanitor/pram-post/models"
-	u "github.com/techjanitor/pram-post/utils"
+	"github.com/eirka/eirka-post/models"
+	u "github.com/eirka/eirka-post/utils"
 )
 
 // Input from login form

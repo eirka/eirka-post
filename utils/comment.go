@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"github.com/techjanitor/pram-libs/config"
+	"github.com/eirka/eirka-libs/config"
 
-	"github.com/techjanitor/pram-post/akismet"
+	"github.com/eirka/eirka-post/akismet"
 )
 
 type CheckComment struct {

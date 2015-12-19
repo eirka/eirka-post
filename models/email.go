@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"github.com/asaskevich/govalidator"
 
-	"github.com/techjanitor/pram-libs/db"
-	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 )
 
 // EmailModel contains new email

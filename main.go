@@ -7,16 +7,16 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/techjanitor/pram-libs/auth"
-	"github.com/techjanitor/pram-libs/config"
-	"github.com/techjanitor/pram-libs/cors"
-	"github.com/techjanitor/pram-libs/db"
-	"github.com/techjanitor/pram-libs/redis"
+	"github.com/eirka/eirka-libs/auth"
+	"github.com/eirka/eirka-libs/config"
+	"github.com/eirka/eirka-libs/cors"
+	"github.com/eirka/eirka-libs/db"
+	"github.com/eirka/eirka-libs/redis"
 
-	local "github.com/techjanitor/pram-post/config"
-	c "github.com/techjanitor/pram-post/controllers"
-	m "github.com/techjanitor/pram-post/middleware"
-	u "github.com/techjanitor/pram-post/utils"
+	local "github.com/eirka/eirka-post/config"
+	c "github.com/eirka/eirka-post/controllers"
+	m "github.com/eirka/eirka-post/middleware"
+	u "github.com/eirka/eirka-post/utils"
 )
 
 var (

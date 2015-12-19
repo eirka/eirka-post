@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/techjanitor/pram-libs/config"
+	"github.com/eirka/eirka-libs/config"
 )
 
 var Services *Capabilities

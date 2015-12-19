@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/techjanitor/pram-libs/config"
-	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/eirka/eirka-libs/config"
+	e "github.com/eirka/eirka-libs/errors"
 )
 
 func GetAntiSpamCookie() gin.HandlerFunc {
