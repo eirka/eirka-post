@@ -49,6 +49,7 @@ func UploadS3(filepath, filename, mime string) (err error) {
 		Key:                  aws.String(filename),
 		Body:                 file,
 		ContentType:          aws.String(mime),
+		CacheControl:         aws.String("public, max-age=31536000"),
 		ServerSideEncryption: aws.String(s3.ServerSideEncryptionAes256),
 	}
 
