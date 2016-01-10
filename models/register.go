@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"github.com/asaskevich/govalidator"
 
 	"github.com/eirka/eirka-libs/config"
@@ -15,6 +16,29 @@ type RegisterModel struct {
 	Email    string
 	Password string
 	Hashed   []byte
+}
+
+// check struct validity
+func (r *RegisterModel) IsValid() bool {
+
+	if r.Name == "" {
+		return false
+	}
+
+	if r.Email == "" {
+		return false
+	}
+
+	if r.Password == "" {
+		return false
+	}
+
+	if r.Hashed == nil {
+		return false
+	}
+
+	return true
+
 }
 
 // Validate will check the provided name length and email
@@ -56,8 +80,13 @@ func (r *RegisterModel) Validate() (err error) {
 // register new user
 func (r *RegisterModel) Register() (err error) {
 
-	if len(r.Hashed) == 0 {
+	if r.Hashed == nil {
 		return e.ErrPasswordEmpty
+	}
+
+	// check model validity
+	if !r.IsValid() {
+		return errors.New("RegisterModel is not valid")
 	}
 
 	// Get Database handle

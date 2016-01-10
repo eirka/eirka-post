@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/asaskevich/govalidator"
 
 	"github.com/eirka/eirka-libs/db"
@@ -14,6 +15,29 @@ type EmailModel struct {
 	Name         string
 	Email        string
 	CurrentEmail string
+}
+
+// check struct validity
+func (e *EmailModel) IsValid() bool {
+
+	if e.Uid == 0 {
+		return false
+	}
+
+	if e.Name == "" {
+		return false
+	}
+
+	if e.Email == "" {
+		return false
+	}
+
+	if e.CurrentEmail == "" {
+		return false
+	}
+
+	return true
+
 }
 
 // Validate will check the provided email
@@ -49,6 +73,11 @@ func (r *EmailModel) Validate() (err error) {
 
 // update email
 func (r *EmailModel) Update() (err error) {
+
+	// check model validity
+	if !r.IsValid() {
+		return errors.New("EmailModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

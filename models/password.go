@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -15,6 +17,37 @@ type PasswordModel struct {
 	NewPw     string
 	OldHashed []byte
 	NewHashed []byte
+}
+
+// check struct validity
+func (p *PasswordModel) IsValid() bool {
+
+	if p.Uid == 0 {
+		return false
+	}
+
+	if p.Name == "" {
+		return false
+	}
+
+	if p.OldPw == "" {
+		return false
+	}
+
+	if p.NewPw == "" {
+		return false
+	}
+
+	if p.OldHashed == nil {
+		return false
+	}
+
+	if p.NewHashed == nil {
+		return false
+	}
+
+	return true
+
 }
 
 // Validate will check the provided password
@@ -65,6 +98,11 @@ func (r *PasswordModel) GetOldPassword() (err error) {
 
 // change password
 func (r *PasswordModel) Update() (err error) {
+
+	// check model validity
+	if !r.IsValid() {
+		return errors.New("PasswordModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

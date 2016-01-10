@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 )
@@ -8,6 +10,21 @@ import (
 type FavoritesModel struct {
 	Uid   uint
 	Image uint
+}
+
+// check struct validity
+func (f *FavoritesModel) IsValid() bool {
+
+	if f.Uid == 0 || f.Uid == 1 {
+		return false
+	}
+
+	if f.Image == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 // ValidateInput will make sure all the parameters are valid
@@ -27,6 +44,11 @@ func (i *FavoritesModel) ValidateInput() (err error) {
 
 // Status will return info
 func (i *FavoritesModel) Status() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("FavoritesModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -66,6 +88,11 @@ func (i *FavoritesModel) Status() (err error) {
 
 // Post will add the fav to the database
 func (i *FavoritesModel) Post() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("FavoritesModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

@@ -11,6 +11,25 @@ type AddTagModel struct {
 	Image uint
 }
 
+// check struct validity
+func (a *AddTagModel) IsValid() bool {
+
+	if a.Ib == 0 {
+		return false
+	}
+
+	if a.Tag == 0 {
+		return false
+	}
+
+	if a.Image == 0 {
+		return false
+	}
+
+	return true
+
+}
+
 // ValidateInput will make sure all the parameters are valid
 func (i *AddTagModel) ValidateInput() (err error) {
 	if i.Ib == 0 {
@@ -71,6 +90,11 @@ func (i *AddTagModel) Status() (err error) {
 
 // Post will add the reply to the database with a transaction
 func (i *AddTagModel) Post() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("AddTagModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

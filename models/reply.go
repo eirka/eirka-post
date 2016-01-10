@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"github.com/microcosm-cc/bluemonday"
 	"html"
 
@@ -25,6 +26,69 @@ type ReplyModel struct {
 	ThumbWidth  int
 	ThumbHeight int
 	Image       bool
+}
+
+// check struct validity
+func (r *ReplyModel) IsValid() bool {
+
+	if r.Uid == 0 {
+		return false
+	}
+
+	if r.Ib == 0 {
+		return false
+	}
+
+	if r.Thread == 0 {
+		return false
+	}
+
+	if r.PostNum == 0 {
+		return false
+	}
+
+	if r.Ip == "" {
+		return false
+	}
+
+	if !r.Image && r.Comment == "" {
+		return false
+	}
+
+	if r.Image {
+
+		if t.Filename == "" {
+			return false
+		}
+
+		if t.Thumbnail == "" {
+			return false
+		}
+
+		if t.MD5 == "" {
+			return false
+		}
+
+		if t.OrigWidth == 0 {
+			return false
+		}
+
+		if t.OrigHeight == 0 {
+			return false
+		}
+
+		if t.ThumbWidth == 0 {
+			return false
+		}
+
+		if t.ThumbHeight == 0 {
+			return false
+		}
+
+	}
+
+	return true
+
 }
 
 // ValidateInput will make sure all the parameters are valid
@@ -70,6 +134,11 @@ func (i *ReplyModel) ValidateInput() (err error) {
 
 // Status will return info about the thread
 func (i *ReplyModel) Status() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("ReplyModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

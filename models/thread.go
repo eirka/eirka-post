@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"github.com/microcosm-cc/bluemonday"
 	"html"
 
@@ -13,7 +14,6 @@ import (
 type ThreadModel struct {
 	Uid         uint
 	Ib          uint
-	Id          uint
 	Ip          string
 	Title       string
 	Comment     string
@@ -24,6 +24,61 @@ type ThreadModel struct {
 	OrigHeight  int
 	ThumbWidth  int
 	ThumbHeight int
+}
+
+// check struct validity
+func (t *ThreadModel) IsValid() bool {
+
+	if t.Uid == 0 {
+		return false
+	}
+
+	if t.Ib == 0 {
+		return false
+	}
+
+	if t.Ip == "" {
+		return false
+	}
+
+	if t.Title == "" {
+		return false
+	}
+
+	if t.Comment == "" {
+		return false
+	}
+
+	if t.Filename == "" {
+		return false
+	}
+
+	if t.Thumbnail == "" {
+		return false
+	}
+
+	if t.MD5 == "" {
+		return false
+	}
+
+	if t.OrigWidth == 0 {
+		return false
+	}
+
+	if t.OrigHeight == 0 {
+		return false
+	}
+
+	if t.ThumbWidth == 0 {
+		return false
+	}
+
+	if t.ThumbHeight == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 // ValidateInput will make sure all the parameters are valid
@@ -67,6 +122,11 @@ func (i *ThreadModel) ValidateInput() (err error) {
 // Post will add the thread to the database with a transaction
 func (i *ThreadModel) Post() (err error) {
 
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("ThreadModel is not valid")
+	}
+
 	// Get transaction handle
 	tx, err := db.GetTransaction()
 	if err != nil {
@@ -105,8 +165,6 @@ func (i *ThreadModel) Post() (err error) {
 	if err != nil {
 		return
 	}
-
-	i.Id = uint(t_id)
 
 	e2, err := ps2.Exec(t_id, i.Uid, i.Ip, i.Comment)
 	if err != nil {

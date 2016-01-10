@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -11,6 +13,25 @@ type NewTagModel struct {
 	Ib      uint
 	Tag     string
 	TagType uint
+}
+
+// check struct validity
+func (n *NewTagModel) IsValid() bool {
+
+	if n.Ib == 0 {
+		return false
+	}
+
+	if n.Tag == "" {
+		return false
+	}
+
+	if n.TagType == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 // ValidateInput will make sure all the parameters are valid
@@ -65,6 +86,11 @@ func (i *NewTagModel) Status() (err error) {
 
 // Post will add the reply to the database with a transaction
 func (i *NewTagModel) Post() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("NewTagModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()
