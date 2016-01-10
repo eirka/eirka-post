@@ -213,7 +213,7 @@ func ReplyController(c *gin.Context) {
 		Ib:     m.Ib,
 		Ip:     m.Ip,
 		Action: audit.AuditReply,
-		Info:   fmt.Sprintf("%d/%d", m.Thread, m.PostNum),
+		Info:   fmt.Sprintf("%d/%d", m.Thread),
 	}
 
 	err = audit.Submit()
