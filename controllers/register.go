@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
 	"github.com/eirka/eirka-libs/audit"
@@ -61,7 +60,7 @@ func RegisterController(c *gin.Context) {
 	}
 
 	// Check database for duplicate name
-	if !user.ChekDuplicate(m.Name) {
+	if !user.CheckDuplicate(m.Name) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrDuplicateName.Error()})
 		c.Error(e.ErrDuplicateName)
 		return
