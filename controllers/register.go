@@ -59,8 +59,8 @@ func RegisterController(c *gin.Context) {
 		return
 	}
 
-	// check if the username is on the reserved list
-	if user.IsReservedName(m.Name) {
+	// check if the username is valid
+	if !user.IsValidName(m.Name) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
 		c.Error(e.ErrUserNotAllowed)
 		return

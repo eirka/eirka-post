@@ -39,6 +39,13 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
+	// check if the username is valid
+	if !user.IsValidName(lf.Name) {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
+		c.Error(e.ErrUserNotAllowed)
+		return
+	}
+
 	// default user
 	user := user.DefaultUser()
 
