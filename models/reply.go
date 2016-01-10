@@ -57,31 +57,31 @@ func (r *ReplyModel) IsValid() bool {
 
 	if r.Image {
 
-		if t.Filename == "" {
+		if r.Filename == "" {
 			return false
 		}
 
-		if t.Thumbnail == "" {
+		if r.Thumbnail == "" {
 			return false
 		}
 
-		if t.MD5 == "" {
+		if r.MD5 == "" {
 			return false
 		}
 
-		if t.OrigWidth == 0 {
+		if r.OrigWidth == 0 {
 			return false
 		}
 
-		if t.OrigHeight == 0 {
+		if r.OrigHeight == 0 {
 			return false
 		}
 
-		if t.ThumbWidth == 0 {
+		if r.ThumbWidth == 0 {
 			return false
 		}
 
-		if t.ThumbHeight == 0 {
+		if r.ThumbHeight == 0 {
 			return false
 		}
 
