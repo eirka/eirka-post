@@ -53,33 +53,12 @@ func (r *RegisterModel) Validate() (err error) {
 
 }
 
-// check for duplicate name before registering
-func (r *RegisterModel) CheckDuplicate() (err error) {
-
-	// Get Database handle
-	dbase, err := db.GetDb()
-	if err != nil {
-		return
-	}
-
-	var check bool
-
-	err = dbase.QueryRow("select count(*) from users where user_name = ?", r.Name).Scan(&check)
-	if err != nil {
-		return
-	}
-
-	// Error if it does
-	if check {
-		return e.ErrDuplicateName
-	}
-
-	return
-
-}
-
 // register new user
 func (r *RegisterModel) Register() (err error) {
+
+	if len(r.Hashed) == 0 {
+		return e.ErrPasswordEmpty
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

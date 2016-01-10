@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/eirka/eirka-libs/audit"
-	"github.com/eirka/eirka-libs/auth"
 	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-post/models"
 )
@@ -28,7 +28,7 @@ func RegisterController(c *gin.Context) {
 	var rf registerForm
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(auth.User)
+	userdata := c.MustGet("userdata").(user.User)
 
 	err = c.Bind(&rf)
 	if err != nil {
@@ -61,19 +61,14 @@ func RegisterController(c *gin.Context) {
 	}
 
 	// Check database for duplicate name
-	err = m.CheckDuplicate()
-	if err == e.ErrDuplicateName {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
-		return
-	} else if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+	if !user.ChekDuplicate(m.Name) {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrDuplicateName.Error()})
+		c.Error(e.ErrDuplicateName)
 		return
 	}
 
 	// hash password
-	m.Hashed, err = bcrypt.GenerateFromPassword([]byte(m.Password), bcrypt.DefaultCost)
+	m.Hashed, err = user.HashPassword(m.Password)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)

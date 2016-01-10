@@ -5,11 +5,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
-	"github.com/eirka/eirka-libs/auth"
 	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/user"
 
-	"github.com/eirka/eirka-post/models"
 	u "github.com/eirka/eirka-post/utils"
 )
 
@@ -41,50 +40,34 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	// Set parameters to LoginModel
-	m := models.LoginModel{
-		Name:     lf.Name,
-		Password: lf.Password,
-	}
+	// default user
+	user := user.DefaultUser()
 
-	// Validate input
-	err = m.Validate()
+	// get user id from name, this populates the password hash
+	err = user.FromName(lf.Name)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
-		return
-	}
-
-	// get user info
-	err = m.Query()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotExist.Error()})
 		c.Error(err)
 		return
 	}
 
 	// rate limit login
-	err = u.LoginCounter(m.Id)
+	err = u.LoginCounter(user.Id)
 	if err != nil {
 		c.JSON(429, gin.H{"error_message": err.Error()})
 		c.Error(err)
 		return
 	}
 
-	// compare provided password to stored hash
-	err = bcrypt.CompareHashAndPassword(m.Hash, []byte(m.Password))
-	if err == bcrypt.ErrMismatchedHashAndPassword {
+	// compare passwords
+	if !user.ComparePassword(lf.Password) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidPassword.Error()})
-		c.Error(err)
-		return
-	} else if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(e.ErrInvalidPassword)
 		return
 	}
 
-	// create our jwt token for the response
-	token, err := auth.CreateToken(m.Id)
+	// create jwt token
+	token, err := user.CreateToken()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
