@@ -135,11 +135,6 @@ func (i *ReplyModel) ValidateInput() (err error) {
 // Status will return info about the thread
 func (i *ReplyModel) Status() (err error) {
 
-	// check model validity
-	if !i.IsValid() {
-		return errors.New("ReplyModel is not valid")
-	}
-
 	// Get Database handle
 	dbase, err := db.GetDb()
 	if err != nil {
@@ -187,6 +182,11 @@ func (i *ReplyModel) Status() (err error) {
 
 // Post will add the reply to the database with a transaction
 func (i *ReplyModel) Post() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("ReplyModel is not valid")
+	}
 
 	// Get transaction handle
 	tx, err := db.GetTransaction()
