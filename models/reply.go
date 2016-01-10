@@ -15,7 +15,6 @@ type ReplyModel struct {
 	Uid         uint
 	Ib          uint
 	Thread      uint
-	PostNum     uint
 	Ip          string
 	Comment     string
 	Filename    string
@@ -40,10 +39,6 @@ func (r *ReplyModel) IsValid() bool {
 	}
 
 	if r.Thread == 0 {
-		return false
-	}
-
-	if r.PostNum == 0 {
 		return false
 	}
 
