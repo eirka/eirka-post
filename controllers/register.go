@@ -60,7 +60,7 @@ func RegisterController(c *gin.Context) {
 	}
 
 	// Check database for duplicate name
-	if !user.CheckDuplicate(m.Name) {
+	if user.CheckDuplicate(m.Name) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrDuplicateName.Error()})
 		c.Error(e.ErrDuplicateName)
 		return
