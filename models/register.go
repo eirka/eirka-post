@@ -25,10 +25,6 @@ func (r *RegisterModel) IsValid() bool {
 		return false
 	}
 
-	if r.Email == "" {
-		return false
-	}
-
 	if r.Password == "" {
 		return false
 	}
