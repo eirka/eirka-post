@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eirka/eirka-libs/auth"
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
+	"github.com/eirka/eirka-libs/user"
 
 	local "github.com/eirka/eirka-post/config"
 	c "github.com/eirka/eirka-post/controllers"

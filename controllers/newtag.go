@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/eirka/eirka-libs/audit"
-	"github.com/eirka/eirka-libs/auth"
 	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
+	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-post/models"
 )
@@ -28,7 +28,7 @@ func NewTagController(c *gin.Context) {
 	var ntf newTagForm
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(auth.User)
+	userdata := c.MustGet("userdata").(user.User)
 
 	err = c.Bind(&ntf)
 	if err != nil {

@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/eirka/eirka-libs/audit"
-	"github.com/eirka/eirka-libs/auth"
 	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-post/models"
 )
@@ -23,7 +23,7 @@ func EmailController(c *gin.Context) {
 	var ef emailForm
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(auth.User)
+	userdata := c.MustGet("userdata").(user.User)
 
 	err = c.Bind(&ef)
 	if err != nil {
