@@ -59,6 +59,13 @@ func RegisterController(c *gin.Context) {
 		return
 	}
 
+	// check if the username is on the reserved list
+	if user.IsReservedName(m.Name) {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
+		c.Error(e.ErrUserNotAllowed)
+		return
+	}
+
 	// Check database for duplicate name
 	if user.CheckDuplicate(m.Name) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrDuplicateName.Error()})
