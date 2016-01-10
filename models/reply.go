@@ -140,12 +140,9 @@ func (i *ReplyModel) Status() (err error) {
 	var total uint
 
 	// Check if thread is closed and get the total amount of posts
-	err = dbase.QueryRow(`SELECT ib_id,thread_closed,count(post_num) 
-	FROM ( SELECT ib_id,threads.thread_id,thread_closed,post_num 
-	FROM threads  
-	INNER JOIN posts on threads.thread_id = posts.thread_id 
-	WHERE threads.thread_id = ? AND post_deleted != 1
-	GROUP BY post_num DESC) AS b`, i.Thread).Scan(&i.Ib, &closed, &total)
+	err = dbase.QueryRow(`SELECT ib_id,thread_closed,count(post_num) FROM threads
+    INNER JOIN posts on threads.thread_id = posts.thread_id
+    WHERE threads.thread_id = ? AND post_deleted != 1`, i.Thread).Scan(&i.Ib, &closed, &total)
 	if err != nil {
 		return
 	}
