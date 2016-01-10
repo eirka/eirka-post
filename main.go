@@ -83,6 +83,7 @@ func main() {
 
 	r.Use(cors.CORS())
 
+	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
 
 	// all users
