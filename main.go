@@ -56,7 +56,7 @@ func init() {
 	r.NewRedisCache()
 
 	// set auth middleware secret
-	auth.Secret = local.Settings.Session.Secret
+	user.Secret = local.Settings.Session.Secret
 
 	// print the starting info
 	StartInfo()
@@ -87,7 +87,7 @@ func main() {
 
 	// all users
 	public := r.Group("/")
-	public.Use(auth.Auth(false))
+	public.Use(user.Auth(false))
 
 	public.POST("/thread/new", m.GetAntiSpamCookie(), c.ThreadController)
 	public.POST("/thread/reply", m.GetAntiSpamCookie(), c.ReplyController)
@@ -98,7 +98,7 @@ func main() {
 
 	// requires user perms
 	users := r.Group("/user")
-	users.Use(auth.Auth(true))
+	users.Use(user.Auth(true))
 
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
