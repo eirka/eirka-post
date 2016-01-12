@@ -114,10 +114,6 @@ func main() {
 
 }
 
-func csrfFailHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s\n", nosurf.Reason(r))
-}
-
 func StartInfo() {
 
 	fmt.Println(strings.Repeat("*", 60))
