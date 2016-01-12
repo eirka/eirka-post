@@ -109,10 +109,6 @@ func main() {
 	csrf := nosurf.New(r)
 	csrf.SetFailureHandler(http.HandlerFunc(csrfFailHandler))
 
-	csrf.SetBaseCookie(http.Cookie{
-		HttpOnly: true,
-	})
-
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", local.Settings.Post.Address, local.Settings.Post.Port),
 		Handler: csrf,
