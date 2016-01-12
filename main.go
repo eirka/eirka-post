@@ -119,7 +119,7 @@ func main() {
 }
 
 func csrfFailHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s\n", nosurf.Reason(r))
+	fmt.Fprintf(w, "%s %s\n", nosurf.Reason(r), r.Header)
 }
 
 func StartInfo() {
