@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/gin-gonic/gin"
-	"github.com/justinas/nosurf"
 	"net/http"
 	"strings"
 
@@ -106,17 +105,9 @@ func main() {
 	users.POST("/password", c.PasswordController)
 	users.POST("/email", c.EmailController)
 
-	csrf := nosurf.New(r)
-	csrf.SetFailureHandler(http.HandlerFunc(csrfFailHandler))
-
-	csrf.SetBaseCookie(http.Cookie{
-		Path:     "/",
-		HttpOnly: true,
-	})
-
 	s := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", local.Settings.Post.Address, local.Settings.Post.Port),
-		Handler: csrf,
+		Handler: r,
 	}
 
 	gracehttp.Serve(s)
