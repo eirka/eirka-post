@@ -16,7 +16,6 @@ import (
 
 	local "github.com/eirka/eirka-post/config"
 	c "github.com/eirka/eirka-post/controllers"
-	m "github.com/eirka/eirka-post/middleware"
 	u "github.com/eirka/eirka-post/utils"
 )
 
@@ -93,10 +92,10 @@ func main() {
 	public := r.Group("/")
 	public.Use(user.Auth(false))
 
-	public.POST("/thread/new", m.GetAntiSpamCookie(), c.ThreadController)
-	public.POST("/thread/reply", m.GetAntiSpamCookie(), c.ReplyController)
-	public.POST("/tag/new", m.GetAntiSpamCookie(), c.NewTagController)
-	public.POST("/tag/add", m.GetAntiSpamCookie(), c.AddTagController)
+	public.POST("/thread/new", c.ThreadController)
+	public.POST("/thread/reply", c.ReplyController)
+	public.POST("/tag/new", c.NewTagController)
+	public.POST("/tag/add", c.AddTagController)
 	public.POST("/register", c.RegisterController)
 	public.POST("/login", c.LoginController)
 
