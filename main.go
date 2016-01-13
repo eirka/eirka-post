@@ -9,6 +9,7 @@ import (
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
+	"github.com/eirka/eirka-libs/csrf"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
@@ -82,6 +83,8 @@ func main() {
 	r := gin.Default()
 
 	r.Use(cors.CORS())
+	// verified the csrf token from the request
+	r.Use(csrf.Verify())
 
 	r.GET("/uptime", c.UptimeController)
 	r.NoRoute(c.ErrorController)
