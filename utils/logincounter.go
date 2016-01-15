@@ -10,20 +10,17 @@ import (
 
 var (
 	maxLogins    int  = 5
-	limitSeconds uint = 300
+	limitSeconds uint = 180
 )
 
 // will increment a counter in redis to limit login attempts
-func LoginCounter(userid uint) (err error) {
-
-	// convert userid to string
-	uid := strconv.Itoa(int(userid))
+func LoginCounter(userid uint, ip string) (err error) {
 
 	// Initialize cache handle
 	cache := redis.RedisCache
 
 	// key is like login:21
-	key := fmt.Sprintf("login:%s", uid)
+	key := fmt.Sprintf("login:%s:%d", ip, userid)
 
 	// increment login key
 	result, err := cache.Incr(key)
