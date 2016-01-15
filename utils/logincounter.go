@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"strconv"
 
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
