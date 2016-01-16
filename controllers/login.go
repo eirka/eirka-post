@@ -14,7 +14,6 @@ import (
 // Input from login form
 type loginForm struct {
 	Ib       uint   `json:"ib" binding:"required"`
-	Key      string `json:"askey" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -28,14 +27,6 @@ func LoginController(c *gin.Context) {
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
 		c.Error(err)
-		return
-	}
-
-	// Test for antispam key from Prim
-	antispam := lf.Key
-	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey)
 		return
 	}
 

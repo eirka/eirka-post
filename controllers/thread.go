@@ -17,7 +17,6 @@ import (
 
 // Input from new thread form
 type threadForm struct {
-	Key     string `form:"askey" binding:"required"`
 	Title   string `form:"title" binding:"required"`
 	Comment string `form:"comment" binding:"required"`
 	Ib      uint   `form:"ib" binding:"required"`
@@ -46,14 +45,6 @@ func ThreadController(c *gin.Context) {
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
 		c.Error(err)
-		return
-	}
-
-	// Test for antispam key from Prim
-	antispam := tf.Key
-	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey)
 		return
 	}
 

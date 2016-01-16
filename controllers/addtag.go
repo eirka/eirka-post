@@ -16,10 +16,9 @@ import (
 
 // Add tag input on image page
 type addTagForm struct {
-	Ib       uint   `json:"ib" binding:"required"`
-	Tag      uint   `json:"tag" binding:"required"`
-	Image    uint   `json:"image" binding:"required"`
-	Antispam string `json:"askey" binding:"required"`
+	Ib    uint `json:"ib" binding:"required"`
+	Tag   uint `json:"tag" binding:"required"`
+	Image uint `json:"image" binding:"required"`
 }
 
 // AddTagController handles the creation of new threads
@@ -42,14 +41,6 @@ func AddTagController(c *gin.Context) {
 		Ib:    atf.Ib,
 		Tag:   atf.Tag,
 		Image: atf.Image,
-	}
-
-	// Test for antispam key from Prim
-	antispam := atf.Antispam
-	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey)
-		return
 	}
 
 	// Validate input parameters

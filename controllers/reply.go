@@ -17,7 +17,6 @@ import (
 
 // Input from new reply form
 type replyForm struct {
-	Key     string `form:"askey" binding:"required"`
 	Comment string `form:"comment"`
 	Thread  uint   `form:"thread" binding:"required"`
 }
@@ -45,14 +44,6 @@ func ReplyController(c *gin.Context) {
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
 		c.Error(err)
-		return
-	}
-
-	// Test for antispam key from Prim
-	antispam := rf.Key
-	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey)
 		return
 	}
 

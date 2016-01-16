@@ -16,10 +16,9 @@ import (
 
 // New tag input
 type newTagForm struct {
-	Ib       uint   `json:"ib" binding:"required"`
-	Tag      string `json:"name" binding:"required"`
-	Type     uint   `json:"type" binding:"required"`
-	Antispam string `json:"askey" binding:"required"`
+	Ib   uint   `json:"ib" binding:"required"`
+	Tag  string `json:"name" binding:"required"`
+	Type uint   `json:"type" binding:"required"`
 }
 
 // NewTagController handles the creation of new threads
@@ -42,14 +41,6 @@ func NewTagController(c *gin.Context) {
 		Ib:      ntf.Ib,
 		Tag:     ntf.Tag,
 		TagType: ntf.Type,
-	}
-
-	// Test for antispam key from Prim
-	antispam := ntf.Antispam
-	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey)
-		return
 	}
 
 	// Validate input parameters
