@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
 	"github.com/eirka/eirka-libs/audit"
@@ -50,7 +49,7 @@ func PasswordController(c *gin.Context) {
 	}
 
 	// get the password from the database
-	err = user.Password()
+	err = userdata.Password()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("PasswordController.user.Password")
@@ -58,17 +57,17 @@ func PasswordController(c *gin.Context) {
 	}
 
 	// we now have the users name
-	m.Name = user.Name
+	m.Name = userdata.Name
 
 	// compare passwords
-	if !user.ComparePassword(m.OldPw) {
+	if !userdata.ComparePassword(m.OldPw) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidPassword.Error()})
 		c.Error(e.ErrInvalidPassword).SetMeta("PasswordController.user.ComparePassword")
 		return
 	}
 
 	// hash password
-	m.NewHashed, err = user.HashPassword(m.NewPw)
+	m.NewHashed, err = userdata.HashPassword(m.NewPw)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("PasswordController.user.HashPassword")
