@@ -48,8 +48,6 @@ func (r *RegisterModel) Validate() (err error) {
 		return e.ErrNameShort
 	} else if name.MaxLength() {
 		return e.ErrNameLong
-	} else if !name.IsUsername() {
-		return e.ErrNameAlphaNum
 	}
 
 	// Validate password input
