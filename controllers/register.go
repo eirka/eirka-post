@@ -30,7 +30,7 @@ func RegisterController(c *gin.Context) {
 	err = c.Bind(&rf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("RegisterController.Bind")
 		return
 	}
 
@@ -45,21 +45,21 @@ func RegisterController(c *gin.Context) {
 	err = m.Validate()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("RegisterController.Validate")
 		return
 	}
 
 	// check if the username is valid
 	if !user.IsValidName(m.Name) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
-		c.Error(e.ErrUserNotAllowed)
+		c.Error(e.ErrUserNotAllowed).SetMeta("RegisterController.user.IsValidName")
 		return
 	}
 
 	// Check database for duplicate name
 	if user.CheckDuplicate(m.Name) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrDuplicateName.Error()})
-		c.Error(e.ErrDuplicateName)
+		c.Error(e.ErrDuplicateName).SetMeta("RegisterController.user.CheckDuplicate")
 		return
 	}
 
@@ -67,7 +67,7 @@ func RegisterController(c *gin.Context) {
 	m.Hashed, err = user.HashPassword(m.Password)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("RegisterController.user.HashPassword")
 		return
 	}
 
@@ -75,7 +75,7 @@ func RegisterController(c *gin.Context) {
 	err = m.Register()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("RegisterController.Register")
 		return
 	}
 
@@ -89,9 +89,10 @@ func RegisterController(c *gin.Context) {
 		Info:   m.Name,
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("RegisterController.audit.Submit")
 	}
 
 	return

@@ -15,7 +15,6 @@ type PasswordModel struct {
 	Name      string
 	OldPw     string
 	NewPw     string
-	OldHashed []byte
 	NewHashed []byte
 }
 
@@ -35,10 +34,6 @@ func (p *PasswordModel) IsValid() bool {
 	}
 
 	if p.NewPw == "" {
-		return false
-	}
-
-	if p.OldHashed == nil {
 		return false
 	}
 
@@ -71,25 +66,6 @@ func (r *PasswordModel) Validate() (err error) {
 		return e.ErrPasswordShort
 	} else if oldpassword.MaxLength() {
 		return e.ErrPasswordLong
-	}
-
-	return
-
-}
-
-// check old password before changing
-func (r *PasswordModel) GetOldPassword() (err error) {
-
-	// Get Database handle
-	dbase, err := db.GetDb()
-	if err != nil {
-		return
-	}
-
-	// get stored password
-	err = dbase.QueryRow("SELECT user_name,user_password FROM users WHERE user_id = ?", r.Uid).Scan(&r.Name, &r.OldHashed)
-	if err != nil {
-		return
 	}
 
 	return

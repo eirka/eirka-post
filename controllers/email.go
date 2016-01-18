@@ -17,7 +17,7 @@ type emailForm struct {
 	Email string `json:"email" binding:"required"`
 }
 
-// EmailController handles initial registration
+// EmailController handles updating a users email
 func EmailController(c *gin.Context) {
 	var err error
 	var ef emailForm
@@ -28,7 +28,7 @@ func EmailController(c *gin.Context) {
 	err = c.Bind(&ef)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("EmailController.Bind")
 		return
 	}
 
@@ -42,7 +42,7 @@ func EmailController(c *gin.Context) {
 	err = m.Validate()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("EmailController.Validate")
 		return
 	}
 
@@ -50,7 +50,7 @@ func EmailController(c *gin.Context) {
 	err = m.Update()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("EmailController.Update")
 		return
 	}
 
@@ -64,9 +64,10 @@ func EmailController(c *gin.Context) {
 		Info:   m.Name,
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("EmailController.audit.Submit")
 	}
 
 	return

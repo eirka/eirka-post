@@ -20,7 +20,7 @@ type addTagForm struct {
 	Image uint `json:"image" binding:"required"`
 }
 
-// AddTagController handles the creation of new threads
+// AddTagController handles the addition of a tag to an image
 func AddTagController(c *gin.Context) {
 	var err error
 	var atf addTagForm
@@ -31,7 +31,7 @@ func AddTagController(c *gin.Context) {
 	err = c.Bind(&atf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("AddTagController.Bind")
 		return
 	}
 
@@ -46,7 +46,7 @@ func AddTagController(c *gin.Context) {
 	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("AddTagController.ValidateInput")
 		return
 	}
 
@@ -54,11 +54,11 @@ func AddTagController(c *gin.Context) {
 	err = m.Status()
 	if err == e.ErrDuplicateTag || err == e.ErrNotFound {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("AddTagController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("AddTagController.Status")
 		return
 	}
 
@@ -66,7 +66,7 @@ func AddTagController(c *gin.Context) {
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("AddTagController.Post")
 		return
 	}
 
@@ -81,7 +81,7 @@ func AddTagController(c *gin.Context) {
 	err = cache.Delete(tags_key, tag_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("AddTagController.cache.Delete")
 		return
 	}
 
@@ -95,9 +95,10 @@ func AddTagController(c *gin.Context) {
 		Info:   fmt.Sprintf("%d", m.Image),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("AddTagController.audit.Submit")
 	}
 
 	return

@@ -30,7 +30,7 @@ func PasswordController(c *gin.Context) {
 	err = c.Bind(&pf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("PasswordController.Bind")
 		return
 	}
 
@@ -45,35 +45,33 @@ func PasswordController(c *gin.Context) {
 	err = m.Validate()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("PasswordController.Validate")
 		return
 	}
 
-	// Get old password in db to provided
-	err = m.GetOldPassword()
+	// get the password from the database
+	err = user.Password()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("PasswordController.user.Password")
 		return
 	}
 
-	// compare provided password to stored hash
-	err = bcrypt.CompareHashAndPassword(m.OldHashed, []byte(m.OldPw))
-	if err == bcrypt.ErrMismatchedHashAndPassword {
+	// we now have the users name
+	m.Name = user.Name
+
+	// compare passwords
+	if !user.ComparePassword(m.OldPw) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidPassword.Error()})
-		c.Error(err)
-		return
-	} else if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(e.ErrInvalidPassword).SetMeta("PasswordController.user.ComparePassword")
 		return
 	}
 
-	// hash new password
-	m.NewHashed, err = bcrypt.GenerateFromPassword([]byte(m.NewPw), bcrypt.DefaultCost)
+	// hash password
+	m.NewHashed, err = user.HashPassword(m.NewPw)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("PasswordController.user.HashPassword")
 		return
 	}
 
@@ -81,7 +79,7 @@ func PasswordController(c *gin.Context) {
 	err = m.Update()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("PasswordController.Update")
 		return
 	}
 
@@ -95,9 +93,10 @@ func PasswordController(c *gin.Context) {
 		Info:   m.Name,
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("PasswordController.audit.Submit")
 	}
 
 	return

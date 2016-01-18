@@ -16,7 +16,7 @@ type favoritesForm struct {
 	Image uint `json:"image" binding:"required"`
 }
 
-// FavoritessController handles the creation of new threads
+// FavoritessController handles adding an image to a users favorites
 func FavoritesController(c *gin.Context) {
 	var err error
 	var ff favoritesForm
@@ -27,7 +27,7 @@ func FavoritesController(c *gin.Context) {
 	err = c.Bind(&ff)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("FavoritesController.Bind")
 		return
 	}
 
@@ -41,7 +41,7 @@ func FavoritesController(c *gin.Context) {
 	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("FavoritesController.ValidateInput")
 		return
 	}
 
@@ -52,7 +52,7 @@ func FavoritesController(c *gin.Context) {
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("FavoritesController.Status")
 		return
 	}
 
@@ -60,7 +60,7 @@ func FavoritesController(c *gin.Context) {
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("FavoritesController.Post")
 		return
 	}
 

@@ -25,14 +25,14 @@ func LoginController(c *gin.Context) {
 	err = c.Bind(&lf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("LoginController.Bind")
 		return
 	}
 
 	// check if the username is valid
 	if !user.IsValidName(lf.Name) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotAllowed.Error()})
-		c.Error(e.ErrUserNotAllowed)
+		c.Error(e.ErrUserNotAllowed).SetMeta("LoginController.user.IsValidName")
 		return
 	}
 
@@ -43,7 +43,7 @@ func LoginController(c *gin.Context) {
 	err = user.FromName(lf.Name)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotExist.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("LoginController.user.FromName")
 		return
 	}
 
@@ -51,14 +51,14 @@ func LoginController(c *gin.Context) {
 	err = u.LoginCounter(user.Id, c.ClientIP())
 	if err != nil {
 		c.JSON(429, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("LoginController.LoginCounter")
 		return
 	}
 
 	// compare passwords
 	if !user.ComparePassword(lf.Password) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidPassword.Error()})
-		c.Error(e.ErrInvalidPassword)
+		c.Error(e.ErrInvalidPassword).SetMeta("LoginController.user.ComparePassword")
 		return
 	}
 
@@ -66,7 +66,7 @@ func LoginController(c *gin.Context) {
 	token, err := user.CreateToken()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("LoginController.user.CreateToken")
 		return
 	}
 

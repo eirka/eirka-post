@@ -34,7 +34,7 @@ func ThreadController(c *gin.Context) {
 	// check size of content
 	if req.ContentLength > int64(config.Settings.Limits.ImageMaxSize) {
 		c.JSON(http.StatusExpectationFailed, gin.H{"error_message": e.ErrImageSize.Error()})
-		c.Error(e.ErrImageSize)
+		c.Error(e.ErrImageSize).SetMeta("ThreadController.ContentLength")
 		return
 	}
 
@@ -44,7 +44,7 @@ func ThreadController(c *gin.Context) {
 	err = c.Bind(&tf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.Bind")
 		return
 	}
 
@@ -63,7 +63,7 @@ func ThreadController(c *gin.Context) {
 	image.File, image.Header, err = req.FormFile("file")
 	if err == http.ErrMissingFile {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrNoImage.Error()})
-		c.Error(e.ErrNoImage)
+		c.Error(e.ErrNoImage).SetMeta("ThreadController.FormFile")
 		return
 	}
 
@@ -71,7 +71,7 @@ func ThreadController(c *gin.Context) {
 	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.ValidateInput")
 		return
 	}
 
@@ -86,7 +86,7 @@ func ThreadController(c *gin.Context) {
 	err = check.Get()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.CheckComment")
 		return
 	}
 
@@ -94,7 +94,7 @@ func ThreadController(c *gin.Context) {
 	err = image.ProcessFile()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.ProcessFile")
 		return
 	}
 
@@ -111,11 +111,11 @@ func ThreadController(c *gin.Context) {
 	err = duplicate.Get()
 	if err == e.ErrDuplicateImage {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error(), "thread": duplicate.Thread, "post": duplicate.Post})
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.Duplicate.Get")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.Duplicate.Get")
 		return
 	}
 
@@ -125,7 +125,7 @@ func ThreadController(c *gin.Context) {
 		err = image.SaveWebM()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err)
+			c.Error(err).SetMeta("ThreadController.SaveWebM")
 			return
 		}
 
@@ -135,7 +135,7 @@ func ThreadController(c *gin.Context) {
 		err = image.SaveImage()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err)
+			c.Error(err).SetMeta("ThreadController.SaveImage")
 			return
 		}
 
@@ -152,7 +152,7 @@ func ThreadController(c *gin.Context) {
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.Post")
 		return
 	}
 
@@ -166,7 +166,7 @@ func ThreadController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.cache.Delete")
 		return
 	}
 
@@ -174,7 +174,7 @@ func ThreadController(c *gin.Context) {
 	redirect, err := u.Link(m.Ib, req.Referer())
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.redirect")
 		return
 	}
 
@@ -188,9 +188,10 @@ func ThreadController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s", m.Title),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("ThreadController.audit.Submit")
 	}
 
 	return

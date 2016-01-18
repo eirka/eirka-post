@@ -33,7 +33,7 @@ func ReplyController(c *gin.Context) {
 	// check size of content
 	if req.ContentLength > int64(config.Settings.Limits.ImageMaxSize) {
 		c.JSON(http.StatusExpectationFailed, gin.H{"error_message": e.ErrImageSize.Error()})
-		c.Error(e.ErrImageSize)
+		c.Error(e.ErrImageSize).SetMeta("ReplyController.ContentLength")
 		return
 	}
 
@@ -43,7 +43,7 @@ func ReplyController(c *gin.Context) {
 	err = c.Bind(&rf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.Bind")
 		return
 	}
 
@@ -68,7 +68,7 @@ func ReplyController(c *gin.Context) {
 	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.ValidateInput")
 		return
 	}
 
@@ -76,11 +76,11 @@ func ReplyController(c *gin.Context) {
 	err = m.Status()
 	if err == e.ErrThreadClosed {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.Status")
 		return
 	}
 
@@ -97,7 +97,7 @@ func ReplyController(c *gin.Context) {
 		err = check.Get()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err)
+			c.Error(err).SetMeta("ReplyController.CheckComment")
 			return
 		}
 
@@ -109,7 +109,7 @@ func ReplyController(c *gin.Context) {
 		err = image.ProcessFile()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err)
+			c.Error(err).SetMeta("ReplyController.ProcessFile")
 			return
 		}
 
@@ -126,11 +126,11 @@ func ReplyController(c *gin.Context) {
 		err = duplicate.Get()
 		if err == e.ErrDuplicateImage {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error(), "thread": duplicate.Thread, "post": duplicate.Post})
-			c.Error(err)
+			c.Error(err).SetMeta("ReplyController.Get")
 			return
 		} else if err != nil {
 			c.JSON(e.ErrorMessage(e.ErrInternalError))
-			c.Error(err)
+			c.Error(err).SetMeta("ReplyController.Get")
 			return
 		}
 
@@ -140,7 +140,7 @@ func ReplyController(c *gin.Context) {
 			err = image.SaveWebM()
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-				c.Error(err)
+				c.Error(err).SetMeta("ReplyController.SaveWebM")
 				return
 			}
 
@@ -150,7 +150,7 @@ func ReplyController(c *gin.Context) {
 			err = image.SaveImage()
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-				c.Error(err)
+				c.Error(err).SetMeta("ReplyController.SaveImage")
 				return
 			}
 
@@ -169,7 +169,7 @@ func ReplyController(c *gin.Context) {
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.Post")
 		return
 	}
 
@@ -185,7 +185,7 @@ func ReplyController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key, thread_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.cache.Delete")
 		return
 	}
 
@@ -193,7 +193,7 @@ func ReplyController(c *gin.Context) {
 	redirect, err := u.Link(m.Ib, req.Referer())
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.redirect")
 		return
 	}
 
@@ -207,9 +207,10 @@ func ReplyController(c *gin.Context) {
 		Info:   fmt.Sprintf("%d", m.Thread),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("ReplyController.audit.Submit")
 	}
 
 	return

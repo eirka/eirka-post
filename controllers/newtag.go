@@ -20,7 +20,7 @@ type newTagForm struct {
 	Type uint   `json:"type" binding:"required"`
 }
 
-// NewTagController handles the creation of new threads
+// NewTagController handles the creation of new tags
 func NewTagController(c *gin.Context) {
 	var err error
 	var ntf newTagForm
@@ -31,7 +31,7 @@ func NewTagController(c *gin.Context) {
 	err = c.Bind(&ntf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("NewTagController.Bind")
 		return
 	}
 
@@ -46,7 +46,7 @@ func NewTagController(c *gin.Context) {
 	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("NewTagController.ValidateInput")
 		return
 	}
 
@@ -54,11 +54,11 @@ func NewTagController(c *gin.Context) {
 	err = m.Status()
 	if err == e.ErrDuplicateTag {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("NewTagController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("NewTagController.Status")
 		return
 	}
 
@@ -66,7 +66,7 @@ func NewTagController(c *gin.Context) {
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("NewTagController.Post")
 		return
 	}
 
@@ -79,7 +79,7 @@ func NewTagController(c *gin.Context) {
 	err = cache.Delete(tags_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("NewTagController.cache.Delete")
 		return
 	}
 
@@ -93,9 +93,10 @@ func NewTagController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s", m.Tag),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("NewTagController.audit.Submit")
 	}
 
 	return
