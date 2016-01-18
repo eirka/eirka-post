@@ -67,7 +67,7 @@ func PasswordController(c *gin.Context) {
 	}
 
 	// hash password
-	m.NewHashed, err = userdata.HashPassword(m.NewPw)
+	m.NewHashed, err = user.HashPassword(m.NewPw)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("PasswordController.user.HashPassword")
