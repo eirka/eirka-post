@@ -19,10 +19,6 @@ import (
 	u "github.com/eirka/eirka-post/utils"
 )
 
-var (
-	version = "0.9.1"
-)
-
 func init() {
 
 	// Database connection settings
@@ -57,21 +53,6 @@ func init() {
 
 	// set auth middleware secret
 	user.Secret = local.Settings.Session.Secret
-
-	// print the starting info
-	StartInfo()
-
-	// Print out config
-	config.Print()
-
-	// Print out config
-	local.Print()
-
-	// check what services are available
-	u.CheckServices()
-
-	// Print capabilities
-	u.Services.Print()
 
 	// set cors domains
 	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("POST", ","))
@@ -113,14 +94,5 @@ func main() {
 	}
 
 	gracehttp.Serve(s)
-
-}
-
-func StartInfo() {
-
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "PRAM-POST")
-	fmt.Printf("%-20v%40v\n", "Version", version)
-	fmt.Println(strings.Repeat("*", 60))
 
 }

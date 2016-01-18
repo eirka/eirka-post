@@ -12,9 +12,10 @@ import (
 	"strconv"
 	"strings"
 
-	local "github.com/eirka/eirka-post/config"
-
+	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
+
+	local "github.com/eirka/eirka-post/config"
 )
 
 func (i *ImageType) SaveWebM() (err error) {
@@ -188,20 +189,11 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	i.ThumbWidth = img.Width
 	i.ThumbHeight = img.Height
 
-	// upload the file to google if capability is set
-	if Services.Storage.Google {
-		err = UploadGCS(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail))
-		if err != nil {
-			return
-		}
-	}
+	s3 := amazon.New()
 
-	// upload the file to amazon if capability is set
-	if Services.Storage.Amazon {
-		err = UploadS3(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "video/webm")
-		if err != nil {
-			return
-		}
+	err = s3.Save(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "video/webm")
+	if err != nil {
+		return
 	}
 
 	return

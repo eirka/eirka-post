@@ -20,9 +20,10 @@ import (
 	"strings"
 	"time"
 
-	local "github.com/eirka/eirka-post/config"
-
+	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
+
+	local "github.com/eirka/eirka-post/config"
 )
 
 type ImageType struct {
@@ -263,20 +264,11 @@ func (i *ImageType) saveFile() (err error) {
 		return errors.New("problem saving file")
 	}
 
-	// upload the file to google if capability is set
-	if Services.Storage.Google {
-		err = UploadGCS(imagefile, fmt.Sprintf("src/%s", i.Filename))
-		if err != nil {
-			return
-		}
-	}
+	s3 := amazon.New()
 
-	// upload the file to amazon if capability is set
-	if Services.Storage.Amazon {
-		err = UploadS3(imagefile, fmt.Sprintf("src/%s", i.Filename), i.mime)
-		if err != nil {
-			return
-		}
+	err = s3.Save(imagefile, fmt.Sprintf("src/%s", i.Filename), i.mime)
+	if err != nil {
+		return
 	}
 
 	return
@@ -285,7 +277,7 @@ func (i *ImageType) saveFile() (err error) {
 
 func (i *ImageType) createThumbnail() (err error) {
 
-	lambda := LambdaThumbnail{
+	object := amazon.LambdaThumbnail{
 		Bucket:    config.Settings.Amazon.Bucket,
 		Filename:  i.Filename,
 		Thumbnail: i.Thumbnail,
@@ -293,8 +285,10 @@ func (i *ImageType) createThumbnail() (err error) {
 		MaxHeight: config.Settings.Limits.ThumbnailMaxHeight,
 	}
 
+	lambda := amazon.New()
+
 	// run our lambda job and get the dimensions
-	i.ThumbWidth, i.ThumbHeight, err = lambda.Execute()
+	i.ThumbWidth, i.ThumbHeight, err = lambda.Execute(object)
 	if err != nil {
 		return
 	}
