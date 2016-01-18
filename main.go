@@ -16,7 +16,6 @@ import (
 
 	local "github.com/eirka/eirka-post/config"
 	c "github.com/eirka/eirka-post/controllers"
-	u "github.com/eirka/eirka-post/utils"
 )
 
 func init() {
