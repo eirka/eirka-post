@@ -26,6 +26,15 @@ import (
 	local "github.com/eirka/eirka-post/config"
 )
 
+// valid file extensions
+var validExt = map[string]bool{
+	".jpg":  true,
+	".jpeg": true,
+	".png":  true,
+	".gif":  true,
+	".webm": true,
+}
+
 type ImageType struct {
 	File        multipart.File
 	Header      *multipart.FileHeader
@@ -120,14 +129,6 @@ func (i *ImageType) checkReqExt() (err error) {
 
 // Check if file ext allowed
 func isAllowedExt(ext string) bool {
-
-	validExt := map[string]bool{
-		".jpg":  true,
-		".jpeg": true,
-		".png":  true,
-		".gif":  true,
-		".webm": true,
-	}
 
 	if validExt[strings.ToLower(ext)] {
 		return true
