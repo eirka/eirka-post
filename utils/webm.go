@@ -197,7 +197,7 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 
 	s3 := amazon.New()
 
-	err = s3.Save(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "video/webm")
+	err = s3.Save(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg")
 	if err != nil {
 		return
 	}
