@@ -109,6 +109,14 @@ func formRandomRequest(filename string) *http.Request {
 
 func TestIsAllowedExt(t *testing.T) {
 
+	assert.False(t, isAllowedExt(".png.exe"), "Should not be allowed")
+
+	assert.False(t, isAllowedExt(".exe.png"), "Should not be allowed")
+
+	assert.False(t, isAllowedExt(""), "Should not be allowed")
+
+	assert.False(t, isAllowedExt("."), "Should not be allowed")
+
 	assert.False(t, isAllowedExt(".pdf"), "Should not be allowed")
 
 	assert.True(t, isAllowedExt(".jpg"), "Should be allowed")
@@ -135,6 +143,36 @@ func TestCheckReqGoodExt(t *testing.T) {
 func TestCheckReqBadExt(t *testing.T) {
 
 	req := formJpegRequest(300, "test.crap")
+
+	img := ImageType{}
+
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.checkReqExt()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("format not supported"), "Error should match")
+	}
+
+}
+
+func TestCheckReqBadExtExploit(t *testing.T) {
+
+	req := formJpegRequest(300, "test.exe.png")
+
+	img := ImageType{}
+
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.checkReqExt()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("format not supported"), "Error should match")
+	}
+
+}
+
+func TestCheckReqBadExtExploit2(t *testing.T) {
+
+	req := formJpegRequest(300, "test.png.exe")
 
 	img := ImageType{}
 
@@ -217,7 +255,7 @@ func TestCheckMagicBad(t *testing.T) {
 
 }
 
-func TestGetStatsGood(t *testing.T) {
+func TestGetStatsGoodPng(t *testing.T) {
 
 	config.Settings.Limits.ImageMaxWidth = 1000
 	config.Settings.Limits.ImageMinWidth = 100
@@ -228,6 +266,23 @@ func TestGetStatsGood(t *testing.T) {
 	img := ImageType{}
 
 	img.image = testPng(400)
+
+	err := img.getStats()
+	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestGetStatsGoodJpeg(t *testing.T) {
+
+	config.Settings.Limits.ImageMaxWidth = 1000
+	config.Settings.Limits.ImageMinWidth = 100
+	config.Settings.Limits.ImageMaxHeight = 1000
+	config.Settings.Limits.ImageMinHeight = 100
+	config.Settings.Limits.ImageMaxSize = 3000000
+
+	img := ImageType{}
+
+	img.image = testJpeg(400)
 
 	err := img.getStats()
 	assert.NoError(t, err, "An error was not expected")
