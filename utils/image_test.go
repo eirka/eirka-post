@@ -191,7 +191,9 @@ func TestCheckMagicGood(t *testing.T) {
 	}
 
 	err = img.checkMagic()
-	assert.NoError(t, err, "An error was not expected")
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.Equal(t, img.mime, "image/jpeg", "Mime type should be the same")
+	}
 
 }
 
