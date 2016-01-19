@@ -155,24 +155,32 @@ func TestCheckReqBadExt(t *testing.T) {
 
 }
 
-func TestCheckReqBadExtExploit(t *testing.T) {
+func TestCheckReqBadExtExploit1(t *testing.T) {
 
-	req := formJpegRequest(300, "test.exe.png")
+	req := formRandomRequest(300, "test.exe.png")
 
 	img := ImageType{}
 
 	img.File, img.Header, _ = req.FormFile("file")
 
 	err := img.checkReqExt()
+	assert.NoError(t, err, "An error was not expected")
+
+	err := img.getMD5()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+	}
+
+	err = img.checkMagic()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("format not supported"), "Error should match")
+		assert.Equal(t, err, errors.New("unknown file type"), "Error should match")
 	}
 
 }
 
 func TestCheckReqBadExtExploit2(t *testing.T) {
 
-	req := formJpegRequest(300, "test.png.exe")
+	req := formRandomRequest(300, "test.png.exe")
 
 	img := ImageType{}
 
