@@ -157,7 +157,7 @@ func TestCheckReqBadExt(t *testing.T) {
 
 func TestCheckReqBadExtExploit1(t *testing.T) {
 
-	req := formRandomRequest(300, "test.exe.png")
+	req := formRandomRequest("test.exe.png")
 
 	img := ImageType{}
 
@@ -166,7 +166,7 @@ func TestCheckReqBadExtExploit1(t *testing.T) {
 	err := img.checkReqExt()
 	assert.NoError(t, err, "An error was not expected")
 
-	err := img.getMD5()
+	err = img.getMD5()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 	}
@@ -180,7 +180,7 @@ func TestCheckReqBadExtExploit1(t *testing.T) {
 
 func TestCheckReqBadExtExploit2(t *testing.T) {
 
-	req := formRandomRequest(300, "test.png.exe")
+	req := formRandomRequest("test.png.exe")
 
 	img := ImageType{}
 
