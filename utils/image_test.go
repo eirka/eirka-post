@@ -74,7 +74,7 @@ func formJpegRequest(size int, filename string) *http.Request {
 
 	fw, _ := w.CreateFormFile("file", filename)
 
-	io.Copy(fw, bytes.NewReader(testJpeg(size)))
+	io.Copy(fw, testJpeg(size))
 
 	w.Close()
 
