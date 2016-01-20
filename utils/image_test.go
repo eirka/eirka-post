@@ -408,6 +408,8 @@ func TestSaveFile(t *testing.T) {
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, img.OrigHeight, 300, "Height should be the same")
 		assert.Equal(t, img.OrigWidth, 300, "Width should be the same")
+		assert.NotZero(t, img.ThumbHeight, "Thumbnail height should be returned")
+		assert.NotZero(t, img.ThumbWidth, "Thumbnail width should be returned")
 		assert.NotEmpty(t, img.Filename, "Filename should be returned")
 		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
 	}
