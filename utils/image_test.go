@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bufio"
 	"bytes"
 	crand "crypto/rand"
 	"errors"
@@ -19,11 +18,9 @@ import (
 	"github.com/eirka/eirka-libs/config"
 )
 
-func testPng(size int) []byte {
+func testPng(size int) *bytes.Buffer {
 
-	var b bytes.Buffer
-
-	buffer := bufio.NewWriter(&b)
+	output := new(bytes.Buffer)
 
 	myimage := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{size, size}})
 
@@ -35,16 +32,14 @@ func testPng(size int) []byte {
 		}
 	}
 
-	png.Encode(buffer, myimage)
+	png.Encode(output, myimage)
 
-	return b.Bytes()
+	return output
 }
 
 func testJpeg(size int) []byte {
 
-	var b bytes.Buffer
-
-	buffer := bufio.NewWriter(&b)
+	output := new(bytes.Buffer)
 
 	myimage := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{size, size}})
 
@@ -56,9 +51,9 @@ func testJpeg(size int) []byte {
 		}
 	}
 
-	jpeg.Encode(buffer, myimage, nil)
+	jpeg.Encode(output, myimage, nil)
 
-	return b.Bytes()
+	return output
 }
 
 func testRandom() []byte {
