@@ -13,9 +13,12 @@ import (
 	"math/rand"
 	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/eirka/eirka-libs/config"
+	local "github.com/eirka/eirka-post/config"
 )
 
 func testPng(size int) *bytes.Buffer {
@@ -376,12 +379,26 @@ func TestSaveFile(t *testing.T) {
 		assert.Equal(t, img.mime, "image/jpeg", "Mime type should be the same")
 	}
 
-	err = img.SaveImage()
+	filesize := img.image.Len()
+
+	err = img.getStats()
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, img.Filename, "Filename should be returned")
-		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
 		assert.Equal(t, img.OrigHeight, 300, "Height should be the same")
 		assert.Equal(t, img.OrigWidth, 300, "Width should be the same")
 	}
 
+	err = img.saveFile()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img.Filename, "Filename should be returned")
+		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
+	}
+
+	file, err = os.Open(filepath.Join(local.Settings.Directories.ImageDir, img.Filename))
+	assert.NoError(t, err, "An error was not expected")
+
+	info, err = file.Stat()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.Equal(t, info.Name(), img.File, "Name should be the same")
+		assert.Equal(t, info.Size(), filesize, "Size should be the same")
+	}
 }
