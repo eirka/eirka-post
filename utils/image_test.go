@@ -393,7 +393,7 @@ func TestSaveFile(t *testing.T) {
 		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
 	}
 
-	file, err = os.Open(filepath.Join(local.Settings.Directories.ImageDir, img.Filename))
+	file, err := os.Open(filepath.Join(local.Settings.Directories.ImageDir, img.Filename))
 	assert.NoError(t, err, "An error was not expected")
 
 	info, err = file.Stat()
