@@ -45,7 +45,7 @@ type ImageType struct {
 	OrigHeight  int
 	ThumbWidth  int
 	ThumbHeight int
-	image       *bytes.Buffer
+	image       new(*bytes.Buffer)
 	mime        string
 	duration    int
 }
