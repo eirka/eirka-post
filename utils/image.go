@@ -138,7 +138,7 @@ func (i *ImageType) getMD5() (err error) {
 
 	hasher := md5.New()
 
-	i.image = new(*bytes.Buffer)
+	i.image = new(bytes.Buffer)
 
 	// Save file and also read into hasher for md5
 	_, err = io.Copy(i.image, io.TeeReader(i.File, hasher))
