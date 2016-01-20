@@ -50,6 +50,39 @@ type ImageType struct {
 	duration    int
 }
 
+func (i *ImageType) IsValid() bool {
+
+	if i.Filename == "" {
+		return false
+	}
+
+	if i.Thumbnail == "" {
+		return false
+	}
+
+	if i.Ext == "" {
+		return false
+	}
+
+	if i.MD5 == "" {
+		return false
+	}
+
+	if i.OrigWidth == 0 {
+		return false
+	}
+
+	if i.OrigHeight == 0 {
+		return false
+	}
+
+	if i.mime == "" {
+		return false
+	}
+
+	return true
+}
+
 // ProcessFile will check file integrity, get an md5, and make filenames
 func (i *ImageType) ProcessFile() (err error) {
 
@@ -219,6 +252,10 @@ func (i *ImageType) saveFile() (err error) {
 	// generate filenames
 	i.makeFilenames()
 
+	if !i.IsValid() {
+		return errors.New("ImageType is not valid")
+	}
+
 	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
 
 	image, err := os.Create(imagefile)
@@ -269,6 +306,10 @@ func (i *ImageType) makeFilenames() {
 }
 
 func (i *ImageType) createThumbnail() (err error) {
+
+	if !i.IsValid() {
+		return errors.New("ImageType is not valid")
+	}
 
 	object := amazon.LambdaThumbnail{
 		Bucket:    config.Settings.Amazon.Bucket,

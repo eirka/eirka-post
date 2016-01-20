@@ -18,6 +18,12 @@ import (
 	local "github.com/eirka/eirka-post/config"
 )
 
+// allowed codecs
+var codecs = map[string]bool{
+	"vp8": true,
+	"vp9": true,
+}
+
 func (i *ImageType) SaveWebM() (err error) {
 
 	// save the file
@@ -44,6 +50,11 @@ func (i *ImageType) SaveWebM() (err error) {
 
 // check webm metadata to make sure its the correct type of video, size, etc
 func (i *ImageType) checkWebM() (err error) {
+
+	if !i.IsValid() {
+		return errors.New("ImageType is not valid")
+	}
+
 	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
 
 	avprobeArgs := []string{
@@ -66,12 +77,6 @@ func (i *ImageType) checkWebM() (err error) {
 	err = json.Unmarshal(cmd, &avprobe)
 	if err != nil {
 		return errors.New("problem decoding webm")
-	}
-
-	// allowed codecs
-	codecs := map[string]bool{
-		"vp8": true,
-		"vp9": true,
 	}
 
 	switch {
@@ -119,6 +124,11 @@ func (i *ImageType) checkWebM() (err error) {
 
 // create a webm thumbnail from the first frames
 func (i *ImageType) createWebMThumbnail() (err error) {
+
+	if !i.IsValid() {
+		return errors.New("ImageType is not valid")
+	}
+
 	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
 	thumbfile := filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
 

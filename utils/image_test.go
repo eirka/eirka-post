@@ -360,3 +360,28 @@ func TestMakeFilenames(t *testing.T) {
 	assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
 
 }
+
+func TestSaveFile(t *testing.T) {
+
+	req := formJpegRequest(300, "test.jpeg")
+
+	img := ImageType{}
+
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.ProcessFile()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+		assert.Equal(t, img.Ext, ".jpg", "Ext should be the same")
+		assert.Equal(t, img.mime, "image/jpeg", "Mime type should be the same")
+	}
+
+	err := img.SaveImage()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img.Filename, "Filename should be returned")
+		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
+		assert.Equal(t, img.OrigHeight, 300, "Height should be the same")
+		assert.Equal(t, img.OrigWidth, 300, "Width should be the same")
+	}
+
+}
