@@ -376,7 +376,7 @@ func TestSaveFile(t *testing.T) {
 		assert.Equal(t, img.mime, "image/jpeg", "Mime type should be the same")
 	}
 
-	err := img.SaveImage()
+	err = img.SaveImage()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.Filename, "Filename should be returned")
 		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
