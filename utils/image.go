@@ -45,7 +45,7 @@ type ImageType struct {
 	OrigHeight  int
 	ThumbWidth  int
 	ThumbHeight int
-	image       new(*bytes.Buffer)
+	image       *bytes.Buffer
 	mime        string
 	duration    int
 }
@@ -139,7 +139,7 @@ func (i *ImageType) getMD5() (err error) {
 	hasher := md5.New()
 
 	// Save file and also read into hasher for md5
-	_, err = io.Copy(i.image, io.TeeReader(i.File, hasher))
+	_, err = io.Copy(new(i.image), io.TeeReader(i.File, hasher))
 	if err != nil {
 		return errors.New("problem copying file")
 	}
