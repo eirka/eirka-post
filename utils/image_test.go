@@ -396,7 +396,7 @@ func TestSaveFile(t *testing.T) {
 	file, err := os.Open(filepath.Join(local.Settings.Directories.ImageDir, img.Filename))
 	assert.NoError(t, err, "An error was not expected")
 
-	info, err = file.Stat()
+	info, err := file.Stat()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, info.Name(), img.File, "Name should be the same")
 		assert.Equal(t, info.Size(), filesize, "Size should be the same")
