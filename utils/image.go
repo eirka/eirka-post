@@ -68,6 +68,14 @@ func (i *ImageType) IsValid() bool {
 		return false
 	}
 
+	if i.mime == "" {
+		return false
+	}
+
+	return true
+}
+
+func (i *ImageType) IsValidPost() bool {
 	if i.OrigWidth == 0 {
 		return false
 	}
@@ -76,7 +84,11 @@ func (i *ImageType) IsValid() bool {
 		return false
 	}
 
-	if i.mime == "" {
+	if i.ThumbWidth == 0 {
+		return false
+	}
+
+	if i.ThumbHeight == 0 {
 		return false
 	}
 
@@ -102,6 +114,11 @@ func (i *ImageType) ProcessFile() (err error) {
 	err = i.checkMagic()
 	if err != nil {
 		return
+	}
+
+	// check final state
+	if !i.IsValidPost() {
+		return errors.New("ImageType is not valid")
 	}
 
 	return

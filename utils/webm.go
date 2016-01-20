@@ -44,6 +44,11 @@ func (i *ImageType) SaveWebM() (err error) {
 		return
 	}
 
+	// check final state
+	if !i.IsValidPost() {
+		return errors.New("ImageType is not valid")
+	}
+
 	return
 
 }
