@@ -37,7 +37,7 @@ func testPng(size int) *bytes.Buffer {
 	return output
 }
 
-func testJpeg(size int) []byte {
+func testJpeg(size int) *bytes.Buffer {
 
 	output := new(bytes.Buffer)
 
