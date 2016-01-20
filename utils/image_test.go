@@ -353,3 +353,15 @@ func TestGetStatsBadMax(t *testing.T) {
 	}
 
 }
+
+func TestMakeFilenames(t *testing.T) {
+
+	img := ImageType{}
+
+	img.makeFilenames()
+
+	assert.NotEmpty(t, img.Filename, "Filename should be returned")
+
+	assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
+
+}

@@ -20,12 +20,6 @@ import (
 
 func (i *ImageType) SaveWebM() (err error) {
 
-	// create unique filenames for image and thumbnail
-	err = i.makeFilenames()
-	if err != nil {
-		return
-	}
-
 	// save the file
 	err = i.saveFile()
 	if err != nil {

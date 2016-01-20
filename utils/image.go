@@ -46,7 +46,7 @@ type ImageType struct {
 	OrigHeight  int
 	ThumbWidth  int
 	ThumbHeight int
-	image       []byte
+	image       bytes.Buffer
 	mime        string
 	duration    int
 }
@@ -81,12 +81,6 @@ func (i *ImageType) SaveImage() (err error) {
 
 	// check image stats
 	err = i.getStats()
-	if err != nil {
-		return
-	}
-
-	// create unique filenames for image and thumbnail
-	err = i.makeFilenames()
 	if err != nil {
 		return
 	}
@@ -140,19 +134,13 @@ func isAllowedExt(ext string) bool {
 
 // Get image MD5 and write file into buffer
 func (i *ImageType) getMD5() (err error) {
-	var b bytes.Buffer
+
+	defer i.File.Close()
 
 	hasher := md5.New()
 
-	buffer := bufio.NewWriter(&b)
-
 	// Save file and also read into hasher for md5
-	_, err = io.Copy(buffer, io.TeeReader(i.File, hasher))
-	if err != nil {
-		return errors.New("problem copying file")
-	}
-
-	err = buffer.Flush()
+	_, err = io.Copy(i.image, io.TeeReader(i.File, hasher))
 	if err != nil {
 		return errors.New("problem copying file")
 	}
@@ -160,20 +148,14 @@ func (i *ImageType) getMD5() (err error) {
 	// Set md5sum from hasher
 	i.MD5 = hex.EncodeToString(hasher.Sum(nil))
 
-	i.image = b.Bytes()
-
-	err = i.File.Close()
-	if err != nil {
-		return errors.New("problem copying file")
-	}
-
 	return
 
 }
 
 func (i *ImageType) checkMagic() (err error) {
 
-	i.mime = http.DetectContentType(i.image)
+	// detect the mime type
+	i.mime = http.DetectContentType(i.image.Bytes())
 
 	switch i.mime {
 	case "image/png":
@@ -199,16 +181,16 @@ func (i *ImageType) checkMagic() (err error) {
 }
 
 func (i *ImageType) getStats() (err error) {
-	buffer := bytes.NewReader(i.image)
 
-	imagesize := buffer.Len()
-
-	img, _, err := image.DecodeConfig(buffer)
+	// decode image config
+	img, _, err := image.DecodeConfig(i.image)
 	if err != nil {
 		return errors.New("problem decoding image")
 	}
 
+	// set original width
 	i.OrigWidth = img.Width
+	// set original height
 	i.OrigHeight = img.Height
 
 	// Check against maximum sizes
@@ -221,7 +203,7 @@ func (i *ImageType) getStats() (err error) {
 		return errors.New("image height too large")
 	case img.Height < config.Settings.Limits.ImageMinHeight:
 		return errors.New("image height too small")
-	case imagesize > config.Settings.Limits.ImageMaxSize:
+	case i.image.Len() > config.Settings.Limits.ImageMaxSize:
 		return errors.New("image size too large")
 	}
 
@@ -229,28 +211,10 @@ func (i *ImageType) getStats() (err error) {
 
 }
 
-// Make a random unix time filename
-func (i *ImageType) makeFilenames() (err error) {
-
-	// Create seed for random
-	rand.Seed(time.Now().UnixNano())
-	// Get random 3 digit int to append to unix time
-	rand_t := rand.Intn(899) + 100
-	// Get current unix time
-	time_t := time.Now().Unix()
-	// Append random int to unix time
-	file_t := fmt.Sprintf("%d%d", time_t, rand_t)
-	// Append ext to filename
-	i.Filename = fmt.Sprintf("%s%s", file_t, i.Ext)
-	// Append jpg to thumbnail name because it is always a jpg
-	i.Thumbnail = fmt.Sprintf("%s%s%s", file_t, "s", ".jpg")
-
-	return
-
-}
-
 func (i *ImageType) saveFile() (err error) {
-	buffer := bytes.NewReader(i.image)
+
+	// generate filenames
+	i.makeFilenames()
 
 	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
 
@@ -260,7 +224,7 @@ func (i *ImageType) saveFile() (err error) {
 	}
 	defer image.Close()
 
-	_, err = io.Copy(image, buffer)
+	_, err = io.Copy(image, i.image)
 	if err != nil {
 		return errors.New("problem saving file")
 	}
@@ -271,6 +235,31 @@ func (i *ImageType) saveFile() (err error) {
 	if err != nil {
 		return
 	}
+
+	return
+
+}
+
+// Make a random unix time filename
+func (i *ImageType) makeFilenames() {
+
+	// Create seed for random
+	rand.Seed(time.Now().UnixNano())
+
+	// Get random 3 digit int to append to unix time
+	rand_t := rand.Intn(899) + 100
+
+	// Get current unix time
+	time_t := time.Now().Unix()
+
+	// Append random int to unix time
+	file_t := fmt.Sprintf("%d%d", time_t, rand_t)
+
+	// Append ext to filename
+	i.Filename = fmt.Sprintf("%s%s", file_t, i.Ext)
+
+	// Append jpg to thumbnail name because it is always a jpg
+	i.Thumbnail = fmt.Sprintf("%ss.jpg", file_t)
 
 	return
 
