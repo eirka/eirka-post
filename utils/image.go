@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bufio"
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
@@ -46,7 +45,7 @@ type ImageType struct {
 	OrigHeight  int
 	ThumbWidth  int
 	ThumbHeight int
-	image       bytes.Buffer
+	image       *bytes.Buffer
 	mime        string
 	duration    int
 }
