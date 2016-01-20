@@ -45,7 +45,7 @@ type ImageType struct {
 	OrigHeight  int
 	ThumbWidth  int
 	ThumbHeight int
-	image       *bytes.Reader
+	image       *bytes.Buffer
 	mime        string
 	duration    int
 }
@@ -138,7 +138,7 @@ func (i *ImageType) getMD5() (err error) {
 
 	hasher := md5.New()
 
-	i.image = new(bytes.Reader)
+	i.image = new(bytes.Buffer)
 
 	// Save file and also read into hasher for md5
 	_, err = io.Copy(i.image, io.TeeReader(i.File, hasher))
@@ -184,7 +184,7 @@ func (i *ImageType) checkMagic() (err error) {
 func (i *ImageType) getStats() (err error) {
 
 	// decode image config
-	img, _, err := image.DecodeConfig(i.image)
+	img, _, err := image.DecodeConfig(bytes.NewReader(i.image.Bytes()))
 	if err != nil {
 		return errors.New("problem decoding image")
 	}
@@ -214,6 +214,8 @@ func (i *ImageType) getStats() (err error) {
 
 func (i *ImageType) saveFile() (err error) {
 
+	defer i.image.Reset()
+
 	// generate filenames
 	i.makeFilenames()
 
@@ -225,7 +227,7 @@ func (i *ImageType) saveFile() (err error) {
 	}
 	defer image.Close()
 
-	_, err = io.Copy(image, i.image)
+	_, err = io.Copy(image, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
 		return errors.New("problem saving file")
 	}
