@@ -116,11 +116,6 @@ func (i *ImageType) ProcessFile() (err error) {
 		return
 	}
 
-	// check final state
-	if !i.IsValidPost() {
-		return errors.New("ImageType is not valid")
-	}
-
 	return
 
 }
@@ -144,6 +139,11 @@ func (i *ImageType) SaveImage() (err error) {
 	err = i.createThumbnail()
 	if err != nil {
 		return
+	}
+
+	// check final state
+	if !i.IsValidPost() {
+		return errors.New("ImageType is not valid")
 	}
 
 	return
