@@ -379,6 +379,8 @@ func TestSaveFile(t *testing.T) {
 		assert.Equal(t, img.mime, "image/jpeg", "Mime type should be the same")
 	}
 
+	filesize := img.image.Len()
+
 	err = img.getStats()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, img.OrigHeight, 300, "Height should be the same")
@@ -397,6 +399,6 @@ func TestSaveFile(t *testing.T) {
 	info, err := file.Stat()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, info.Name(), img.Filename, "Name should be the same")
-		assert.Equal(t, info.Size(), img.image.Len(), "Size should be the same")
+		assert.Equal(t, info.Size(), int64(filesize), "Size should be the same")
 	}
 }
