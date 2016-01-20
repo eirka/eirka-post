@@ -161,8 +161,7 @@ func (i *ImageType) checkReqExt() (err error) {
 	}
 
 	// Check to see if extension is allowed
-	ext_check := isAllowedExt(ext)
-	if !ext_check {
+	if !isAllowedExt(ext) {
 		return errors.New("format not supported")
 	}
 
@@ -172,13 +171,7 @@ func (i *ImageType) checkReqExt() (err error) {
 
 // Check if file ext allowed
 func isAllowedExt(ext string) bool {
-
-	if validExt[strings.ToLower(ext)] {
-		return true
-	}
-
-	return false
-
+	return validExt[strings.ToLower(ext)]
 }
 
 // Get image MD5 and write file into buffer
@@ -222,8 +215,7 @@ func (i *ImageType) checkMagic() (err error) {
 	}
 
 	// Check to see if extension is allowed
-	ext_check := isAllowedExt(i.Ext)
-	if !ext_check {
+	if !isAllowedExt(i.Ext) {
 		return errors.New("format not supported")
 	}
 
