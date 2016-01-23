@@ -171,7 +171,7 @@ func TestCheckReqBadExt(t *testing.T) {
 
 	err := img.checkReqExt()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("format not supported"), "Error should match")
+		assert.Equal(t, err, errors.New("Format not supported"), "Error should match")
 	}
 
 }
@@ -194,7 +194,7 @@ func TestCheckReqBadExtExploit1(t *testing.T) {
 
 	err = img.checkMagic()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("unknown file type"), "Error should match")
+		assert.Equal(t, err, errors.New("Unknown file type"), "Error should match")
 	}
 
 }
@@ -209,7 +209,7 @@ func TestCheckReqBadExtExploit2(t *testing.T) {
 
 	err := img.checkReqExt()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("format not supported"), "Error should match")
+		assert.Equal(t, err, errors.New("Format not supported"), "Error should match")
 	}
 
 }
@@ -224,7 +224,7 @@ func TestCheckReqNoExt(t *testing.T) {
 
 	err := img.checkReqExt()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("no file extension"), "Error should match")
+		assert.Equal(t, err, errors.New("No file extension"), "Error should match")
 	}
 
 }
@@ -279,7 +279,7 @@ func TestCheckMagicBad(t *testing.T) {
 
 	err = img.checkMagic()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("unknown file type"), "Error should match")
+		assert.Equal(t, err, errors.New("Unknown file type"), "Error should match")
 	}
 
 }
@@ -332,7 +332,7 @@ func TestGetStatsBadSize(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("image size too large"), "Error should match")
+		assert.Equal(t, err, errors.New("Image size too large"), "Error should match")
 	}
 
 }
@@ -351,7 +351,7 @@ func TestGetStatsBadMin(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("image width too small"), "Error should match")
+		assert.Equal(t, err, errors.New("Image width too small"), "Error should match")
 	}
 
 }
@@ -370,7 +370,7 @@ func TestGetStatsBadMax(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("image width too large"), "Error should match")
+		assert.Equal(t, err, errors.New("Image width too large"), "Error should match")
 	}
 
 }
