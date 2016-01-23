@@ -299,6 +299,11 @@ func (i *ImageType) checkMagic() (err error) {
 
 func (i *ImageType) getStats() (err error) {
 
+	// skip if its a video since we cant decode it
+	if i.video {
+		return
+	}
+
 	// decode image config
 	img, _, err := image.DecodeConfig(bytes.NewReader(i.image.Bytes()))
 	if err != nil {
