@@ -250,7 +250,7 @@ func (i *ImageType) checkDuplicate() (err error) {
 	}
 
 	var check bool
-	var thread, post uint
+	var thread, post sql.NullInt64
 
 	err = dbase.QueryRow(`select count(1),posts.post_num,threads.thread_id from threads 
 	LEFT JOIN posts on threads.thread_id = posts.thread_id 
