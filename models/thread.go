@@ -111,6 +111,8 @@ func (i *ThreadModel) ValidateInput() (err error) {
 	comment := validate.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
 	if comment.IsEmpty() {
 		return e.ErrNoComment
+	} else if comment.MinLength() {
+		return e.ErrCommentShort
 	} else if comment.MaxLength() {
 		return e.ErrCommentLong
 	}

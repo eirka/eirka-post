@@ -106,6 +106,8 @@ func (i *ReplyModel) ValidateInput() (err error) {
 	if !i.Image {
 		if comment.IsEmpty() {
 			return e.ErrNoComment
+		} else if comment.MinLength() {
+			return e.ErrCommentShort
 		} else if comment.MaxLength() {
 			return e.ErrCommentLong
 		}
@@ -113,7 +115,9 @@ func (i *ReplyModel) ValidateInput() (err error) {
 
 	// If theres an image and a comment validate comment
 	if i.Image && !comment.IsEmpty() {
-		if comment.MaxLength() {
+		if comment.MinLength() {
+			return e.ErrCommentShort
+		} else if comment.MaxLength() {
 			return e.ErrCommentLong
 		}
 	}

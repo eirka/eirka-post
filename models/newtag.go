@@ -56,7 +56,7 @@ func (i *NewTagModel) ValidateInput() (err error) {
 	tag := validate.Validate{Input: i.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
 	if tag.IsEmpty() {
 		return e.ErrNoTagName
-	} else if tag.MinLength() {
+	} else if tag.MinPartsLength() {
 		return e.ErrTagShort
 	} else if tag.MaxLength() {
 		return e.ErrTagLong
