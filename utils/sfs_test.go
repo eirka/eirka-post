@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 
-	_ "github.com/eirka/eirka-libs/config"
+	"github.com/eirka/eirka-libs/config"
 )
 
 func TestCheckStopForumSpam(t *testing.T) {
