@@ -402,7 +402,7 @@ func TestSaveFile(t *testing.T) {
 
 	img.Ib = 1
 
-	err := img.SaveImage()
+	err = img.SaveImage()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 		assert.Equal(t, img.Ext, ".jpg", "Ext should be the same")
