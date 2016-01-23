@@ -106,7 +106,7 @@ func TestEmailController(t *testing.T) {
 	third := performJwtJsonRequest(router, "POST", "/email", token, request2)
 
 	assert.Equal(t, third.Code, 400, "HTTP request code should match")
-	assert.JSONEq(t, third.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
+	assert.JSONEq(t, third.Body.String(), errorMessage(e.ErrEmailSame), "HTTP response should match")
 
 	request3 := []byte(`{"ib": 1, "email": "test@cool.com"}`)
 
