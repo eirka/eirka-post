@@ -92,4 +92,6 @@ func TestEmailController(t *testing.T) {
 
 	second := performJwtFormRequest(router, "POST", "/email", token, b)
 
+	assert.Equal(t, second.Code, 200, "HTTP request code should match")
+
 }
