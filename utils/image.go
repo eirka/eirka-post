@@ -15,6 +15,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -39,6 +40,7 @@ var validExt = map[string]bool{
 type ImageType struct {
 	File        multipart.File
 	Header      *multipart.FileHeader
+	Ib          uint
 	Filename    string
 	Thumbnail   string
 	Filepath    string
@@ -70,6 +72,10 @@ func (i *ImageType) IsValid() bool {
 	}
 
 	if i.Thumbpath == "" {
+		return false
+	}
+
+	if i.Ib == 0 {
 		return false
 	}
 
@@ -245,7 +251,7 @@ func (i *ImageType) checkDuplicate() (err error) {
 	err = dbase.QueryRow(`select count(1),posts.post_num,threads.thread_id from threads 
 	LEFT JOIN posts on threads.thread_id = posts.thread_id 
 	LEFT JOIN images on posts.post_id = images.post_id 
-	WHERE image_hash = ? AND ib_id = ?`, i.MD5, c.Ib).Scan(&check, &post, &thread)
+	WHERE image_hash = ? AND ib_id = ?`, i.MD5, i.Ib).Scan(&check, &post, &thread)
 	if err != nil {
 		return e.ErrInternalError
 	}

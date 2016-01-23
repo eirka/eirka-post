@@ -105,6 +105,9 @@ func ReplyController(c *gin.Context) {
 
 	if m.Image {
 
+		// set the ib for duplicate checking
+		image.Ib = m.Ib
+
 		// Save the image to a file
 		err = image.SaveImage()
 		if err != nil {

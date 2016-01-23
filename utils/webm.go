@@ -3,18 +3,11 @@ package utils
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"image"
-	_ "image/jpeg"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/eirka/eirka-libs/config"
-
-	local "github.com/eirka/eirka-post/config"
 )
 
 // allowed codecs
