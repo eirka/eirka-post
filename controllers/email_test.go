@@ -48,9 +48,8 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 	return w
 }
 
-func performJwtFormRequest(r http.Handler, method, path, token string, body io.Reader) *httptest.ResponseRecorder {
+func performJwtFormRequest(r http.Handler, method, path, token string, body *io.Reader) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, &body)
-	req.Header.Set("Content-Type", mw.FormDataContentType())
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -67,7 +66,7 @@ func TestEmailController(t *testing.T) {
 
 	router.Use(user.Auth(true))
 
-	router.POST("/email", c.EmailController)
+	router.POST("/email", EmailController)
 
 	first := performRequest(router, "POST", "/email")
 
@@ -88,7 +87,7 @@ func TestEmailController(t *testing.T) {
 	var b bytes.Buffer
 
 	mw := multipart.NewWriter(&b)
-	mw.WriteField("ib", 1)
+	mw.WriteField("ib", "1")
 	mw.WriteField("email", "test@cool.com")
 	mw.Close()
 
