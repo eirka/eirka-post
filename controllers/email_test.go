@@ -48,8 +48,8 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 	return w
 }
 
-func performJwtFormRequest(r http.Handler, method, path, token string, body io.Reader) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, body)
+func performJwtFormRequest(r http.Handler, method, path, token string, body bytes.Buffer) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, &body)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
