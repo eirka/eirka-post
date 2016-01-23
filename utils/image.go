@@ -257,7 +257,7 @@ func (i *ImageType) checkDuplicate() (err error) {
 	LEFT JOIN images on posts.post_id = images.post_id 
 	WHERE image_hash = ? AND ib_id = ?`, i.MD5, i.Ib).Scan(&check, &post, &thread)
 	if err != nil {
-		return e.ErrInternalError
+		return
 	}
 
 	// return error if it exists
