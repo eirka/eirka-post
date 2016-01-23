@@ -63,6 +63,14 @@ func RegisterController(c *gin.Context) {
 		return
 	}
 
+	// check ip against stop forum spam
+	err = CheckStopForumSpam(c.ClientIP())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.Error(err).SetMeta("RegisterController.CheckStopForumSpam")
+		return
+	}
+
 	// hash password
 	m.Hashed, err = user.HashPassword(m.Password)
 	if err != nil {

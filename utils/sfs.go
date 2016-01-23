@@ -24,10 +24,14 @@ type StopForumSpam struct {
 // Check Stop Forum Spam blacklist for IP
 func CheckStopForumSpam(ip string) error {
 
+	if len(ip) == 0 {
+		return errors.New("no ip provided")
+	}
+
 	queryValues := url.Values{}
 
-	queryValues.Add("ip", ip)
-	queryValues.Add("f", "json")
+	queryValues.Set("ip", ip)
+	queryValues.Set("f", "json")
 
 	sfs_endpoint := &url.URL{
 		Scheme:   "http",
@@ -42,7 +46,7 @@ func CheckStopForumSpam(ip string) error {
 	}
 	defer res.Body.Close()
 
-	res.Header.Add("User-Agent", "Pram/1.2")
+	res.Header.Add("User-Agent", "Eirka/1.2")
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
