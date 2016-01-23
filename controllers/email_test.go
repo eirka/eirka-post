@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -95,7 +94,7 @@ func TestEmailController(t *testing.T) {
 
 	request := []byte(`{"ib":"1","email":"test@test.com"}`)
 
-	second := performJwtFormRequest(router, "POST", "/email", token, request)
+	second := performJwtJsonRequest(router, "POST", "/email", token, request)
 
 	fmt.Println(second)
 
