@@ -116,6 +116,7 @@ func ReplyController(c *gin.Context) {
 			return
 		}
 
+		m.MD5 = image.MD5
 		m.OrigWidth = image.OrigWidth
 		m.OrigHeight = image.OrigHeight
 		m.ThumbWidth = image.ThumbWidth
