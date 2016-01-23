@@ -9,6 +9,7 @@ import (
 	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-post/models"
+	u "github.com/eirka/eirka-post/utils"
 )
 
 // Input from new thread form
@@ -64,7 +65,7 @@ func RegisterController(c *gin.Context) {
 	}
 
 	// check ip against stop forum spam
-	err = CheckStopForumSpam(c.ClientIP())
+	err = u.CheckStopForumSpam(c.ClientIP())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err).SetMeta("RegisterController.CheckStopForumSpam")
