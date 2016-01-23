@@ -263,7 +263,7 @@ func (i *ImageType) checkDuplicate() (err error) {
 
 	// return error if it exists
 	if check {
-		return fmt.Errorf("Image has already been posted. Thread: %d Post: %d", thread, post)
+		return fmt.Errorf("Image has already been posted. Thread: %d Post: %d", thread.Int64, post.Int64)
 	}
 
 	return
