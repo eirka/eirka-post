@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/asaskevich/govalidator"
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -39,6 +40,12 @@ func (r *RegisterModel) IsValid() bool {
 
 // Validate will check the provided name length and email
 func (r *RegisterModel) Validate() (err error) {
+
+	// Initialize bluemonday
+	p := bluemonday.StrictPolicy()
+
+	// sanitize for html and xss
+	r.Name = html.UnescapeString(p.Sanitize(r.Name))
 
 	// Validate name input
 	name := validate.Validate{Input: r.Name, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}

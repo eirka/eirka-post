@@ -95,20 +95,17 @@ func (i *ReplyModel) ValidateInput() (err error) {
 	// Initialize bluemonday
 	p := bluemonday.StrictPolicy()
 
-	// Sanitize comment for html and xss
-	i.Comment = p.Sanitize(i.Comment)
-
-	i.Comment = html.UnescapeString(i.Comment)
+	// sanitize for html and xss
+	i.Comment = html.UnescapeString(p.Sanitize(i.Comment))
 
 	// There must either be a comment, an image, or an image with a comment
 	// If theres no image a comment is required
 	comment := validate.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
 
+	// if there is no image check the comment
 	if !i.Image {
 		if comment.IsEmpty() {
 			return e.ErrNoComment
-		} else if comment.MinLength() {
-			return e.ErrCommentShort
 		} else if comment.MaxLength() {
 			return e.ErrCommentLong
 		}
@@ -116,9 +113,7 @@ func (i *ReplyModel) ValidateInput() (err error) {
 
 	// If theres an image and a comment validate comment
 	if i.Image && !comment.IsEmpty() {
-		if comment.MinLength() {
-			return e.ErrCommentShort
-		} else if comment.MaxLength() {
+		if comment.MaxLength() {
 			return e.ErrCommentLong
 		}
 	}

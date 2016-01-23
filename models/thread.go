@@ -83,9 +83,16 @@ func (t *ThreadModel) IsValid() bool {
 
 // ValidateInput will make sure all the parameters are valid
 func (i *ThreadModel) ValidateInput() (err error) {
+
 	if i.Ib == 0 {
 		return e.ErrInvalidParam
 	}
+
+	// Initialize bluemonday
+	p := bluemonday.StrictPolicy()
+
+	// sanitize html and xss
+	i.Title = html.UnescapeString(p.Sanitize(i.Title))
 
 	// Validate title input
 	title := validate.Validate{Input: i.Title, Max: config.Settings.Limits.TitleMaxLength, Min: config.Settings.Limits.TitleMinLength}
@@ -97,20 +104,13 @@ func (i *ThreadModel) ValidateInput() (err error) {
 		return e.ErrTitleLong
 	}
 
-	// Initialize bluemonday
-	p := bluemonday.StrictPolicy()
-
-	// Sanitize comment for html and xss
-	i.Comment = p.Sanitize(i.Comment)
-
-	i.Comment = html.UnescapeString(i.Comment)
+	// sanitize html and xss
+	i.Comment = html.UnescapeString(p.Sanitize(i.Comment))
 
 	// Validate comment input
 	comment := validate.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
 	if comment.IsEmpty() {
 		return e.ErrNoComment
-	} else if comment.MinLength() {
-		return e.ErrCommentShort
 	} else if comment.MaxLength() {
 		return e.ErrCommentLong
 	}
