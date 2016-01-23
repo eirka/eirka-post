@@ -52,6 +52,8 @@ func TestAddTagController(t *testing.T) {
 
 	router := gin.New()
 
+	router.Use(user.Auth(false))
+
 	router.POST("/tag/add", AddTagController)
 
 	first := performRequest(router, "POST", "/tag/add")
