@@ -245,6 +245,10 @@ func (i *ImageType) checkDuplicate() (err error) {
 		return
 	}
 
+	if i.Ib == 0 {
+		return errors.New("No imageboard set on duplicate check")
+	}
+
 	var check bool
 	var thread, post uint
 
