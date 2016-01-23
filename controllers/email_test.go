@@ -47,11 +47,19 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 	return w
 }
 
+func performJwtJsonRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
+}
+
 func performJwtFormRequest(r http.Handler, method, path, token string, body bytes.Buffer) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, &body)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Set("Content-Type", "multipart/form-data")
-	fmt.Println(req)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
@@ -85,14 +93,9 @@ func TestEmailController(t *testing.T) {
 		assert.NotEmpty(t, token, "token should be returned")
 	}
 
-	var b bytes.Buffer
+	request := []byte(`{"ib":"1","email":"test@test.com"}`)
 
-	mw := multipart.NewWriter(&b)
-	mw.WriteField("ib", "1")
-	mw.WriteField("email", "test@cool.com")
-	mw.Close()
-
-	second := performJwtFormRequest(router, "POST", "/email", token, b)
+	second := performJwtFormRequest(router, "POST", "/email", token, request)
 
 	fmt.Println(second)
 
