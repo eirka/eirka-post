@@ -66,6 +66,6 @@ func TestAddTagController(t *testing.T) {
 	second := performJsonRequest(router, "POST", "/tag/add", request1)
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
-	assert.JSONEq(t, second.Body.String(), fmt.Sprintf("{\"success_message\": \"%s\"}", audit.AuditAddTag), "HTTP response should match")
+	assert.JSONEq(t, second.Body.String(), fmt.Sprintf(`{"success_message":"%s"}`, audit.AuditAddTag), "HTTP response should match")
 
 }
