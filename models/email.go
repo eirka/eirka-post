@@ -32,10 +32,6 @@ func (e *EmailModel) IsValid() bool {
 		return false
 	}
 
-	if e.CurrentEmail == "" {
-		return false
-	}
-
 	return true
 
 }
