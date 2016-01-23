@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -54,9 +53,7 @@ func TestAddTagController(t *testing.T) {
 
 	router := gin.New()
 
-	router.Use(user.Auth(true))
-
-	public.POST("/tag/add", AddTagController)
+	router.POST("/tag/add", AddTagController)
 
 	first := performRequest(router, "POST", "/tag/add")
 
@@ -67,6 +64,6 @@ func TestAddTagController(t *testing.T) {
 	second := performJsonRequest(router, "POST", "/email", request1)
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
-	assert.JSONEq(t, second.Body.String(), gin.H{"success_message": audit.AuditAddTag}, "HTTP response should match")
+	assert.JSONEq(t, second.Body.String(), fmt.Sprintf("{\"success_message\": \"%s\"}", audit.AuditAddTag), "HTTP response should match")
 
 }
