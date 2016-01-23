@@ -232,14 +232,27 @@ func TestGetMD5(t *testing.T) {
 
 	req := formJpegRequest(300, "test.jpeg")
 
-	img := ImageType{}
+	img1 := ImageType{}
 
-	img.File, img.Header, _ = req.FormFile("file")
+	img1.File, img1.Header, _ = req.FormFile("file")
 
-	err := img.getMD5()
+	err := img1.getMD5()
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
 	}
+
+	req2 := formJpegRequest(300, "test.jpeg")
+
+	img2 := ImageType{}
+
+	img2.File, img2.Header, _ = req2.FormFile("file")
+
+	err := img2.getMD5()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img2.MD5, "MD5 should be returned")
+	}
+
+	assert.NotEqual(t, img1.MD5, img2.MD5, "MD5 should not be the same")
 
 }
 
