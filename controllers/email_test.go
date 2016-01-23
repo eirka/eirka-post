@@ -9,8 +9,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/user"
 
 	local "github.com/eirka/eirka-post/config"
@@ -97,21 +99,21 @@ func TestEmailController(t *testing.T) {
 	second := performJwtJsonRequest(router, "POST", "/email", token, request1)
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
-	assert.JSONEq(t, second.Body.String(), `{"success_message":"Email Updated"}`, "HTTP response should match")
+	assert.JSONEq(t, second.Body.String(), successMessage(audit.AuditEmailUpdate), "HTTP response should match")
 
 	request2 := []byte(`{"ib": 1, "email": "test@test.com"}`)
 
 	third := performJwtJsonRequest(router, "POST", "/email", token, request2)
 
 	assert.Equal(t, third.Code, 400, "HTTP request code should match")
-	assert.JSONEq(t, third.Body.String(), `{"error_message":"Email address the same"}`, "HTTP response should match")
+	assert.JSONEq(t, third.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
 
 	request3 := []byte(`{"ib": 1, "email": "test@cool.com"}`)
 
 	fourth := performJwtJsonRequest(router, "POST", "/email", token, request3)
 
 	assert.Equal(t, fourth.Code, 200, "HTTP request code should match")
-	assert.JSONEq(t, fourth.Body.String(), `{"success_message":"Email Updated"}`, "HTTP response should match")
+	assert.JSONEq(t, fourth.Body.String(), successMessage(audit.AuditEmailUpdate), "HTTP response should match")
 
 }
 
@@ -144,13 +146,13 @@ func TestEmailControllerBadRequests(t *testing.T) {
 	first := performJwtJsonRequest(router, "POST", "/email", token, request1)
 
 	assert.Equal(t, first.Code, 400, "HTTP request code should match")
-	assert.JSONEq(t, first.Body.String(), `{"error_message":"Bad Request"}`, "HTTP response should match")
+	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
 
 	request2 := []byte(`{"email": "test@cool.com"}`)
 
 	second := performJwtJsonRequest(router, "POST", "/email", token, request2)
 
 	assert.Equal(t, second.Code, 400, "HTTP request code should match")
-	assert.JSONEq(t, second.Body.String(), `{"error_message":"Bad Request"}`, "HTTP response should match")
+	assert.JSONEq(t, second.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
 
 }

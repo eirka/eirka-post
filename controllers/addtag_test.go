@@ -47,6 +47,14 @@ func performJsonRequest(r http.Handler, method, path string, body []byte) *httpt
 	return w
 }
 
+func errorMessage(err error) string {
+	return fmt.Sprintf(`{"error_message":"%s"}`, err)
+}
+
+func successMessage(message string) string {
+	return fmt.Sprintf(`{"success_message":"%s"}`, message)
+}
+
 func TestAddTagController(t *testing.T) {
 
 	gin.SetMode(gin.ReleaseMode)
@@ -66,6 +74,6 @@ func TestAddTagController(t *testing.T) {
 	second := performJsonRequest(router, "POST", "/tag/add", request1)
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
-	assert.JSONEq(t, second.Body.String(), fmt.Sprintf(`{"success_message":"%s"}`, audit.AuditAddTag), "HTTP response should match")
+	assert.JSONEq(t, second.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
 
 }
