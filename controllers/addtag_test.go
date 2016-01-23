@@ -48,8 +48,6 @@ func performJsonRequest(r http.Handler, method, path string, body []byte) *httpt
 
 func TestAddTagController(t *testing.T) {
 
-	var err error
-
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
