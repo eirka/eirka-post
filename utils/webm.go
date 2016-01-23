@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
 
 	local "github.com/eirka/eirka-post/config"
@@ -24,43 +23,8 @@ var codecs = map[string]bool{
 	"vp9": true,
 }
 
-func (i *ImageType) SaveWebM() (err error) {
-
-	// save the file
-	err = i.saveFile()
-	if err != nil {
-		return
-	}
-
-	// check the webm info
-	err = i.checkWebM()
-	if err != nil {
-		return
-	}
-
-	// create thumbnail from webm
-	err = i.createWebMThumbnail()
-	if err != nil {
-		return
-	}
-
-	// check final state
-	if !i.IsValidPost() {
-		return errors.New("ImageType is not valid")
-	}
-
-	return
-
-}
-
 // check webm metadata to make sure its the correct type of video, size, etc
 func (i *ImageType) checkWebM() (err error) {
-
-	if !i.IsValid() {
-		return errors.New("ImageType is not valid")
-	}
-
-	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
 
 	avprobeArgs := []string{
 		"-v",
@@ -69,31 +33,31 @@ func (i *ImageType) checkWebM() (err error) {
 		"json",
 		"-show_format",
 		"-show_streams",
-		imagefile,
+		i.Filepath,
 	}
 
 	cmd, err := exec.Command("avprobe", avprobeArgs...).Output()
 	if err != nil {
-		return errors.New("problem decoding webm")
+		return errors.New("Problem decoding webm")
 	}
 
 	avprobe := avprobe{}
 
 	err = json.Unmarshal(cmd, &avprobe)
 	if err != nil {
-		return errors.New("problem decoding webm")
+		return errors.New("Problem decoding webm")
 	}
 
 	switch {
 	case avprobe.Format.FormatName != "matroska,webm":
-		return errors.New("file is not vp8 video")
+		return errors.New("File is not vp8 video")
 	case !codecs[strings.ToLower(avprobe.Streams[0].CodecName)]:
-		return errors.New("file is not allowed webm codec")
+		return errors.New("File is not allowed WebM codec")
 	}
 
 	duration, err := strconv.ParseFloat(avprobe.Format.Duration, 64)
 	if err != nil {
-		return errors.New("problem decoding webm")
+		return errors.New("Problem decoding WebM")
 	}
 
 	// set file duration
@@ -110,17 +74,17 @@ func (i *ImageType) checkWebM() (err error) {
 	// Check against maximum sizes
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
-		return errors.New("webm width too large")
+		return errors.New("WebM width too large")
 	case i.OrigWidth < config.Settings.Limits.ImageMinWidth:
-		return errors.New("webm width too small")
+		return errors.New("WebM width too small")
 	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
-		return errors.New("webm height too large")
+		return errors.New("WebM height too large")
 	case i.OrigHeight < config.Settings.Limits.ImageMinHeight:
-		return errors.New("webm height too small")
+		return errors.New("WebM height too small")
 	case int(orig_size) > config.Settings.Limits.ImageMaxSize:
-		return errors.New("webm size too large")
+		return errors.New("WebM size too large")
 	case i.duration > config.Settings.Limits.WebmMaxLength:
-		return errors.New("webm too long")
+		return errors.New("WebM too long")
 	}
 
 	return
@@ -129,13 +93,6 @@ func (i *ImageType) checkWebM() (err error) {
 
 // create a webm thumbnail from the first frames
 func (i *ImageType) createWebMThumbnail() (err error) {
-
-	if !i.IsValid() {
-		return errors.New("ImageType is not valid")
-	}
-
-	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
-	thumbfile := filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
 
 	var timepoint string
 
@@ -148,7 +105,7 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 
 	avconvArgs := []string{
 		"-i",
-		imagefile,
+		i.Filepath,
 		"-v",
 		"quiet",
 		"-ss",
@@ -158,57 +115,13 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 		"1",
 		"-f",
 		"mjpeg",
-		thumbfile,
+		i.Thumbpath,
 	}
 
 	// Make an image of first frame with avconv
 	_, err = exec.Command("avconv", avconvArgs...).Output()
 	if err != nil {
-		return errors.New("problem decoding webm")
-	}
-
-	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
-	thumb_dimensions := fmt.Sprintf("%dx%d>", config.Settings.Limits.ThumbnailMaxWidth, config.Settings.Limits.ThumbnailMaxHeight)
-	imagef := fmt.Sprintf("%s[0]", thumbfile)
-
-	args := []string{
-		"-background",
-		"white",
-		"-flatten",
-		"-size",
-		orig_dimensions,
-		"-resize",
-		thumb_dimensions,
-		"-quality",
-		"90",
-		imagef,
-		thumbfile,
-	}
-
-	_, err = exec.Command("convert", args...).Output()
-	if err != nil {
-		return errors.New("problem making thumbnail")
-	}
-
-	thumb, err := os.Open(thumbfile)
-	if err != nil {
-		return errors.New("problem making thumbnail")
-	}
-	defer thumb.Close()
-
-	img, _, err := image.DecodeConfig(thumb)
-	if err != nil {
-		return errors.New("problem decoding thumbnail")
-	}
-
-	i.ThumbWidth = img.Width
-	i.ThumbHeight = img.Height
-
-	s3 := amazon.New()
-
-	err = s3.Save(thumbfile, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg")
-	if err != nil {
-		return
+		return errors.New("Problem decoding WebM")
 	}
 
 	return

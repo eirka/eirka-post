@@ -90,55 +90,12 @@ func ThreadController(c *gin.Context) {
 		return
 	}
 
-	// process the uploaded file, this creates an md5
-	err = image.ProcessFile()
+	// Save the image to a file
+	err = image.SaveImage()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err).SetMeta("ThreadController.ProcessFile")
+		c.Error(err).SetMeta("ThreadController.SaveImage")
 		return
-	}
-
-	// Set MD5 from results
-	m.MD5 = image.MD5
-
-	// Initialize check duplicate
-	duplicate := u.CheckDuplicate{
-		Ib:  m.Ib,
-		MD5: m.MD5,
-	}
-
-	// Check database for duplicate image hashes
-	err = duplicate.Get()
-	if err == e.ErrDuplicateImage {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error(), "thread": duplicate.Thread, "post": duplicate.Post})
-		c.Error(err).SetMeta("ThreadController.Duplicate.Get")
-		return
-	} else if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ThreadController.Duplicate.Get")
-		return
-	}
-
-	if image.Ext == ".webm" {
-
-		// Save the webm to a file
-		err = image.SaveWebM()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err).SetMeta("ThreadController.SaveWebM")
-			return
-		}
-
-	} else {
-
-		// Save the image to a file
-		err = image.SaveImage()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err).SetMeta("ThreadController.SaveImage")
-			return
-		}
-
 	}
 
 	m.OrigWidth = image.OrigWidth
