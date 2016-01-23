@@ -74,9 +74,9 @@ func TestEmailController(t *testing.T) {
 	u := user.DefaultUser()
 	u.SetId(2)
 	u.SetAuthenticated()
+	u.Password()
 
-	_, err = user.HashPassword("testpassword")
-	assert.NoError(t, err, "An error was not expected")
+	assert.True(t, u.ComparePassword("testpassword"), "Test user password should be set")
 
 	token, err := u.CreateToken()
 	if assert.NoError(t, err, "An error was not expected") {
