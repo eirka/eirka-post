@@ -97,5 +97,5 @@ func TestEmailController(t *testing.T) {
 	second := performJwtJsonRequest(router, "POST", "/email", token, request)
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
-	assert.Equal(t, second.Body, `{"success_message":"Email Updated"}`, "HTTP response should match")
+	assert.Equal(t, second.Body.String(), `{"success_message":"Email Updated"}`, "HTTP response should match")
 }
