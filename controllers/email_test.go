@@ -50,7 +50,6 @@ func performJwtJsonRequest(r http.Handler, method, path, token string, body []by
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Set("Content-Type", "application/json")
-	fmt.Println(req)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
@@ -93,12 +92,10 @@ func TestEmailController(t *testing.T) {
 		assert.NotEmpty(t, token, "token should be returned")
 	}
 
-	request := []byte(`{"ib": 1, "email": "test@test.com"}`)
+	request := []byte(`{"ib": 1, "email": "test@cool.com"}`)
 
 	second := performJwtJsonRequest(router, "POST", "/email", token, request)
 
-	fmt.Println(second)
-
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
-
+	assert.Equal(t, second.Body, `{"success_message":"Email Updated"}`, "HTTP response should match")
 }
