@@ -93,7 +93,7 @@ func TestEmailController(t *testing.T) {
 		assert.NotEmpty(t, token, "token should be returned")
 	}
 
-	request := []byte(`ib: 1, email: "test@test.com"`)
+	request := []byte(`{"ib": 1, "email": "test@test.com"}`)
 
 	second := performJwtJsonRequest(router, "POST", "/email", token, request)
 
