@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
