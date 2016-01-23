@@ -14,7 +14,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/eirka/eirka-libs/config"
