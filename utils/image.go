@@ -23,7 +23,7 @@ import (
 	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
-	e "github.com/eirka/eirka-libs/errors"
+	_ "github.com/eirka/eirka-libs/errors"
 
 	local "github.com/eirka/eirka-post/config"
 )
