@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"errors"
 	"fmt"
