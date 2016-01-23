@@ -409,15 +409,12 @@ func TestSaveFile(t *testing.T) {
 		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
 	}
 
-	filesize := img.image.Len()
-
 	file, err := os.Open(img.Filepath)
 	assert.NoError(t, err, "An error was not expected")
 
 	fileinfo, err := file.Stat()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, fileinfo.Name(), img.Filename, "Name should be the same")
-		assert.Equal(t, fileinfo.Size(), int64(filesize), "Size should be the same")
 	}
 
 	thumb, err := os.Open(img.Thumbpath)
