@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/microcosm-cc/bluemonday"
+	"html"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
