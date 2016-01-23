@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -15,6 +14,8 @@ import (
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/user"
+
+	local "github.com/eirka/eirka-post/config"
 )
 
 func init() {
@@ -48,8 +49,7 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 }
 
 func performJwtFormRequest(r http.Handler, method, path, token string, body io.Reader) *httptest.ResponseRecorder {
-
-	req, _ := http.NewRequest(method, path, &b)
+	req, _ := http.NewRequest(method, path, &body)
 	req.Header.Set("Content-Type", mw.FormDataContentType())
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	w := httptest.NewRecorder()
@@ -77,14 +77,12 @@ func TestEmailController(t *testing.T) {
 	u.SetId(2)
 	u.SetAuthenticated()
 
-	u.hash, err = user.HashPassword("testpassword")
-	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotNil(t, user.hash, "password should be returned")
-	}
+	_, err = user.HashPassword("testpassword")
+	assert.NoError(t, err, "An error was not expected")
 
 	token, err := u.CreateToken()
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, badtoken, "token should be returned")
+		assert.NotEmpty(t, token, "token should be returned")
 	}
 
 	var b bytes.Buffer
