@@ -114,3 +114,43 @@ func TestEmailController(t *testing.T) {
 	assert.JSONEq(t, fourth.Body.String(), `{"success_message":"Email Updated"}`, "HTTP response should match")
 
 }
+
+func TestEmailControllerBadRequests(t *testing.T) {
+
+	var err error
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(true))
+
+	router.POST("/email", EmailController)
+
+	u := user.DefaultUser()
+	u.SetId(2)
+	u.SetAuthenticated()
+	u.Password()
+
+	assert.True(t, u.ComparePassword("testpassword"), "Test user password should be set")
+
+	token, err := u.CreateToken()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, token, "token should be returned")
+	}
+
+	request1 := []byte(`{"ib": 1}`)
+
+	first := performJwtJsonRequest(router, "POST", "/email", token, request1)
+
+	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	assert.JSONEq(t, first.Body.String(), `{"error_message":"Bad Request"}`, "HTTP response should match")
+
+	request2 := []byte(`{"email": "test@cool.com"}`)
+
+	second := performJwtJsonRequest(router, "POST", "/email", token, request2)
+
+	assert.Equal(t, second.Code, 400, "HTTP request code should match")
+	assert.JSONEq(t, second.Body.String(), `{"error_message":"Bad Request"}`, "HTTP response should match")
+
+}
