@@ -396,6 +396,13 @@ func TestSaveFile(t *testing.T) {
 	img.File, img.Header, _ = req.FormFile("file")
 
 	err := img.SaveImage()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("No imageboard set on duplicate check"), "Error should match")
+	}
+
+	img.Ib = 1
+
+	err := img.SaveImage()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 		assert.Equal(t, img.Ext, ".jpg", "Ext should be the same")
