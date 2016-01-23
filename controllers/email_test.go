@@ -50,6 +50,7 @@ func performJwtJsonRequest(r http.Handler, method, path, token string, body []by
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Set("Content-Type", "application/json")
+	fmt.Println(req)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
