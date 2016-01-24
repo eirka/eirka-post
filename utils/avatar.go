@@ -76,16 +76,22 @@ func GenerateAvatar(uid uint) (err error) {
 		OrigWidth:  420,
 		OrigHeight: 420,
 		Ext:        ".png",
+		image:      new(bytes.Buffer),
+		Ib:         uid,
+		MD5:        "fake",
+		mime:       "image/png",
 	}
-
-	img.makeFilenames()
-
-	img.Thumbnail = fmt.Sprintf("%d.png", uid)
-	img.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, img.Thumbnail)
 
 	id := identicon.New()
 
-	err = id.GeneratePNGToFile(img.Filepath)
+	// generate a random avatar
+	err = id.GeneratePNG(img.image)
+	if err != nil {
+		return
+	}
+
+	// save the file to disk
+	err = i.saveFile()
 	if err != nil {
 		return
 	}
@@ -110,7 +116,7 @@ func (i *ImageType) avatarToS3() (err error) {
 
 	s3 := amazon.New()
 
-	err = s3.Save(i.Thumbpath, fmt.Sprintf("avatars/%s", i.Thumbnail), "image/png", true)
+	err = s3.Save(i.Thumbpath, fmt.Sprintf("avatars/%s", i.Thumbnail), i.mime, true)
 	if err != nil {
 		return
 	}
