@@ -69,6 +69,10 @@ func (i *ImageType) SaveAvatar() (err error) {
 // this will create a random avatar
 func GenerateAvatar(uid uint) (err error) {
 
+	if uid == 0 || uid == 1 {
+		return errors.New("Invalid user id")
+	}
+
 	img := ImageType{
 		avatar:     true,
 		OrigWidth:  420,
