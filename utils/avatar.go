@@ -71,7 +71,11 @@ func (i *ImageType) SaveAvatar() (err error) {
 // this will create a random avatar
 func GenerateAvatar(user uint) (err error) {
 
-	img := ImageType{}
+	img := ImageType{
+		avatar:     true,
+		OrigWidth:  420,
+		OrigHeight: 420,
+	}
 
 	img.makeFilenames()
 
