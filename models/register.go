@@ -14,6 +14,7 @@ import (
 
 // Register contains information for initial account creation
 type RegisterModel struct {
+	Uid      uint
 	Name     string
 	Email    string
 	Password string
@@ -108,7 +109,7 @@ func (r *RegisterModel) Register() (err error) {
 		return
 	}
 
-	user_id, err := e1.LastInsertId()
+	r.Uid, err = e1.LastInsertId()
 	if err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func (r *RegisterModel) Register() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps2.Exec(user_id, 2)
+	_, err = ps2.Exec(r.Uid, 2)
 	if err != nil {
 		return
 	}

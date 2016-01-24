@@ -417,6 +417,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 		args = []string{
 			"-size",
 			orig_dimensions,
+			imagef,
 			"-background",
 			"none",
 			"-thumbnail",
@@ -425,7 +426,6 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 			"center",
 			"-extent",
 			fmt.Sprintf("%dx%d", maxwidth, maxheight),
-			imagef,
 			i.Thumbpath,
 		}
 	} else {
@@ -444,9 +444,9 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 		}
 	}
 
-	out, err := exec.Command("convert", args...).Output()
+	_, err = exec.Command("convert", args...).Output()
 	if err != nil {
-		return errors.New(string(out))
+		return errors.New("Problem making thumbnail")
 	}
 
 	thumb, err := os.Open(i.Thumbpath)
