@@ -80,9 +80,11 @@ func GenerateAvatar(uid uint) (err error) {
 		mime:       "image/png",
 	}
 
+	// generates a random avatar
 	id := identicon.New()
-
-	// generate a random avatar
+	// a colorful theme
+	id.Theme = identicon.Free
+	// put the output into our image buffer
 	err = id.GeneratePNG(img.image)
 	if err != nil {
 		return
