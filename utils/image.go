@@ -411,15 +411,34 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
 	thumb_dimensions := fmt.Sprintf("%dx%d>", maxwidth, maxheight)
 
-	args := []string{
-		"-size",
-		orig_dimensions,
-		"-resize",
-		thumb_dimensions,
-		"-quality",
-		"90",
-		imagef,
-		i.Thumbpath,
+	var args []string
+
+	// different options for avatars
+	if i.avatar {
+		args = []string{
+			"-size",
+			orig_dimensions,
+			"-resize",
+			thumb_dimensions,
+			"-quality",
+			"90",
+			imagef,
+			i.Thumbpath,
+		}
+	} else {
+		args = []string{
+			"-background",
+			"white",
+			"-flatten",
+			"-size",
+			orig_dimensions,
+			"-resize",
+			thumb_dimensions,
+			"-quality",
+			"90",
+			imagef,
+			i.Thumbpath,
+		}
 	}
 
 	_, err = exec.Command("convert", args...).Output()
