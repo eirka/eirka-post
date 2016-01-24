@@ -80,19 +80,19 @@ func RegisterController(c *gin.Context) {
 		return
 	}
 
-	// register user
-	err = m.Register()
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("RegisterController.Register")
-		return
-	}
-
 	// make a random avatar for the new user
 	err = u.GenerateAvatar(userdata.Id)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("RegisterController.GenerateAvatar")
+		return
+	}
+
+	// register user
+	err = m.Register()
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("RegisterController.Register")
 		return
 	}
 
