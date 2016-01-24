@@ -69,7 +69,7 @@ func (i *ImageType) SaveAvatar() (err error) {
 }
 
 // this will create a random avatar
-func GenerateAvatar(user uint) (err error) {
+func GenerateAvatar(uid uint) (err error) {
 
 	img := ImageType{
 		avatar:     true,
@@ -79,7 +79,7 @@ func GenerateAvatar(user uint) (err error) {
 
 	img.makeFilenames()
 
-	img.Thumbnail = fmt.Sprintf("%d.png", user)
+	img.Thumbnail = fmt.Sprintf("%d.png", uid)
 	img.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, img.Thumbnail)
 
 	id := identicon.New()
