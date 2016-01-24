@@ -49,7 +49,7 @@ func (i *ImageType) SaveAvatar() (err error) {
 	}
 
 	// create a thumbnail
-	err = i.createThumbnail(500, 500)
+	err = i.createThumbnail(300, 300)
 	if err != nil {
 		return
 	}
