@@ -446,7 +446,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 
 	out, err := exec.Command("convert", args...).Output()
 	if err != nil {
-		return errors.New(out)
+		return errors.New(string(out))
 	}
 
 	thumb, err := os.Open(i.Thumbpath)
