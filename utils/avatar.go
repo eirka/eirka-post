@@ -101,7 +101,7 @@ func GenerateAvatar(uid uint) (err error) {
 	}
 
 	// create a thumbnail
-	err = i.createThumbnail(128, 128)
+	err = img.createThumbnail(128, 128)
 	if err != nil {
 		return
 	}
