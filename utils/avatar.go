@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/1l0/identicon"
+	"path/filepath"
 
 	"github.com/eirka/eirka-libs/amazon"
+
+	local "github.com/eirka/eirka-post/config"
 )
 
 // save an avatar
@@ -73,27 +76,28 @@ func GenerateAvatar(user int) (err error) {
 	img.makeFilenames()
 
 	img.Thumbnail = fmt.Sprintf("%d.png", user)
-	img.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
+	img.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, img.Thumbnail)
 
 	id := identicon.New()
 
-	err := id.GeneratePNGToFile(img.Filepath)
+	err = id.GeneratePNGToFile(img.Filepath)
 	if err != nil {
 		return
 	}
 
 	// create a thumbnail
-	err = i.createThumbnail(200, 200)
+	err = img.createThumbnail(200, 200)
 	if err != nil {
 		return
 	}
 
 	// copy the file to s3
-	err = i.avatarToS3()
+	err = img.avatarToS3()
 	if err != nil {
 		return
 	}
 
+	return
 }
 
 // uploads to the avatar folder
