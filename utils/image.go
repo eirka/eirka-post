@@ -409,7 +409,6 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	}
 
 	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
-	thumb_dimensions := fmt.Sprintf("%dx%d>", maxwidth, maxheight)
 
 	var args []string
 
@@ -418,10 +417,12 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 		args = []string{
 			"-size",
 			orig_dimensions,
-			"-resize",
-			thumb_dimensions,
-			"-quality",
-			"90",
+			"-thumbnail",
+			fmt.Sprintf("%dx%d^", maxwidth, maxheight),
+			"-gravity",
+			"center",
+			"-extent",
+			fmt.Sprintf("%dx%d", maxwidth, maxheight),
 			imagef,
 			i.Thumbpath,
 		}
@@ -433,7 +434,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 			"-size",
 			orig_dimensions,
 			"-resize",
-			thumb_dimensions,
+			fmt.Sprintf("%dx%d>", maxwidth, maxheight),
 			"-quality",
 			"90",
 			imagef,
