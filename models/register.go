@@ -98,7 +98,7 @@ func (r *RegisterModel) Register() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("INSERT into users (user_name, user_email, user_password, user_confirmed, user_avatar) VALUES (?,?,?,?,ROUND((RAND() * (48-1))+1))")
+	ps1, err := dbase.Prepare("INSERT into users (user_name, user_email, user_password, user_confirmed) VALUES (?,?,?,?)")
 	if err != nil {
 		return
 	}
@@ -109,7 +109,7 @@ func (r *RegisterModel) Register() (err error) {
 		return
 	}
 
-	uid, err = e1.LastInsertId()
+	uid, err := e1.LastInsertId()
 	if err != nil {
 		return err
 	}
