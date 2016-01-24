@@ -75,6 +75,7 @@ func GenerateAvatar(uid uint) (err error) {
 		avatar:     true,
 		OrigWidth:  420,
 		OrigHeight: 420,
+		Ext:        ".png",
 	}
 
 	img.makeFilenames()
