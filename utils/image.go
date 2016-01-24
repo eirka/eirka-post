@@ -398,7 +398,7 @@ func (i *ImageType) makeFilenames() {
 
 }
 
-func (i *ImageType) createThumbnail(maxwidth, maxheight uint) (err error) {
+func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 
 	var imagef string
 
@@ -452,12 +452,12 @@ func (i *ImageType) copyToS3() (err error) {
 
 	s3 := amazon.New()
 
-	err = s3.Save(i.Filepath, fmt.Sprintf("src/%s", i.Filename, false), i.mime)
+	err = s3.Save(i.Filepath, fmt.Sprintf("src/%s", i.Filename), i.mime, false)
 	if err != nil {
 		return
 	}
 
-	err = s3.Save(i.Thumbpath, fmt.Sprintf("thumb/%s", i.Thumbnail, false), "image/jpeg")
+	err = s3.Save(i.Thumbpath, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg", false)
 	if err != nil {
 		return
 	}

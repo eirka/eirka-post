@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/eirka/eirka-libs/amazon"
 )
@@ -67,7 +68,7 @@ func (i *ImageType) avatarToS3() (err error) {
 
 	s3 := amazon.New()
 
-	err = s3.Save(i.Thumbpath, fmt.Sprintf("avatars/%s", i.Thumbnail, true), i.mime)
+	err = s3.Save(i.Thumbpath, fmt.Sprintf("avatars/%s", i.Thumbnail), i.mime, true)
 	if err != nil {
 		return
 	}
