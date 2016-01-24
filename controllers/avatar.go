@@ -6,10 +6,8 @@ import (
 
 	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
-	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 
-	"github.com/eirka/eirka-post/models"
 	u "github.com/eirka/eirka-post/utils"
 )
 
