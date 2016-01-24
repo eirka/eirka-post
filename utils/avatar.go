@@ -1,14 +1,12 @@
 package utils
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/1l0/identicon"
-	"path/filepath"
 
 	"github.com/eirka/eirka-libs/amazon"
-
-	local "github.com/eirka/eirka-post/config"
 )
 
 // save an avatar
@@ -91,7 +89,7 @@ func GenerateAvatar(uid uint) (err error) {
 	}
 
 	// save the file to disk
-	err = i.saveFile()
+	err = img.saveFile()
 	if err != nil {
 		return
 	}
