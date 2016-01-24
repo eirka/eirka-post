@@ -54,8 +54,9 @@ type ImageType struct {
 	ThumbHeight int
 	image       *bytes.Buffer
 	mime        string
-	video       bool
 	duration    int
+	video       bool
+	avatar      bool
 }
 
 func (i *ImageType) IsValid() bool {
@@ -171,7 +172,7 @@ func (i *ImageType) SaveImage() (err error) {
 	}
 
 	// create a thumbnail
-	err = i.createThumbnail()
+	err = i.createThumbnail(config.Settings.Limits.ThumbnailMaxWidth, config.Settings.Limits.ThumbnailMaxHeight)
 	if err != nil {
 		return
 	}
@@ -337,8 +338,13 @@ func (i *ImageType) saveFile() (err error) {
 
 	defer i.image.Reset()
 
-	// generate filenames
 	i.makeFilenames()
+
+	// avatar filename is the users id
+	if i.avatar {
+		i.Thumbnail = fmt.Sprintf("%d.jpg", i.Ib)
+		i.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
+	}
 
 	if !i.IsValid() {
 		return errors.New("ImageType is not valid")
@@ -392,7 +398,7 @@ func (i *ImageType) makeFilenames() {
 
 }
 
-func (i *ImageType) createThumbnail() (err error) {
+func (i *ImageType) createThumbnail(maxwidth, maxheight uint) (err error) {
 
 	var imagef string
 
@@ -403,7 +409,7 @@ func (i *ImageType) createThumbnail() (err error) {
 	}
 
 	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
-	thumb_dimensions := fmt.Sprintf("%dx%d>", config.Settings.Limits.ThumbnailMaxWidth, config.Settings.Limits.ThumbnailMaxHeight)
+	thumb_dimensions := fmt.Sprintf("%dx%d>", maxwidth, maxheight)
 
 	args := []string{
 		"-background",
@@ -446,12 +452,12 @@ func (i *ImageType) copyToS3() (err error) {
 
 	s3 := amazon.New()
 
-	err = s3.Save(i.Filepath, fmt.Sprintf("src/%s", i.Filename), i.mime)
+	err = s3.Save(i.Filepath, fmt.Sprintf("src/%s", i.Filename, false), i.mime)
 	if err != nil {
 		return
 	}
 
-	err = s3.Save(i.Thumbpath, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg")
+	err = s3.Save(i.Thumbpath, fmt.Sprintf("thumb/%s", i.Thumbnail, false), "image/jpeg")
 	if err != nil {
 		return
 	}

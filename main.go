@@ -83,6 +83,7 @@ func main() {
 	users := r.Group("/user")
 	users.Use(user.Auth(true))
 
+	users.POST("/avatar", c.AvatarController)
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
 	users.POST("/email", c.EmailController)
