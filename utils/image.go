@@ -418,7 +418,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 			"-size",
 			orig_dimensions,
 			imagef,
-			"-thumbnail",
+			"-size",
 			fmt.Sprintf("%dx%d^", maxwidth, maxheight),
 			"-gravity",
 			"center",
