@@ -69,7 +69,7 @@ func (i *ImageType) SaveAvatar() (err error) {
 }
 
 // this will create a random avatar
-func GenerateAvatar(user int) (err error) {
+func GenerateAvatar(user uint) (err error) {
 
 	img := ImageType{}
 
