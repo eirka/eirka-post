@@ -412,8 +412,6 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	thumb_dimensions := fmt.Sprintf("%dx%d>", maxwidth, maxheight)
 
 	args := []string{
-		"-background",
-		"white",
 		"-flatten",
 		"-size",
 		orig_dimensions,
