@@ -342,7 +342,7 @@ func (i *ImageType) saveFile() (err error) {
 
 	// avatar filename is the users id
 	if i.avatar {
-		i.Thumbnail = fmt.Sprintf("%d.jpg", i.Ib)
+		i.Thumbnail = fmt.Sprintf("%d.png", i.Ib)
 		i.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
 	}
 
