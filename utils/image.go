@@ -451,7 +451,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 
 	thumb, err := os.Open(i.Thumbpath)
 	if err != nil {
-		return errors.New("Problem making thumbnail")
+		return errors.New("Problem creating thumbnail file")
 	}
 	defer thumb.Close()
 
