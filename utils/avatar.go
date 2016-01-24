@@ -51,7 +51,7 @@ func (i *ImageType) SaveAvatar() (err error) {
 	}
 
 	// create a thumbnail
-	err = i.createThumbnail(200, 200)
+	err = i.createThumbnail(128, 128)
 	if err != nil {
 		return
 	}
@@ -101,7 +101,7 @@ func GenerateAvatar(uid uint) (err error) {
 	}
 
 	// create a thumbnail
-	err = img.createThumbnail(200, 200)
+	err = i.createThumbnail(128, 128)
 	if err != nil {
 		return
 	}
