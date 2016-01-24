@@ -109,10 +109,12 @@ func (r *RegisterModel) Register() (err error) {
 		return
 	}
 
-	r.Uid, err = e1.LastInsertId()
+	uid, err = e1.LastInsertId()
 	if err != nil {
 		return err
 	}
+
+	r.Uid = uint(uid)
 
 	ps2, err := dbase.Prepare("INSERT into user_role_map VALUES (?,?)")
 	if err != nil {
