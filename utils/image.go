@@ -444,10 +444,12 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 		}
 	}
 
-	_, err = exec.Command("convert", args...).Output()
+	out, err = exec.Command("convert", args...).Output()
 	if err != nil {
-		return
+		return errors.New("Problem making thumbnail")
 	}
+
+	fmt.Println(out)
 
 	thumb, err := os.Open(i.Thumbpath)
 	if err != nil {
