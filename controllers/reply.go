@@ -144,7 +144,7 @@ func ReplyController(c *gin.Context) {
 	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
 
 	// lock the shared mutex
-	err = cache.Lock()
+	err = cache.Lock(m.Ib)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ReplyController.cache.Lock")
