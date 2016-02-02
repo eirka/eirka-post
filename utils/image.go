@@ -85,7 +85,7 @@ type ImageType struct {
 	avatar      bool
 }
 
-var _ = FileUploader(&ImageType)
+var _ = FileUploader(&ImageType{})
 
 func (i *ImageType) IsValid() bool {
 
