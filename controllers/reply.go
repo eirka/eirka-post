@@ -143,6 +143,13 @@ func ReplyController(c *gin.Context) {
 	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
 	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
 
+	err = cache.Lock()
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("ReplyController.cache.Lock")
+		return
+	}
+
 	err = cache.Delete(index_key, directory_key, thread_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
