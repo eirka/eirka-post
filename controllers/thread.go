@@ -132,7 +132,7 @@ func ThreadController(c *gin.Context) {
 
 	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
 
-	err = cache.Delete(index_key, directory_key)
+	err = cache.Delete(directory_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ThreadController.cache.Delete")
