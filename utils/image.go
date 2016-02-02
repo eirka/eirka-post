@@ -38,6 +38,32 @@ var validExt = map[string]bool{
 	".webm": true,
 }
 
+type FileUploader interface {
+	// struct integrity
+	IsValid() bool
+	IsValidPost() bool
+
+	// image processing
+	SaveImage() (err error)
+	checkReqExt() (err error)
+	getMD5() (err error)
+	checkDuplicate() (err error)
+	checkMagic() (err error)
+	getStats() (err error)
+	saveFile() (err error)
+	makeFilenames()
+	createThumbnail(maxwidth, maxheight int) (err error)
+	copyToS3() (err error)
+
+	// webm specific functions
+	checkWebM() (err error)
+	createWebMThumbnail() (err error)
+
+	// avatar functions
+	SaveAvatar() (err error)
+	avatarToS3() (err error)
+}
+
 type ImageType struct {
 	File        multipart.File
 	Header      *multipart.FileHeader
@@ -58,6 +84,8 @@ type ImageType struct {
 	video       bool
 	avatar      bool
 }
+
+var _ = FileUploader(&ImageType)
 
 func (i *ImageType) IsValid() bool {
 
