@@ -121,7 +121,15 @@ func ThreadController(c *gin.Context) {
 	cache := redis.RedisCache
 
 	// Delete redis stuff
-	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
+	index_key := redis.RedisKeyIndex["index"]
+	index_key.SetKey(fmt.Sprintf("%d", m.Ib))
+	err = index_key.Delete()
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("ThreadController.cache.Delete")
+		return
+	}
+
 	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
 
 	err = cache.Delete(index_key, directory_key)
