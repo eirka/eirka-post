@@ -137,21 +137,20 @@ func ReplyController(c *gin.Context) {
 	// Initialize cache handle
 	cache := redis.RedisCache
 
-	// Delete redis stuff
-	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
+	index_key := redis.RedisKeyIndex["index"]
+	index_key.SetKey(fmt.Sprintf("%d", m.Ib))
+	err = index_key.Delete()
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("ReplyController.cache.Delete")
+		return
+	}
+
 	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
 	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
 	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
 
-	// lock the shared mutex
-	err = cache.Lock(m.Ib)
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ReplyController.cache.Lock")
-		return
-	}
-
-	err = cache.Delete(index_key, directory_key, thread_key, image_key)
+	err = cache.Delete(directory_key, thread_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ReplyController.cache.Delete")
