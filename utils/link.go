@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/eirka/eirka-libs/db"
@@ -41,7 +42,7 @@ func Link(id uint, referer string) (host string, err error) {
 	}
 
 	// set the link
-	host = redir.String()
+	host = fmt.Sprintf("%s/", redir)
 
 	return
 
