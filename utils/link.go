@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/url"
+	"path"
 
 	"github.com/eirka/eirka-libs/db"
 )
@@ -22,6 +23,11 @@ func Link(id uint, referer string) (host string, err error) {
 		return
 	}
 
+	// for subdirectory support
+	if path.Dir(host) != "." {
+		host = fmt.Sprintf("%s/b/%s", path.Dir(host), path.Base(host))
+	}
+
 	// Get the scheme from the referer
 	refer, err := url.Parse(referer)
 	if err != nil {
@@ -37,7 +43,6 @@ func Link(id uint, referer string) (host string, err error) {
 	// Create url
 	redir := &url.URL{
 		Scheme: refer.Scheme,
-		Host:   base.Host,
 		Path:   base.Path,
 	}
 
