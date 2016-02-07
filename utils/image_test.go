@@ -4,6 +4,7 @@ import (
 	"bytes"
 	crand "crypto/rand"
 	"errors"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"image"
 	"image/color"
