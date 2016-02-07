@@ -345,7 +345,7 @@ func TestGetStatsBadSize(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Contains(t, fmt.Sprintf("%s", err), "Image size too large", "Error should match")
+		assert.Contains(t, fmt.Sprintf("%s", err), "Image filesize too large", "Error should match")
 	}
 
 }
