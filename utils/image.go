@@ -347,15 +347,15 @@ func (i *ImageType) getStats() (err error) {
 	// Check against maximum sizes
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
-		return errors.New("Image width too large")
+		return fmt.Errorf("Image width too large. Max: %dpx", config.Settings.Limits.ImageMaxWidth)
 	case img.Width < config.Settings.Limits.ImageMinWidth:
-		return errors.New("Image width too small")
+		return fmt.Errorf("Image width too small. Min: %dpx", config.Settings.Limits.ImageMinWidth)
 	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
-		return errors.New("Image height too large")
+		return fmt.Errorf("Image height too large. Max: %dpx", config.Settings.Limits.ImageMaxHeight)
 	case img.Height < config.Settings.Limits.ImageMinHeight:
-		return errors.New("Image height too small")
+		return fmt.Errorf("Image height too small. Min: %dpx", config.Settings.Limits.ImageMinHeight)
 	case i.image.Len() > config.Settings.Limits.ImageMaxSize:
-		return errors.New("Image size too large")
+		return fmt.Errorf("Image filesize too large. Max: %dMB", (config.Settings.Limits.ImageMaxSize/1024)/1024)
 	}
 
 	return

@@ -60,7 +60,7 @@ func (r *RegisterModel) Validate() (err error) {
 	}
 
 	// Validate password input
-	password := validate.Validate{Input: r.Password, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	password := validate.Validate{Input: r.Password, Max: config.Settings.Limits.PasswordMaxLength, Min: config.Settings.Limits.PasswordMinLength}
 	if password.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if password.MinLength() {

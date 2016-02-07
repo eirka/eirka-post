@@ -49,7 +49,7 @@ func (p *PasswordModel) IsValid() bool {
 func (r *PasswordModel) Validate() (err error) {
 
 	// Validate new password input
-	newpassword := validate.Validate{Input: r.NewPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	newpassword := validate.Validate{Input: r.NewPw, Max: config.Settings.Limits.PasswordMaxLength, Min: config.Settings.Limits.PasswordMinLength}
 	if newpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if newpassword.MinLength() {
@@ -59,7 +59,7 @@ func (r *PasswordModel) Validate() (err error) {
 	}
 
 	// Validate old password input
-	oldpassword := validate.Validate{Input: r.OldPw, Max: config.Settings.Limits.NameMaxLength, Min: config.Settings.Limits.NameMinLength}
+	oldpassword := validate.Validate{Input: r.OldPw, Max: config.Settings.Limits.PasswordMaxLength, Min: config.Settings.Limits.PasswordMinLength}
 	if oldpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if oldpassword.MinLength() {
