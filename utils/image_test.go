@@ -344,7 +344,7 @@ func TestGetStatsBadSize(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Contains(t, err, "Image size too large", "Error should match")
+		assert.Contains(t, fmt.Sprintf("%s", err), "Image size too large", "Error should match")
 	}
 
 }
@@ -363,7 +363,7 @@ func TestGetStatsBadMin(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Contains(t, err, "Image width too small", "Error should match")
+		assert.Contains(t, fmt.Sprintf("%s", err), "Image width too small", "Error should match")
 	}
 
 }
@@ -382,7 +382,7 @@ func TestGetStatsBadMax(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Contains(t, err, "Image width too large", "Error should match")
+		assert.Contains(t, fmt.Sprintf("%s", err), "Image width too large", "Error should match")
 	}
 
 }
