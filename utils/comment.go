@@ -6,7 +6,7 @@ import (
 	"github.com/eirka/eirka-post/akismet"
 )
 
-type CheckComment struct {
+type Akismet struct {
 	Ip      string
 	Name    string
 	Ua      string
@@ -15,12 +15,7 @@ type CheckComment struct {
 }
 
 // Check comment for spam with akismet
-func (c *CheckComment) Get() (err error) {
-
-	err = CheckStopForumSpam(c.Ip)
-	if err != nil {
-		return
-	}
+func (c *Akismet) Check() (err error) {
 
 	config := &akismet.Config{
 		APIKey:    config.Settings.Akismet.Key,
@@ -28,10 +23,8 @@ func (c *CheckComment) Get() (err error) {
 		UserAgent: akismet.UserAgentString("Pram/1.2"),
 	}
 
-	if c.Name == "Anonymous" {
-		c.Name = ""
-	}
-
+	// verify the akismet api key
+	// TODO: add errors here to a system log
 	err = akismet.VerifyKey(config)
 	if err != nil {
 		return
@@ -41,11 +34,11 @@ func (c *CheckComment) Get() (err error) {
 		UserIP:    c.Ip,
 		UserAgent: c.Ua,
 		Content:   c.Comment,
-		Author:    c.Name,
 		Referrer:  c.Referer,
 		Type:      "comment",
 	}
 
+	// check the comment with akismet
 	err = akismet.CommentCheck(config, comment)
 	if err != nil {
 		return

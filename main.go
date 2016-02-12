@@ -16,6 +16,7 @@ import (
 
 	local "github.com/eirka/eirka-post/config"
 	c "github.com/eirka/eirka-post/controllers"
+	m "github.com/eirka/eirka-post/middleware"
 )
 
 func init() {
@@ -72,11 +73,11 @@ func main() {
 	public := r.Group("/")
 	public.Use(user.Auth(false))
 
-	public.POST("/thread/new", c.ThreadController)
-	public.POST("/thread/reply", c.ReplyController)
+	public.POST("/thread/new", m.StopSpam(), c.ThreadController)
+	public.POST("/thread/reply", m.StopSpam(), c.ReplyController)
 	public.POST("/tag/new", c.NewTagController)
 	public.POST("/tag/add", c.AddTagController)
-	public.POST("/register", c.RegisterController)
+	public.POST("/register", m.StopSpam(), c.RegisterController)
 	public.POST("/login", c.LoginController)
 
 	// requires user perms

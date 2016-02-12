@@ -84,20 +84,21 @@ func ReplyController(c *gin.Context) {
 		return
 	}
 
+	// replies dont need comments if they have an image
 	if m.Comment != "" {
 
 		// Check comment in SFS and Akismet
-		check := u.CheckComment{
+		akismet := u.Akismet{
 			Ip:      m.Ip,
 			Ua:      req.UserAgent(),
 			Referer: req.Referer(),
 			Comment: m.Comment,
 		}
 
-		err = check.Get()
+		err = akismet.Check()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-			c.Error(err).SetMeta("ReplyController.CheckComment")
+			c.Error(err).SetMeta("ReplyController.CheckAkismet")
 			return
 		}
 
