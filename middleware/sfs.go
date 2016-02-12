@@ -3,7 +3,6 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	e "github.com/eirka/eirka-libs/errors"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +16,7 @@ func StopSpam() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// check ip against stop forum spam
-		err = u.CheckStopForumSpam(c.ClientIP())
+		err := u.CheckStopForumSpam(c.ClientIP())
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": "IP is on spam blacklist"})
 			c.Error(err).SetMeta("StopForumSpam")
@@ -79,7 +78,7 @@ func CheckStopForumSpam(ip string) (err error) {
 	defer resp.Body.Close()
 
 	// read the response
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return errors.New("Error parsing SFS response")
 	}
