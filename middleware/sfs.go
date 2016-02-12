@@ -16,7 +16,7 @@ func StopSpam() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// check ip against stop forum spam
-		err := u.CheckStopForumSpam(c.ClientIP())
+		err := CheckStopForumSpam(c.ClientIP())
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": "IP is on spam blacklist"})
 			c.Error(err).SetMeta("StopForumSpam")
