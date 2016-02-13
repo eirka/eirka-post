@@ -153,13 +153,9 @@ func (i *ReplyModel) Status() (err error) {
 
 	// Close thread if above max posts
 	if total > config.Settings.Limits.PostsMax {
-		updatestatus, err := dbase.Prepare("UPDATE threads SET thread_closed=1 WHERE thread_id = ?")
-		if err != nil {
-			return err
-		}
-		defer updatestatus.Close()
 
-		_, err = updatestatus.Exec(i.Thread)
+		_, err = dbase.Exec("UPDATE threads SET thread_closed=1 WHERE thread_id = ?",
+			i.Thread)
 		if err != nil {
 			return err
 		}
@@ -186,47 +182,24 @@ func (i *ReplyModel) Post() (err error) {
 	}
 	defer tx.Rollback()
 
-	// Insert data into posts table
-	ps1, err := tx.Prepare(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text) 
+	// insert new post
+	e1, err := tx.Exec(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text) 
     SELECT ?,?,max(post_num)+1,NOW(),?,?
-    FROM posts WHERE thread_id = ?`)
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	// Update thread last post time
-	ps2, err := tx.Prepare("UPDATE threads SET thread_last_post = NOW() WHERE thread_id = ?")
-	if err != nil {
-		return
-	}
-	defer ps2.Close()
-
-	e1, err := ps1.Exec(i.Thread, i.Uid, i.Ip, i.Comment, i.Thread)
-	if err != nil {
-		return
-	}
-
-	_, err = ps2.Exec(i.Thread)
+    FROM posts WHERE thread_id = ?`, i.Thread, i.Uid, i.Ip, i.Comment, i.Thread)
 	if err != nil {
 		return
 	}
 
 	if i.Image {
 
-		// Insert data into images table
-		ps3, err := tx.Prepare("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)")
-		if err != nil {
-			return err
-		}
-		defer ps2.Close()
-
 		p_id, err := e1.LastInsertId()
 		if err != nil {
 			return err
 		}
 
-		_, err = ps3.Exec(p_id, i.Filename, i.Thumbnail, i.MD5, i.OrigHeight, i.OrigWidth, i.ThumbHeight, i.ThumbWidth)
+		// insert image if there is one
+		_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)",
+			p_id, i.Filename, i.Thumbnail, i.MD5, i.OrigHeight, i.OrigWidth, i.ThumbHeight, i.ThumbWidth)
 		if err != nil {
 			return err
 		}

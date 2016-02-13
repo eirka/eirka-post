@@ -81,13 +81,7 @@ func (r *EmailModel) Update() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("UPDATE users SET user_email = ? WHERE user_id = ?")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps1.Exec(r.Email, r.Uid)
+	_, err = dbase.Exec("UPDATE users SET user_email = ? WHERE user_id = ?", r.Email, r.Uid)
 	if err != nil {
 		return
 	}

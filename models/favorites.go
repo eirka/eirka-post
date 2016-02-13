@@ -67,13 +67,7 @@ func (i *FavoritesModel) Status() (err error) {
 	// delete if it does
 	if check {
 
-		ps1, err := dbase.Prepare("DELETE FROM favorites WHERE image_id = ? AND user_id = ? LIMIT 1")
-		if err != nil {
-			return err
-		}
-		defer ps1.Close()
-
-		_, err = ps1.Exec(i.Image, i.Uid)
+		_, err = dbase.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ? LIMIT 1", i.Image, i.Uid)
 		if err != nil {
 			return err
 		}
@@ -100,13 +94,7 @@ func (i *FavoritesModel) Post() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("INSERT into favorites (image_id, user_id) VALUES (?,?)")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps1.Exec(i.Image, i.Uid)
+	_, err = dbase.Exec("INSERT into favorites (image_id, user_id) VALUES (?,?)", i.Image, i.Uid)
 	if err != nil {
 		return
 	}

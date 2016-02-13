@@ -86,13 +86,7 @@ func (r *PasswordModel) Update() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("UPDATE users SET user_password = ? WHERE user_id = ?")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps1.Exec(r.NewHashed, r.Uid)
+	_, err = dbase.Exec("UPDATE users SET user_password = ? WHERE user_id = ?", r.NewHashed, r.Uid)
 	if err != nil {
 		return
 	}

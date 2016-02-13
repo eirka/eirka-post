@@ -104,13 +104,7 @@ func (i *AddTagModel) Post() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("INSERT into tagmap (image_id, tag_id) VALUES (?,?)")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps1.Exec(i.Image, i.Tag)
+	_, err = dbase.Exec("INSERT into tagmap (image_id, tag_id) VALUES (?,?)", i.Image, i.Tag)
 	if err != nil {
 		return
 	}

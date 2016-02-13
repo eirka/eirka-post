@@ -106,13 +106,8 @@ func (i *NewTagModel) Post() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	_, err = ps1.Exec(i.Tag, i.Ib, i.TagType)
+	_, err = dbase.Exec("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)",
+		i.Tag, i.Ib, i.TagType)
 	if err != nil {
 		return
 	}

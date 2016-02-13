@@ -136,28 +136,9 @@ func (i *ThreadModel) Post() (err error) {
 	}
 	defer tx.Rollback()
 
-	// Insert data into threads table
-	ps1, err := tx.Prepare("INSERT INTO threads (ib_id,thread_title,thread_first_post,thread_last_post) VALUES (?,?,NOW(),NOW())")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	// Insert data into posts table
-	ps2, err := tx.Prepare("INSERT INTO posts (thread_id,user_id,post_time,post_ip,post_text) VALUES (?,?,NOW(),?,?)")
-	if err != nil {
-		return
-	}
-	defer ps2.Close()
-
-	// Insert data into images table
-	ps3, err := tx.Prepare("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)")
-	if err != nil {
-		return
-	}
-	defer ps3.Close()
-
-	e1, err := ps1.Exec(i.Ib, i.Title)
+	// insert into threads table
+	e1, err := tx.Exec("INSERT INTO threads (ib_id,thread_title) VALUES (?,?)",
+		i.Ib, i.Title)
 	if err != nil {
 		return
 	}
@@ -168,7 +149,9 @@ func (i *ThreadModel) Post() (err error) {
 		return
 	}
 
-	e2, err := ps2.Exec(t_id, i.Uid, i.Ip, i.Comment)
+	// insert into posts table
+	e2, err := tx.Exec("INSERT INTO posts (thread_id,user_id,post_time,post_ip,post_text) VALUES (?,?,NOW(),?,?)",
+		t_id, i.Uid, i.Ip, i.Comment)
 	if err != nil {
 		return
 	}
@@ -179,7 +162,9 @@ func (i *ThreadModel) Post() (err error) {
 		return
 	}
 
-	_, err = ps3.Exec(p_id, i.Filename, i.Thumbnail, i.MD5, i.OrigHeight, i.OrigWidth, i.ThumbHeight, i.ThumbWidth)
+	// insert into images table
+	_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)",
+		p_id, i.Filename, i.Thumbnail, i.MD5, i.OrigHeight, i.OrigWidth, i.ThumbHeight, i.ThumbWidth)
 	if err != nil {
 		return
 	}

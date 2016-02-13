@@ -92,19 +92,15 @@ func (r *RegisterModel) Register() (err error) {
 		return errors.New("RegisterModel is not valid")
 	}
 
-	// Get Database handle
-	dbase, err := db.GetDb()
+	// Get transaction handle
+	tx, err := db.GetTransaction()
 	if err != nil {
 		return
 	}
+	defer tx.Rollback()
 
-	ps1, err := dbase.Prepare("INSERT into users (user_name, user_email, user_password, user_confirmed) VALUES (?,?,?,?)")
-	if err != nil {
-		return
-	}
-	defer ps1.Close()
-
-	e1, err := ps1.Exec(r.Name, r.Email, r.Hashed, 1)
+	e1, err := tx.Exec("INSERT into users (user_name, user_email, user_password, user_confirmed) VALUES (?,?,?,?)",
+		r.Name, r.Email, r.Hashed, 1)
 	if err != nil {
 		return
 	}
@@ -116,13 +112,13 @@ func (r *RegisterModel) Register() (err error) {
 
 	r.Uid = uint(uid)
 
-	ps2, err := dbase.Prepare("INSERT into user_role_map VALUES (?,?)")
+	_, err = tx.Exec("INSERT into user_role_map VALUES (?,?)", r.Uid, 2)
 	if err != nil {
 		return
 	}
-	defer ps1.Close()
 
-	_, err = ps2.Exec(r.Uid, 2)
+	// Commit transaction
+	err = tx.Commit()
 	if err != nil {
 		return
 	}
