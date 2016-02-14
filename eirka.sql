@@ -305,8 +305,6 @@ CREATE TABLE `threads` (
   `thread_closed` tinyint(1) NOT NULL DEFAULT '0',
   `thread_sticky` tinyint(1) NOT NULL DEFAULT '0',
   `thread_deleted` tinyint(1) NOT NULL DEFAULT '0',
-  `thread_first_post` datetime NOT NULL,
-  `thread_last_post` datetime NOT NULL,
   PRIMARY KEY (`thread_id`),
   KEY `ib_id_idx` (`ib_id`),
   KEY `t_id_ib_id` (`ib_id`,`thread_id`),

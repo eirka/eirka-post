@@ -12,6 +12,7 @@ import (
 	"github.com/eirka/eirka-libs/csrf"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
+	"github.com/eirka/eirka-libs/status"
 	"github.com/eirka/eirka-libs/user"
 
 	local "github.com/eirka/eirka-post/config"
@@ -66,7 +67,7 @@ func main() {
 	// verified the csrf token from the request
 	r.Use(csrf.Verify())
 
-	r.GET("/uptime", c.UptimeController)
+	r.GET("/status", status.StatusController)
 	r.NoRoute(c.ErrorController)
 
 	// all users
