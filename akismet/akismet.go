@@ -63,7 +63,11 @@ type Comment struct {
 // MakePOST builds a POST request to a given URL containing the Comment object
 // as POST data. It returns the http response, and any errors.
 func (comment *Comment) MakePOST(config *Config, url string) (resp *http.Response, err error) {
-	client := &http.Client{}
+
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+
 	requestBody := request{
 		"key":                  config.APIKey,
 		"blog":                 config.Host,
@@ -78,7 +82,7 @@ func (comment *Comment) MakePOST(config *Config, url string) (resp *http.Respons
 		"comment_content":      comment.Content,
 	}
 
-	req, err := http.NewRequest("POST", url, requestBody.Reader())
+	req, err := http.NewRequest(http.MethodPost, url, requestBody.Reader())
 	if err != nil {
 		return nil, err
 	}
@@ -189,13 +193,17 @@ var (
 // returns ErrInvalidKey if it is not;
 // returns ErrUnknown otherwise.
 func VerifyKey(config *Config) error {
-	client := &http.Client{}
+
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+
 	requestBody := request{
 		"key":  config.APIKey,
 		"blog": config.Host,
 	}
 
-	req, err := http.NewRequest("POST", config.VerifyKeyURL(), requestBody.Reader())
+	req, err := http.NewRequest(http.MethodPost, config.VerifyKeyURL(), requestBody.Reader())
 	if err != nil {
 		return err
 	}
@@ -207,15 +215,18 @@ func VerifyKey(config *Config) error {
 	if err != nil {
 		return err
 	}
-
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
+
 	bodyStr := string(body)
+
 	switch bodyStr {
 	case "valid":
 		return nil
 	case "invalid":
 		return ErrInvalidKey
 	}
+
 	return ErrUnknown
 }

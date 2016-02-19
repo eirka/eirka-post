@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/eirka/eirka-libs/config"
 )
@@ -61,7 +62,7 @@ func CheckStopForumSpam(ip string) (err error) {
 	}
 
 	// our http request
-	req, err := http.NewRequest("GET", sfs_endpoint.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, sfs_endpoint.String(), nil)
 	if err != nil {
 		return errors.New("Error reaching SFS")
 	}
@@ -69,9 +70,14 @@ func CheckStopForumSpam(ip string) (err error) {
 	// set ua header
 	req.Header.Set("User-Agent", "Eirka/1.2")
 
+	// a client with a timeout
+	var netClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+
 	// do the request
 	// TODO: add errors here to a system log
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := netClient.Do(req)
 	if err != nil {
 		return errors.New("Error reaching SFS")
 	}
