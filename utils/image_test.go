@@ -316,7 +316,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 
 	fw1, _ := w1.CreateFormFile("file", "image1.jpg")
 
-	io.Copy(fw1, imagefile)
+	io.Copy(fw1, bytes.NewReader(imagefile.Bytes()))
 
 	w1.Close()
 
@@ -343,7 +343,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 
 	fw2, _ := w2.CreateFormFile("file", "image2.jpg")
 
-	io.Copy(fw2, imagefile)
+	io.Copy(fw2, bytes.NewReader(imagefile.Bytes()))
 
 	w2.Close()
 
