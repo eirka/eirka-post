@@ -1,13 +1,7 @@
 package middleware
 
 import (
-	"encoding/json"
-	"errors"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"time"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
