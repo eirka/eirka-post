@@ -238,6 +238,8 @@ func TestCopyBytes(t *testing.T) {
 
 	imagefile := testJpeg(500)
 
+	filesize := imagefile.Len()
+
 	var b bytes.Buffer
 
 	w := multipart.NewWriter(&b)
@@ -260,7 +262,7 @@ func TestCopyBytes(t *testing.T) {
 		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
 
-	assert.Equal(t, imagefile.Len(), img.image.Len(), "File sizes should match")
+	assert.Equal(t, filesize, img.image.Len(), "File sizes should match")
 
 	return
 }
@@ -321,19 +323,6 @@ func TestGetMD5Duplicate(t *testing.T) {
 	req1, _ := http.NewRequest("POST", "/reply", &b)
 	req1.Header.Set("Content-Type", w1.FormDataContentType())
 
-	b.Reset()
-
-	w2 := multipart.NewWriter(&b)
-
-	fw2, _ := w2.CreateFormFile("file", "image2.jpg")
-
-	io.Copy(fw2, imagefile)
-
-	w2.Close()
-
-	req2, _ := http.NewRequest("POST", "/reply", &b)
-	req2.Header.Set("Content-Type", w2.FormDataContentType())
-
 	img1 := ImageType{}
 
 	img1.File, img1.Header, _ = req1.FormFile("file")
@@ -347,6 +336,19 @@ func TestGetMD5Duplicate(t *testing.T) {
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
 	}
+
+	b.Reset()
+
+	w2 := multipart.NewWriter(&b)
+
+	fw2, _ := w2.CreateFormFile("file", "image2.jpg")
+
+	io.Copy(fw2, imagefile)
+
+	w2.Close()
+
+	req2, _ := http.NewRequest("POST", "/reply", &b)
+	req2.Header.Set("Content-Type", w2.FormDataContentType())
 
 	img2 := ImageType{}
 
