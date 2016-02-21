@@ -46,6 +46,7 @@ type FileUploader interface {
 	SaveImage() (err error)
 	checkReqExt() (err error)
 	getMD5() (err error)
+	checkBanned() (err error)
 	checkDuplicate() (err error)
 	checkMagic() (err error)
 	getStats() (err error)
@@ -158,6 +159,12 @@ func (i *ImageType) SaveImage() (err error) {
 		return
 	}
 
+	// check to see if the file is banned
+	err = i.checkBanned()
+	if err != nil {
+		return
+	}
+
 	// check to see if the file already exists
 	err = i.checkDuplicate()
 	if err != nil {
@@ -263,6 +270,30 @@ func (i *ImageType) getMD5() (err error) {
 
 	return
 
+}
+
+// check if the md5 is a banned file
+func (i *ImageType) checkBanned() (err error) {
+
+	// Get Database handle
+	dbase, err := db.GetDb()
+	if err != nil {
+		return
+	}
+
+	var check bool
+
+	err = dbase.QueryRow(`SELECT count(*) FROM banned_files WHERE ban_hash = ?`, i.MD5).Scan(&check)
+	if err != nil {
+		return
+	}
+
+	// return error if it exists
+	if check {
+		return fmt.Errorf("File is banned")
+	}
+
+	return
 }
 
 // check if the md5 is already in the database
