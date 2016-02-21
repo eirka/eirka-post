@@ -64,7 +64,7 @@ func CheckStopForumSpam(ip string) (err error) {
 	// our http request
 	req, err := http.NewRequest(http.MethodGet, sfs_endpoint.String(), nil)
 	if err != nil {
-		return errors.New("Error reaching SFS")
+		return errors.New("Error creating SFS request")
 	}
 
 	// set ua header
