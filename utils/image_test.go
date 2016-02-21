@@ -236,22 +236,31 @@ func TestCheckReqNoExt(t *testing.T) {
 
 func TestCopyBytes(t *testing.T) {
 
-	req := formJpegRequest(300, "test.jpeg")
+	imagefile := testJpeg(500)
 
-	img1 := ImageType{}
+	var b bytes.Buffer
 
-	img1.File, img1.Header, _ = req.FormFile("file")
+	w := multipart.NewWriter(&b)
 
-	filelen1 := len(img1.File)
+	fw, _ := w.CreateFormFile("file", "image1.jpg")
 
-	err := img1.copyBytes()
+	io.Copy(fw, imagefile)
+
+	w.Close()
+
+	req, _ := http.NewRequest("POST", "/reply", &b)
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	img := ImageType{}
+
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.copyBytes()
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, img1.image, "File bytes should be returned")
+		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
 
-	filelen2 := img1.image.Len()
-
-	assert.Equal(t, filelen1, filelen2, "File sizes should match")
+	assert.Equal(t, imagefile.Len(), img.image.Len(), "File sizes should match")
 
 	return
 }
@@ -303,7 +312,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 
 	w1 := multipart.NewWriter(&b)
 
-	fw1, _ := w.CreateFormFile("file", "image1.jpg")
+	fw1, _ := w1.CreateFormFile("file", "image1.jpg")
 
 	io.Copy(fw1, imagefile)
 
@@ -316,7 +325,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 
 	w2 := multipart.NewWriter(&b)
 
-	fw2, _ := w.CreateFormFile("file", "image2.jpg")
+	fw2, _ := w2.CreateFormFile("file", "image2.jpg")
 
 	io.Copy(fw2, imagefile)
 
