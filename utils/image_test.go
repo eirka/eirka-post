@@ -365,7 +365,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 	}
 
 	assert.Equal(t, img1.MD5, img2.MD5, "MD5 should be the same")
-
+	assert.Equal(t, img1.image.Len(), img2.image.Len(), "Size should be the same")
 }
 
 func TestCheckMagicGood(t *testing.T) {
