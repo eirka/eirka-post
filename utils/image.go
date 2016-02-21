@@ -266,7 +266,7 @@ func (i *ImageType) copyBytes() (err error) {
 	// Save file and also read into hasher for md5
 	_, err = io.Copy(i.image, i.File)
 	if err != nil {
-		return errors.New("Problem copying file")
+		return errors.New("Problem copying file to buffer")
 	}
 
 	return
@@ -280,7 +280,7 @@ func (i *ImageType) getMD5() (err error) {
 	// Save file and also read into hasher for md5
 	_, err = io.Copy(hasher, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
-		return errors.New("Problem copying file")
+		return errors.New("Problem creating MD5 hash")
 	}
 
 	// Set md5sum from hasher
