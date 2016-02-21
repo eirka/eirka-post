@@ -87,6 +87,7 @@ func PasswordController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     pf.Ib,
+		Type:   audit.UserLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditChangePassword,
 		Info:   m.Name,

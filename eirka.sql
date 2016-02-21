@@ -229,6 +229,9 @@ INSERT INTO settings VALUES ("avatar_maxheight",1000);
 INSERT INTO settings VALUES ("avatar_maxsize",1000000);
 INSERT INTO settings VALUES ("password_maxlength",8);
 INSERT INTO settings VALUES ("password_minlength",128);
+INSERT INTO settings VALUES ("cloudflare_key","");
+INSERT INTO settings VALUES ("cloudflare_email","");
+
 --
 -- Table structure for table `tagmap`
 --

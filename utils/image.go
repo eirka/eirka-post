@@ -24,7 +24,6 @@ import (
 	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
-	_ "github.com/eirka/eirka-libs/errors"
 
 	local "github.com/eirka/eirka-post/config"
 )
@@ -282,9 +281,9 @@ func (i *ImageType) checkDuplicate() (err error) {
 	var check bool
 	var thread, post sql.NullInt64
 
-	err = dbase.QueryRow(`select count(1),posts.post_num,threads.thread_id from threads 
-	LEFT JOIN posts on threads.thread_id = posts.thread_id 
-	LEFT JOIN images on posts.post_id = images.post_id 
+	err = dbase.QueryRow(`select count(1),posts.post_num,threads.thread_id from threads
+	LEFT JOIN posts on threads.thread_id = posts.thread_id
+	LEFT JOIN images on posts.post_id = images.post_id
 	WHERE image_hash = ? AND ib_id = ?`, i.MD5, i.Ib).Scan(&check, &post, &thread)
 	if err != nil {
 		return

@@ -169,6 +169,7 @@ func ReplyController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
+		Type:   audit.BoardLog,
 		Ip:     m.Ip,
 		Action: audit.AuditReply,
 		Info:   fmt.Sprintf("%d", m.Thread),

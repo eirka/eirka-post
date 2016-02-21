@@ -59,6 +59,7 @@ func EmailController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     ef.Ib,
+		Type:   audit.UserLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditEmailUpdate,
 		Info:   m.Name,

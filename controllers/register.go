@@ -93,6 +93,7 @@ func RegisterController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     rf.Ib,
+		Type:   audit.UserLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditRegister,
 		Info:   m.Name,

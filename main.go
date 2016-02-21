@@ -66,6 +66,8 @@ func main() {
 	r.Use(cors.CORS())
 	// verified the csrf token from the request
 	r.Use(csrf.Verify())
+	// check the ban list for the ip
+	r.Use(m.Bans())
 
 	r.GET("/status", status.StatusController)
 	r.NoRoute(c.ErrorController)

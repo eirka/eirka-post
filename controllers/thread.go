@@ -150,6 +150,7 @@ func ThreadController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
+		Type:   audit.BoardLog,
 		Ip:     m.Ip,
 		Action: audit.AuditNewThread,
 		Info:   fmt.Sprintf("%s", m.Title),
