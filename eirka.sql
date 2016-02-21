@@ -70,6 +70,7 @@ CREATE TABLE `audit` (
   `audit_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `ib_id` tinyint(3) unsigned NOT NULL,
+  `audit_type` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `audit_ip` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `audit_time` datetime NOT NULL,
   `audit_action` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -79,6 +80,46 @@ CREATE TABLE `audit` (
   KEY `audit_ib_id_idx` (`ib_id`),
   CONSTRAINT `audit_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `audit_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=56104 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `banned_files`
+--
+
+DROP TABLE IF EXISTS `banned_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `banned_files` (
+  `user_id` int(10) unsigned NOT NULL,
+  `ib_id` tinyint(3) unsigned NOT NULL,
+  `ban_hash` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `ban_reason` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  UNIQUE KEY `bf_ban_hash` (`ban_hash`),
+  KEY `bf_user_id` (`user_id`),
+  KEY `bf_ib_id` (`ib_id`),
+  CONSTRAINT `bf_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `bf_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `banned_ips`
+--
+
+DROP TABLE IF EXISTS `banned_ips`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `banned_ips` (
+  `user_id` int(10) unsigned NOT NULL,
+  `ib_id` tinyint(3) unsigned NOT NULL,
+  `ban_ip` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `ban_reason` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  UNIQUE KEY `bip_ban_ip` (`ban_ip`),
+  KEY `bip_user_id` (`user_id`),
+  KEY `bip_ib_id` (`ib_id`),
+  CONSTRAINT `bip_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `bip_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

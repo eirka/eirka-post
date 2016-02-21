@@ -281,6 +281,10 @@ func (i *ImageType) checkBanned() (err error) {
 		return
 	}
 
+	if i.MD5 == "" {
+		return errors.New("No hash set on file banned check")
+	}
+
 	var check bool
 
 	err = dbase.QueryRow(`SELECT count(*) FROM banned_files WHERE ban_hash = ?`, i.MD5).Scan(&check)
@@ -303,6 +307,10 @@ func (i *ImageType) checkDuplicate() (err error) {
 	dbase, err := db.GetDb()
 	if err != nil {
 		return
+	}
+
+	if i.MD5 == "" {
+		return errors.New("No hash set on duplicate check")
 	}
 
 	if i.Ib == 0 {
