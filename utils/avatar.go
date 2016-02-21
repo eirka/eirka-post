@@ -21,6 +21,12 @@ func (i *ImageType) SaveAvatar() (err error) {
 		return
 	}
 
+	// copy the multipart file into a buffer
+	err = i.copyBytes()
+	if err != nil {
+		return
+	}
+
 	// get file md5
 	err = i.getMD5()
 	if err != nil {

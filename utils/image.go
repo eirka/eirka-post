@@ -45,6 +45,7 @@ type FileUploader interface {
 	// image processing
 	SaveImage() (err error)
 	checkReqExt() (err error)
+	copyBytes() (err error)
 	getMD5() (err error)
 	checkBanned() (err error)
 	checkDuplicate() (err error)
@@ -153,6 +154,12 @@ func (i *ImageType) SaveImage() (err error) {
 		return
 	}
 
+	// copy the multipart file into a buffer
+	err = i.copyBytes()
+	if err != nil {
+		return
+	}
+
 	// get file md5
 	err = i.getMD5()
 	if err != nil {
@@ -250,17 +257,28 @@ func isAllowedExt(ext string) bool {
 	return validExt[strings.ToLower(ext)]
 }
 
-// Get image MD5 and write file into buffer
-func (i *ImageType) getMD5() (err error) {
-
+// Copy the multipart file into a bytes buffer
+func (i *ImageType) copyBytes() (err error) {
 	defer i.File.Close()
-
-	hasher := md5.New()
 
 	i.image = new(bytes.Buffer)
 
 	// Save file and also read into hasher for md5
-	_, err = io.Copy(i.image, io.TeeReader(i.File, hasher))
+	_, err = io.Copy(i.image, i.File)
+	if err != nil {
+		return errors.New("Problem copying file")
+	}
+
+	return
+}
+
+// Get image MD5 and write file into buffer
+func (i *ImageType) getMD5() (err error) {
+
+	hasher := md5.New()
+
+	// Save file and also read into hasher for md5
+	_, err = io.Copy(hasher, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
 		return errors.New("Problem copying file")
 	}
