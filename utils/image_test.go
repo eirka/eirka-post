@@ -242,12 +242,12 @@ func TestGetMD5(t *testing.T) {
 
 	img1.File, img1.Header, _ = req.FormFile("file")
 
-	err = img1.copyBytes()
+	err := img1.copyBytes()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img1.image, "File bytes should be returned")
 	}
 
-	err := img1.getMD5()
+	err = img1.getMD5()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
 	}
