@@ -253,7 +253,7 @@ func TestGetMD5(t *testing.T) {
 
 	img2.File, img2.Header, _ = req2.FormFile("file")
 
-	err = img.copyBytes()
+	err = img2.copyBytes()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
@@ -275,12 +275,12 @@ func TestCheckMagicGood(t *testing.T) {
 
 	img.File, img.Header, _ = req.FormFile("file")
 
-	err = img.copyBytes()
+	err := img.copyBytes()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
 
-	err := img.getMD5()
+	err = img.getMD5()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 	}
@@ -300,12 +300,12 @@ func TestCheckMagicBad(t *testing.T) {
 
 	img.File, img.Header, _ = req.FormFile("file")
 
-	err = img.copyBytes()
+	err := img.copyBytes()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
 
-	err := img.getMD5()
+	err = img.getMD5()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 	}
