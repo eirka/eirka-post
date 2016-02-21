@@ -234,6 +234,28 @@ func TestCheckReqNoExt(t *testing.T) {
 
 }
 
+func TestCopyBytes(t *testing.T) {
+
+	req := formJpegRequest(300, "test.jpeg")
+
+	img1 := ImageType{}
+
+	img1.File, img1.Header, _ = req.FormFile("file")
+
+	filelen1 := len(img1.File)
+
+	err := img1.copyBytes()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img1.image, "File bytes should be returned")
+	}
+
+	filelen2 := img1.image.Len()
+
+	assert.Equal(t, filelen1, filelen2, "File sizes should match")
+
+	return
+}
+
 func TestGetMD5(t *testing.T) {
 
 	req := formJpegRequest(300, "test.jpeg")
@@ -269,6 +291,69 @@ func TestGetMD5(t *testing.T) {
 	}
 
 	assert.NotEqual(t, img1.MD5, img2.MD5, "MD5 should not be the same")
+
+}
+
+// we will check to see if two requests if the same file will generate the same hash
+func TestGetMD5Duplicate(t *testing.T) {
+
+	imagefile := testJpeg(500)
+
+	var b bytes.Buffer
+
+	w1 := multipart.NewWriter(&b)
+
+	fw1, _ := w.CreateFormFile("file", "image1.jpg")
+
+	io.Copy(fw1, imagefile)
+
+	w1.Close()
+
+	req1, _ := http.NewRequest("POST", "/reply", &b)
+	req1.Header.Set("Content-Type", w1.FormDataContentType())
+
+	b.Reset()
+
+	w2 := multipart.NewWriter(&b)
+
+	fw2, _ := w.CreateFormFile("file", "image2.jpg")
+
+	io.Copy(fw2, imagefile)
+
+	w2.Close()
+
+	req2, _ := http.NewRequest("POST", "/reply", &b)
+	req2.Header.Set("Content-Type", w2.FormDataContentType())
+
+	img1 := ImageType{}
+
+	img1.File, img1.Header, _ = req1.FormFile("file")
+
+	err := img1.copyBytes()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img1.image, "File bytes should be returned")
+	}
+
+	err = img1.getMD5()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
+	}
+
+	img2 := ImageType{}
+
+	img2.File, img2.Header, _ = req2.FormFile("file")
+
+	err = img2.copyBytes()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img2.image, "File bytes should be returned")
+	}
+
+	err = img2.getMD5()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, img2.MD5, "MD5 should be returned")
+	}
+
+	assert.Equal(t, img1.MD5, img2.MD5, "MD5 should be the same")
 
 }
 
