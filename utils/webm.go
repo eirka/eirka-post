@@ -16,6 +16,24 @@ var codecs = map[string]bool{
 	"vp9": true,
 }
 
+func init() {
+
+	var err error
+
+	// test for avprobe
+	_, err = exec.Command("avprobe", "-version").Output()
+	if err != nil {
+		panic("avprobe not found")
+	}
+
+	// test for avconv
+	_, err = exec.Command("avconv", "-version").Output()
+	if err != nil {
+		panic("avconv not found")
+	}
+
+}
+
 // check webm metadata to make sure its the correct type of video, size, etc
 func (i *ImageType) checkWebM() (err error) {
 

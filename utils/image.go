@@ -37,6 +37,18 @@ var validExt = map[string]bool{
 	".webm": true,
 }
 
+func init() {
+
+	var err error
+
+	// test for ImageMagick
+	_, err = exec.Command("convert", "--version").Output()
+	if err != nil {
+		panic("ImageMagick not found")
+	}
+
+}
+
 type FileUploader interface {
 	// struct integrity
 	IsValid() bool
