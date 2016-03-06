@@ -27,6 +27,40 @@ func TestNewTagValidateInput(t *testing.T) {
 
 }
 
+func TestNewTagValidateInputTagShort(t *testing.T) {
+
+	var err error
+
+	tag := NewTagModel{
+		Ib:      1,
+		Tag:     "t",
+		TagType: 1,
+	}
+
+	err = tag.ValidateInput()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrTagShort, "Error should match")
+	}
+
+}
+
+func TestNewTagValidateInputTagEmpty(t *testing.T) {
+
+	var err error
+
+	tag := NewTagModel{
+		Ib:      1,
+		Tag:     "",
+		TagType: 1,
+	}
+
+	err = tag.ValidateInput()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrNoTagName, "Error should match")
+	}
+
+}
+
 func TestNewTagIsValid(t *testing.T) {
 
 	tag := NewTagModel{
