@@ -112,3 +112,21 @@ func TestEmailValidateSameEmail(t *testing.T) {
 	}
 
 }
+
+func TestEmailUpdate(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectExec("UPDATE users SET user_email").
+		WithArgs("cool@test.com", 2).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	email := EmailModel{
+		Uid:   2,
+		Email: "cool@test.com",
+	}
+
+}
