@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
@@ -152,6 +153,35 @@ func TestRegister(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 
 	assert.Equal(t, register.Uid, uint(2), "Error should match")
+
+}
+
+func TestRegisterRollback(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec("INSERT into users").
+		WithArgs("test", "test@blah.com", []byte("fake"), 1).
+		WillReturnError(errors.New("SQL error"))
+
+	mock.ExpectRollback()
+
+	register := RegisterModel{
+		Name:     "test",
+		Password: "blah",
+		Email:    "test@blah.com",
+		Hashed:   []byte("fake"),
+	}
+
+	err = register.Register()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
+	}
 
 }
 
