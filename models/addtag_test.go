@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
@@ -116,5 +117,29 @@ func TestAddTagPost(t *testing.T) {
 
 	err = tag.Post()
 	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestAddTagPostInvalid(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectExec("INSERT into tagmap").
+		WithArgs(1, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	tag := AddTagModel{
+		Ib:    0,
+		Tag:   1,
+		Image: 1,
+	}
+
+	err = tag.Post()
+	if assert.Error(t, err, "An error was not expected") {
+		assert.Equal(t, err, errors.New("AddTagModel is not valid"), "Error should match")
+	}
 
 }
