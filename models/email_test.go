@@ -129,4 +129,7 @@ func TestEmailUpdate(t *testing.T) {
 		Email: "cool@test.com",
 	}
 
+	err = email.Update()
+	assert.NoError(t, err, "An error was not expected")
+
 }
