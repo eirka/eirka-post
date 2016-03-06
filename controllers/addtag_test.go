@@ -11,11 +11,8 @@ import (
 	"testing"
 
 	"github.com/eirka/eirka-libs/audit"
-	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/user"
-
-	local "github.com/eirka/eirka-post/config"
 )
 
 func performJsonRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
