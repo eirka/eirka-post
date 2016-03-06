@@ -1,13 +1,13 @@
 package models
 
 import (
-	"errors"
+	//"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
 
 	"github.com/eirka/eirka-libs/db"
-	e "github.com/eirka/eirka-libs/errors"
+	//e "github.com/eirka/eirka-libs/errors"
 )
 
 func TestEmailIsValid(t *testing.T) {
