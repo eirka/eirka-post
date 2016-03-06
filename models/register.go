@@ -28,10 +28,6 @@ func (r *RegisterModel) IsValid() bool {
 		return false
 	}
 
-	if r.Password == "" {
-		return false
-	}
-
 	if r.Hashed == nil {
 		return false
 	}
@@ -82,10 +78,6 @@ func (r *RegisterModel) Validate() (err error) {
 
 // register new user
 func (r *RegisterModel) Register() (err error) {
-
-	if r.Hashed == nil {
-		return e.ErrPasswordEmpty
-	}
 
 	// check model validity
 	if !r.IsValid() {

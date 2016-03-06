@@ -142,10 +142,9 @@ func TestRegister(t *testing.T) {
 	mock.ExpectCommit()
 
 	register := RegisterModel{
-		Name:     "test",
-		Password: "blah",
-		Email:    "test@blah.com",
-		Hashed:   []byte("fake"),
+		Name:   "test",
+		Email:  "test@blah.com",
+		Hashed: []byte("fake"),
 	}
 
 	err = register.Register()
@@ -171,10 +170,9 @@ func TestRegisterRollback(t *testing.T) {
 	mock.ExpectRollback()
 
 	register := RegisterModel{
-		Name:     "test",
-		Password: "blah",
-		Email:    "test@blah.com",
-		Hashed:   []byte("fake"),
+		Name:   "test",
+		Email:  "test@blah.com",
+		Hashed: []byte("fake"),
 	}
 
 	err = register.Register()
@@ -184,15 +182,29 @@ func TestRegisterRollback(t *testing.T) {
 
 }
 
-func TestRegisterInvalid(t *testing.T) {
+func TestRegisterInvalidName(t *testing.T) {
 
 	var err error
 
 	register := RegisterModel{
-		Name:     "",
-		Password: "blah",
-		Email:    "test@blah.com",
-		Hashed:   []byte("fake"),
+		Name:   "",
+		Email:  "test@blah.com",
+		Hashed: []byte("fake"),
+	}
+
+	err = register.Register()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("RegisterModel is not valid"), "Error should match")
+	}
+
+}
+
+func TestRegisterInvalidHash(t *testing.T) {
+
+	var err error
+
+	register := RegisterModel{
+		Name: "derp",
 	}
 
 	err = register.Register()
