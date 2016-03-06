@@ -1,8 +1,7 @@
 package models
 
 import (
-	//"database/sql"
-	//"errors"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
@@ -80,6 +79,41 @@ func TestFavoritesStatusRemove(t *testing.T) {
 	err = favorite.Status()
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, e.ErrFavoriteRemoved, "Error should match")
+	}
+
+}
+
+func TestFavoritesPost(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectExec("INSERT into favorites").
+		WithArgs(1, 2).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	favorite := FavoritesModel{
+		Uid:   2,
+		Image: 1,
+	}
+
+	err = favorite.Post()
+	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestFavoritesPostInvalid(t *testing.T) {
+
+	favorite := FavoritesModel{
+		Uid:   2,
+		Image: 1,
+	}
+
+	err = favorite.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("FavoritesModel is not valid"), "Error should match")
 	}
 
 }
