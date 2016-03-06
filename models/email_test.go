@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/eirka/eirka-libs/db"
-	//e "github.com/eirka/eirka-libs/errors"
+	e "github.com/eirka/eirka-libs/errors"
 )
 
 func TestEmailIsValid(t *testing.T) {
@@ -41,5 +41,28 @@ func TestEmailValidate(t *testing.T) {
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, email.Name, "test", "Should match")
 		assert.Equal(t, email.CurrentEmail, "old@test.com", "Should match")
+	}
+}
+
+func TestEmailValidateBadEmails(t *testing.T) {
+
+	var err error
+
+	first := EmailModel{
+		Email: "notanemail",
+	}
+
+	err = first.Validate()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrInvalidEmail, "Error should match")
+	}
+
+	second := EmailModel{
+		Email: "not@anemail",
+	}
+
+	err = second.Validate()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrInvalidEmail, "Error should match")
 	}
 }
