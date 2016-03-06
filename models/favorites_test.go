@@ -57,3 +57,29 @@ func TestFavoritesStatus(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 
 }
+
+func TestFavoritesStatusRemove(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM favorites`).WillReturnRows(rows)
+
+	mock.ExpectExec("DELETE FROM favorites").
+		WithArgs(1, 2).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	favorite := FavoritesModel{
+		Uid:   2,
+		Image: 1,
+	}
+
+	err = favorite.Status()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrFavoriteRemoved, "Error should match")
+	}
+
+}
