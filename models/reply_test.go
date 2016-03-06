@@ -12,8 +12,6 @@ import (
 
 func TestReplyIsValid(t *testing.T) {
 
-	var err error
-
 	reply := ReplyModel{
 		Uid:     0,
 		Ib:      1,
@@ -27,8 +25,6 @@ func TestReplyIsValid(t *testing.T) {
 }
 
 func TestReplyIsValidNoImage(t *testing.T) {
-
-	var err error
 
 	reply := ReplyModel{
 		Uid:     1,
@@ -44,8 +40,6 @@ func TestReplyIsValidNoImage(t *testing.T) {
 
 func TestReplyIsValidNoCommentNoImage(t *testing.T) {
 
-	var err error
-
 	reply := ReplyModel{
 		Uid:     1,
 		Ib:      1,
@@ -59,8 +53,6 @@ func TestReplyIsValidNoCommentNoImage(t *testing.T) {
 }
 
 func TestReplyIsValidImage(t *testing.T) {
-
-	var err error
 
 	reply := ReplyModel{
 		Uid:         1,
@@ -83,8 +75,6 @@ func TestReplyIsValidImage(t *testing.T) {
 
 func TestReplyIsValidImageNoStats(t *testing.T) {
 
-	var err error
-
 	reply := ReplyModel{
 		Uid:     1,
 		Ib:      1,
@@ -98,8 +88,6 @@ func TestReplyIsValidImageNoStats(t *testing.T) {
 }
 
 func TestReplyIsValidImageBadStats(t *testing.T) {
-
-	var err error
 
 	reply := ReplyModel{
 		Uid:         1,
