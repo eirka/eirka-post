@@ -81,3 +81,37 @@ func TestPasswordValidateEmptyOldPw(t *testing.T) {
 	}
 
 }
+
+func TestPasswordIsValid(t *testing.T) {
+
+	password := PasswordModel{
+		Uid:   1,
+		Name:  "test",
+		OldPw: "blah",
+		NewPw: "newpassword",
+	}
+
+	assert.False(t, password.IsValid(), "Should be false")
+
+}
+
+func TestPasswordUpdate(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectExec("UPDATE users SET user_password").
+		WithArgs([]byte("fake"), 2).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	password := PasswordModel{
+		Uid:       2,
+		NewHashed: []byte("fake"),
+	}
+
+	err = password.Update()
+	assert.NoError(t, err, "An error was not expected")
+
+}

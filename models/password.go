@@ -21,7 +21,7 @@ type PasswordModel struct {
 // check struct validity
 func (p *PasswordModel) IsValid() bool {
 
-	if p.Uid == 0 {
+	if p.Uid == 0 || p.Uid == 1 {
 		return false
 	}
 
