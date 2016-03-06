@@ -119,7 +119,7 @@ func TestPasswordUpdate(t *testing.T) {
 
 }
 
-func TestPasswordUpdateValid(t *testing.T) {
+func TestPasswordUpdateInvalid(t *testing.T) {
 
 	var err error
 
