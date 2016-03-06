@@ -1,8 +1,8 @@
 package models
 
 import (
-	//"errors"
 	"database/sql"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
@@ -126,10 +126,27 @@ func TestEmailUpdate(t *testing.T) {
 
 	email := EmailModel{
 		Uid:   2,
+		Name:  "test",
 		Email: "cool@test.com",
 	}
 
 	err = email.Update()
 	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestEmailUpdateIsValid(t *testing.T) {
+
+	var err error
+
+	email := EmailModel{
+		Uid:   2,
+		Email: "cool@test.com",
+	}
+
+	err = email.Update()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("EmailModel is not valid"), "Error should match")
+	}
 
 }
