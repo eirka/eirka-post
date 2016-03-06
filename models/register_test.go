@@ -73,7 +73,7 @@ func TestRegisterValidateNameShort(t *testing.T) {
 
 	err = register.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrPasswordEmpty, "Error should match")
+		assert.Equal(t, err, e.ErrNameShort, "Error should match")
 	}
 
 }
