@@ -106,6 +106,8 @@ func TestFavoritesPost(t *testing.T) {
 
 func TestFavoritesPostInvalid(t *testing.T) {
 
+	var err error
+
 	favorite := FavoritesModel{
 		Uid:   2,
 		Image: 1,
