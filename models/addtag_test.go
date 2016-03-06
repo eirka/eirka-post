@@ -20,10 +20,7 @@ func TestAddTagIsValid(t *testing.T) {
 		Image: 1,
 	}
 
-	err = tag.Status()
-	if assert.Error(t, err, "An error was not expected") {
-		assert.Equal(t, err, errors.New("AddTagModel is not valid"), "Error should match")
-	}
+	assert.False(t, tag.IsValid(), "Should be false")
 
 }
 
