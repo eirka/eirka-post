@@ -1,7 +1,7 @@
 package models
 
 import (
-	"errors"
+	//"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
@@ -35,7 +35,7 @@ func TestRegisterIsValid(t *testing.T) {
 		Hashed:   []byte("fake"),
 	}
 
-	assert.False(t, tag.IsValid(), "Should be false")
+	assert.False(t, register.IsValid(), "Should be false")
 
 }
 
@@ -64,7 +64,7 @@ func TestRegister(t *testing.T) {
 		Hashed: []byte("fake"),
 	}
 
-	err = tag.Status()
+	err = register.Register()
 	assert.NoError(t, err, "An error was not expected")
 
 	assert.Equal(t, register.Uid, uint(2), "Error should match")
