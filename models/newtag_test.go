@@ -47,7 +47,7 @@ func TestNewTagStatus(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`SELECT count\(1\) FROM tags`).WillReturnRows(statusrows)
+	mock.ExpectQuery(`select count\(1\) from tags`).WillReturnRows(statusrows)
 
 	tag := NewTagModel{
 		Ib:      1,
@@ -68,7 +68,7 @@ func TestNewTagStatusDuplicate(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-	mock.ExpectQuery(`SELECT count\(1\) FROM tags`).WillReturnRows(statusrows)
+	mock.ExpectQuery(`select count\(1\) from tags`).WillReturnRows(statusrows)
 
 	tag := NewTagModel{
 		Ib:      1,
@@ -110,7 +110,7 @@ func TestNewTagPostInvalid(t *testing.T) {
 	var err error
 
 	tag := NewTagModel{
-		Ib:      1,
+		Ib:      0,
 		Tag:     "test",
 		TagType: 1,
 	}
