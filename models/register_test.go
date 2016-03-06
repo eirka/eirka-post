@@ -10,7 +10,7 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
-func TestRegisterValidate(t *testing.T) {
+func TestRegisterValidatePasswordShort(t *testing.T) {
 
 	var err error
 
@@ -22,7 +22,7 @@ func TestRegisterValidate(t *testing.T) {
 
 	err = register.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrInvalidParam, "Error should match")
+		assert.Equal(t, err, e.ErrPasswordShort, "Error should match")
 	}
 
 }
@@ -30,7 +30,7 @@ func TestRegisterValidate(t *testing.T) {
 func TestRegisterIsValid(t *testing.T) {
 
 	register := RegisterModel{
-		Name:     "test",
+		Name:     "",
 		Password: "blah",
 		Hashed:   []byte("fake"),
 	}
@@ -59,9 +59,10 @@ func TestRegister(t *testing.T) {
 	mock.ExpectCommit()
 
 	register := RegisterModel{
-		Name:   "test",
-		Email:  "test@blah.com",
-		Hashed: []byte("fake"),
+		Name:     "test",
+		Password: "blah",
+		Email:    "test@blah.com",
+		Hashed:   []byte("fake"),
 	}
 
 	err = register.Register()
