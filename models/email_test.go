@@ -2,6 +2,7 @@ package models
 
 import (
 	//"errors"
+	"database/sql"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
@@ -13,7 +14,7 @@ import (
 func TestEmailIsValid(t *testing.T) {
 
 	email := EmailModel{
-		Uid:   0,
+		Uid:   1,
 		Name:  "test",
 		Email: "cool@test.com",
 	}
@@ -33,7 +34,7 @@ func TestEmailValidate(t *testing.T) {
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
 
 	email := EmailModel{
-		Uid:   1,
+		Uid:   2,
 		Email: "cool@test.com",
 	}
 
@@ -42,6 +43,7 @@ func TestEmailValidate(t *testing.T) {
 		assert.Equal(t, email.Name, "test", "Should match")
 		assert.Equal(t, email.CurrentEmail, "old@test.com", "Should match")
 	}
+
 }
 
 func TestEmailValidateBadEmails(t *testing.T) {
@@ -65,4 +67,48 @@ func TestEmailValidateBadEmails(t *testing.T) {
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, e.ErrInvalidEmail, "Error should match")
 	}
+
+}
+
+func TestEmailValidateNoUser(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnError(sql.ErrNoRows)
+
+	email := EmailModel{
+		Uid:   2,
+		Email: "cool@test.com",
+	}
+
+	err = email.Validate()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrUserNotExist, "Error should match")
+	}
+
+}
+
+func TestEmailValidateSameEmail(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	rows := sqlmock.NewRows([]string{"name", "email"}).AddRow("test", "cool@test.com")
+	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
+
+	email := EmailModel{
+		Uid:   2,
+		Email: "cool@test.com",
+	}
+
+	err = email.Validate()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrEmailSame, "Error should match")
+	}
+
 }

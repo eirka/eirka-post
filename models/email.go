@@ -20,7 +20,7 @@ type EmailModel struct {
 // check struct validity
 func (e *EmailModel) IsValid() bool {
 
-	if e.Uid == 0 {
+	if e.Uid == 0 || e.Uid == 1 {
 		return false
 	}
 
