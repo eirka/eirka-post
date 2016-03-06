@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
