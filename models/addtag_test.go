@@ -11,8 +11,6 @@ import (
 
 func TestAddTagIsValid(t *testing.T) {
 
-	var err error
-
 	tag := AddTagModel{
 		Ib:    0,
 		Tag:   1,
