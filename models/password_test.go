@@ -1,7 +1,7 @@
 package models
 
 import (
-	//"errors"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
@@ -108,10 +108,29 @@ func TestPasswordUpdate(t *testing.T) {
 
 	password := PasswordModel{
 		Uid:       2,
+		Name:      "test",
+		OldPw:     "blah",
+		NewPw:     "newpassword",
 		NewHashed: []byte("fake"),
 	}
 
 	err = password.Update()
 	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestPasswordUpdateValid(t *testing.T) {
+
+	var err error
+
+	password := PasswordModel{
+		Uid:       1,
+		NewHashed: []byte("fake"),
+	}
+
+	err = password.Update()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("PasswordModel is not valid"), "Error should match")
+	}
 
 }
