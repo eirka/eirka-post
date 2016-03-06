@@ -88,9 +88,6 @@ func (r *ReplyModel) IsValid() bool {
 
 // ValidateInput will make sure all the parameters are valid
 func (i *ReplyModel) ValidateInput() (err error) {
-	if i.Thread == 0 {
-		return e.ErrInvalidParam
-	}
 
 	// Initialize bluemonday
 	p := bluemonday.StrictPolicy()
@@ -183,7 +180,7 @@ func (i *ReplyModel) Post() (err error) {
 	defer tx.Rollback()
 
 	// insert new post
-	e1, err := tx.Exec(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text) 
+	e1, err := tx.Exec(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text)
     SELECT ?,?,max(post_num)+1,NOW(),?,?
     FROM posts WHERE thread_id = ?`, i.Thread, i.Uid, i.Ip, i.Comment, i.Thread)
 	if err != nil {
