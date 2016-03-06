@@ -10,6 +10,21 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+func TestAddTagValidateInput(t *testing.T) {
+
+	tag := AddTagModel{
+		Ib:    1,
+		Tag:   0,
+		Image: 1,
+	}
+
+	err = tag.ValidateInput()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrInvalidParam, "Error should match")
+	}
+
+}
+
 func TestAddTagIsValid(t *testing.T) {
 
 	tag := AddTagModel{
@@ -66,7 +81,7 @@ func TestAddTagStatusNotFound(t *testing.T) {
 	}
 
 	err = tag.Status()
-	if assert.Error(t, err, "An error was not expected") {
+	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, e.ErrNotFound, "Error should match")
 	}
 
@@ -92,7 +107,7 @@ func TestAddTagStatusDuplicate(t *testing.T) {
 	}
 
 	err = tag.Status()
-	if assert.Error(t, err, "An error was not expected") {
+	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, e.ErrDuplicateTag, "Error should match")
 	}
 
@@ -138,7 +153,7 @@ func TestAddTagPostInvalid(t *testing.T) {
 	}
 
 	err = tag.Post()
-	if assert.Error(t, err, "An error was not expected") {
+	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, errors.New("AddTagModel is not valid"), "Error should match")
 	}
 
