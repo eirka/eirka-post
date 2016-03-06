@@ -12,6 +12,8 @@ import (
 
 func TestAddTagValidateInput(t *testing.T) {
 
+	var err error
+
 	tag := AddTagModel{
 		Ib:    1,
 		Tag:   0,
