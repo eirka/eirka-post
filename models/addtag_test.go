@@ -141,13 +141,6 @@ func TestAddTagPostInvalid(t *testing.T) {
 
 	var err error
 
-	mock, err := db.NewTestDb()
-	assert.NoError(t, err, "An error was not expected")
-
-	mock.ExpectExec("INSERT into tagmap").
-		WithArgs(1, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-
 	tag := AddTagModel{
 		Ib:    0,
 		Tag:   1,
