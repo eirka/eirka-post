@@ -43,14 +43,14 @@ func TestBans(t *testing.T) {
 	bannedrow := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(bannedrow)
 
-	first := performRequest(router, "GET", "/")
+	first := performRequest(router, "POST", "/reply")
 
 	assert.Equal(t, first.Code, 401, "HTTP request code should match")
 
 	clearrow := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(clearrow)
 
-	second := performRequest(router, "GET", "/")
+	second := performRequest(router, "POST", "/reply")
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
 
