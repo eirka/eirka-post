@@ -6,6 +6,7 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
 
+	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 )
@@ -201,6 +202,36 @@ func TestReplyStatusClosed(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, 100)
 	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "10.0.0.1",
+		Comment: "d",
+		Image:   true,
+	}
+
+	err = reply.Status()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrThreadClosed, "Error should match")
+	}
+
+}
+
+func TestReplyStatusAutoclose(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, config.Settings.Limits.PostsMax)
+	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
+
+	mock.ExpectExec("UPDATE threads SET thread_closed=1 WHERE thread_id").
+		WithArgs(1).
+		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	reply := ReplyModel{
 		Uid:     1,
