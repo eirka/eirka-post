@@ -1,14 +1,14 @@
 package middleware
 
 import (
-	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/eirka/eirka-libs/db"
 )
 
 var (
@@ -40,15 +40,15 @@ func TestBans(t *testing.T) {
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
 
-	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(rows)
+	bannedrow := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(bannedrow)
 
 	first := performRequest(router, "GET", "/")
 
 	assert.Equal(t, first.Code, 401, "HTTP request code should match")
 
-	rows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(rows)
+	clearrow := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(clearrow)
 
 	second := performRequest(router, "GET", "/")
 
