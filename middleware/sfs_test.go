@@ -15,9 +15,12 @@ func TestCheckStopForumSpam(t *testing.T) {
 		assert.Equal(t, err, errors.New("no ip provided"), "Error should match")
 	}
 
-	config.Settings.StopForumSpam.Confidence = 20
-
 	err = CheckStopForumSpam("127.0.0.1")
 	assert.NoError(t, err, "An error was not expected")
+
+	err = CheckStopForumSpam("188.143.232.34")
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, ErrBlacklisted, "Error should match")
+	}
 
 }

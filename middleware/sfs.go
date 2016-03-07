@@ -12,15 +12,19 @@ import (
 	"github.com/eirka/eirka-libs/config"
 )
 
+var (
+	ErrBlacklisted = errors.New("IP is on spam blacklist")
+)
+
 // check ip with stop forum spam
 func StopSpam() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// check ip against stop forum spam
 		err := CheckStopForumSpam(c.ClientIP())
-		if err != nil {
+		if err == ErrBlacklisted {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": "IP is on spam blacklist"})
-			c.Error(err).SetMeta("StopForumSpam")
+			c.Error(err).SetMeta("StopSpam.CheckStopForumSpam")
 			c.Abort()
 			return
 		}
@@ -99,7 +103,7 @@ func CheckStopForumSpam(ip string) (err error) {
 
 	// check if the spammer confidence level is over our setting
 	if sfs_data.Ip.Confidence > config.Settings.StopForumSpam.Confidence {
-		return errors.New("IP is on spam blacklist")
+		return ErrBlacklisted
 	}
 
 	return
