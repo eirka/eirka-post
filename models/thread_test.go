@@ -197,6 +197,43 @@ func TestThreadPost(t *testing.T) {
 
 }
 
+func TestThreadPostRollback(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec("INSERT INTO threads").
+		WithArgs(1, "a cool thread").
+		WillReturnError(errors.New("SQL error"))
+
+	mock.ExpectRollback()
+
+	thread := ThreadModel{
+		Uid:         1,
+		Ib:          1,
+		Ip:          "10.0.0.1",
+		Title:       "a cool thread",
+		Comment:     "test",
+		Filename:    "test.jpg",
+		Thumbnail:   "tests.jpg",
+		MD5:         "test",
+		OrigWidth:   1000,
+		OrigHeight:  1000,
+		ThumbWidth:  100,
+		ThumbHeight: 100,
+	}
+
+	err = thread.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
+	}
+
+}
+
 func TestThreadPostInvalid(t *testing.T) {
 
 	var err error
