@@ -167,3 +167,53 @@ func TestReplyValidateInputShortCommentWithImage(t *testing.T) {
 	}
 
 }
+
+func TestReplyStatus(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 0, 2)
+	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "10.0.0.1",
+		Comment: "d",
+		Image:   true,
+	}
+
+	err = reply.Status()
+	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestReplyStatusClosed(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, 100)
+	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "10.0.0.1",
+		Comment: "d",
+		Image:   true,
+	}
+
+	err = reply.Status()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrThreadClosed, "Error should match")
+	}
+
+}
