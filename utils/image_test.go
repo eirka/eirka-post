@@ -24,27 +24,6 @@ import (
 	local "github.com/eirka/eirka-post/config"
 )
 
-func init() {
-
-	// Database connection settings
-	dbase := db.Database{
-
-		User:           local.Settings.Database.User,
-		Password:       local.Settings.Database.Password,
-		Proto:          local.Settings.Database.Proto,
-		Host:           local.Settings.Database.Host,
-		Database:       local.Settings.Database.Database,
-		MaxIdle:        local.Settings.Database.MaxIdle,
-		MaxConnections: local.Settings.Database.MaxConnections,
-	}
-
-	// Set up DB connection
-	dbase.NewDb()
-
-	// Get limits and stuff from database
-	config.GetDatabaseSettings()
-}
-
 func testPng(size int) *bytes.Buffer {
 
 	output := new(bytes.Buffer)
@@ -550,7 +529,40 @@ func TestMakeFilenames(t *testing.T) {
 
 }
 
+func TestSaveFileNoIb(t *testing.T) {
+
+	req := formJpegRequest(300, "test.jpeg")
+
+	img := ImageType{}
+
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.SaveImage()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("No imageboard set on duplicate check"), "Error should match")
+	}
+
+}
+
 func TestSaveFile(t *testing.T) {
+
+	// Database connection settings
+	dbase := db.Database{
+
+		User:           local.Settings.Database.User,
+		Password:       local.Settings.Database.Password,
+		Proto:          local.Settings.Database.Proto,
+		Host:           local.Settings.Database.Host,
+		Database:       local.Settings.Database.Database,
+		MaxIdle:        local.Settings.Database.MaxIdle,
+		MaxConnections: local.Settings.Database.MaxConnections,
+	}
+
+	// Set up DB connection
+	dbase.NewDb()
+
+	// Get limits and stuff from database
+	config.GetDatabaseSettings()
 
 	req := formJpegRequest(300, "test.jpeg")
 
@@ -587,21 +599,6 @@ func TestSaveFile(t *testing.T) {
 	thumbinfo, err := thumb.Stat()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, thumbinfo.Name(), img.Thumbnail, "Name should be the same")
-	}
-
-}
-
-func TestSaveFileNoIb(t *testing.T) {
-
-	req := formJpegRequest(300, "test.jpeg")
-
-	img := ImageType{}
-
-	img.File, img.Header, _ = req.FormFile("file")
-
-	err := img.SaveImage()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("No imageboard set on duplicate check"), "Error should match")
 	}
 
 }
