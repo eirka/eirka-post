@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -366,6 +367,34 @@ func TestGetMD5Duplicate(t *testing.T) {
 
 	assert.Equal(t, img1.MD5, img2.MD5, "MD5 should be the same")
 	assert.Equal(t, img1.image.Len(), img2.image.Len(), "Size should be the same")
+}
+
+func TestCheckDuplicate(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	nomatch := sqlmock.NewRows([]string{"count", "post", "thread"}).AddRow(0, 0, 0)
+	mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).WillReturnRows(nomatch)
+
+	img := ImageType{
+		Ib:  1,
+		MD5: "test",
+	}
+
+	err = img.checkDuplicate()
+	assert.NoError(t, err, "An error was not expected")
+
+	match := sqlmock.NewRows([]string{"count", "post", "thread"}).AddRow(1, 10, 2)
+	mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).WillReturnRows(match)
+
+	err = img.checkDuplicate()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("Image has already been posted. Thread: 2 Post: 10"), "Error should match")
+	}
+
 }
 
 func TestCheckMagicGood(t *testing.T) {
