@@ -348,6 +348,33 @@ func TestGetMD5Duplicate(t *testing.T) {
 	assert.Equal(t, img1.image.Len(), img2.image.Len(), "Size should be the same")
 }
 
+func TestCheckBanned(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	nomatch := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).WillReturnRows(nomatch)
+
+	img := ImageType{
+		MD5: "banned",
+	}
+
+	err = img.checkBanned()
+	assert.NoError(t, err, "An error was not expected")
+
+	match := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).WillReturnRows(match)
+
+	err = img.checkBanned()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("File is banned"), "Error should match")
+	}
+
+}
+
 func TestCheckDuplicate(t *testing.T) {
 
 	var err error
