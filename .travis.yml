@@ -12,7 +12,6 @@ before_install:
 script:
   - go test -v -coverprofile=middleware.out ./middleware
   - go test -v -coverprofile=middleware.out ./models
-  - go test -v -coverprofile=middleware.out ./utils
 
 after_success:
   - gover
