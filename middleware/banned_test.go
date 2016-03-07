@@ -11,11 +11,6 @@ import (
 	"github.com/eirka/eirka-libs/db"
 )
 
-var (
-	csrfCookie   *http.Cookie
-	sessionToken string
-)
-
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
 	w := httptest.NewRecorder()
