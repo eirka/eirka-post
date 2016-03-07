@@ -248,3 +248,72 @@ func TestReplyStatusAutoclose(t *testing.T) {
 	}
 
 }
+
+func TestReplyPost(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec("INSERT INTO posts").
+		WithArgs(1, 1, "10.0.0.1", "test", 1).
+		WillReturnResult(sqlmock.NewResult(2, 1))
+
+	mock.ExpectCommit()
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "10.0.0.1",
+		Comment: "test",
+		Image:   false,
+	}
+
+	err = reply.Post()
+	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestReplyPostImage(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec("INSERT INTO posts").
+		WithArgs(1, 1, "10.0.0.1", "test", 1).
+		WillReturnResult(sqlmock.NewResult(2, 1))
+
+	mock.ExpectExec("INSERT INTO images").
+		WithArgs("test.jpg", "tests.jpg", "test", 1000, 1000, 100, 100).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.ExpectCommit()
+
+	reply := ReplyModel{
+		Uid:         1,
+		Ib:          1,
+		Thread:      1,
+		Ip:          "10.0.0.1",
+		Comment:     "test",
+		Image:       true,
+		Filename:    "test.jpg",
+		Thumbnail:   "tests.jpg",
+		MD5:         "test",
+		OrigWidth:   1000,
+		OrigHeight:  1000,
+		ThumbWidth:  100,
+		ThumbHeight: 100,
+	}
+
+	err = reply.Post()
+	assert.NoError(t, err, "An error was not expected")
+
+}
