@@ -1,7 +1,7 @@
 package models
 
 import (
-	//"errors"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
@@ -315,5 +315,57 @@ func TestReplyPostImage(t *testing.T) {
 
 	err = reply.Post()
 	assert.NoError(t, err, "An error was not expected")
+
+}
+
+func TestReplyPostRollback(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec("INSERT INTO posts").
+		WithArgs(1, 1, "10.0.0.1", "test", 1).
+		WillReturnError(errors.New("SQL error"))
+
+	mock.ExpectRollback()
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "10.0.0.1",
+		Comment: "test",
+		Image:   false,
+	}
+
+	err = reply.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
+	}
+
+}
+
+func TestReplyPostInvalid(t *testing.T) {
+
+	var err error
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "",
+		Comment: "test",
+		Image:   false,
+	}
+
+	err = reply.Post()
+
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("ReplyModel is not valid"), "Error should match")
+	}
 
 }
