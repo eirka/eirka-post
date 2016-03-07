@@ -84,10 +84,6 @@ func (t *ThreadModel) IsValid() bool {
 // ValidateInput will make sure all the parameters are valid
 func (i *ThreadModel) ValidateInput() (err error) {
 
-	if i.Ib == 0 {
-		return e.ErrInvalidParam
-	}
-
 	// Initialize bluemonday
 	p := bluemonday.StrictPolicy()
 
