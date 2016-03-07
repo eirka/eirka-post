@@ -529,21 +529,6 @@ func TestMakeFilenames(t *testing.T) {
 
 }
 
-func TestSaveFileNoIb(t *testing.T) {
-
-	req := formJpegRequest(300, "test.jpeg")
-
-	img := ImageType{}
-
-	img.File, img.Header, _ = req.FormFile("file")
-
-	err := img.SaveImage()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("No imageboard set on duplicate check"), "Error should match")
-	}
-
-}
-
 func TestSaveFile(t *testing.T) {
 
 	// Database connection settings
@@ -599,6 +584,21 @@ func TestSaveFile(t *testing.T) {
 	thumbinfo, err := thumb.Stat()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.Equal(t, thumbinfo.Name(), img.Thumbnail, "Name should be the same")
+	}
+
+}
+
+func TestSaveFileNoIb(t *testing.T) {
+
+	req := formJpegRequest(300, "test.jpeg")
+
+	img := ImageType{}
+
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.SaveImage()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, errors.New("No imageboard set on duplicate check"), "Error should match")
 	}
 
 }
