@@ -4,7 +4,7 @@ go:
   - 1.6
   - tip
 
-before_install:
+before_script:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls
   - go get github.com/modocache/gover
@@ -15,4 +15,4 @@ script:
 
 after_success:
   - gover
-  - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken CnkKv2SjzfuLm8gTvLRpB5DuIlotSx7mj
+  - goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken CnkKv2SjzfuLm8gTvLRpB5DuIlotSx7mj
