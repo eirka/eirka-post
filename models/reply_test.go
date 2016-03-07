@@ -108,6 +108,26 @@ func TestReplyIsValidImageBadStats(t *testing.T) {
 	assert.False(t, reply.IsValid(), "Should be false")
 }
 
+func TestReplyValidateInputCommentEmpty(t *testing.T) {
+
+	var err error
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "10.0.0.1",
+		Comment: "",
+		Image:   false,
+	}
+
+	err = reply.ValidateInput()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrNoComment, "Error should match")
+	}
+
+}
+
 func TestReplyValidateInputCommentShort(t *testing.T) {
 
 	var err error
@@ -119,6 +139,26 @@ func TestReplyValidateInputCommentShort(t *testing.T) {
 		Ip:      "10.0.0.1",
 		Comment: "d",
 		Image:   false,
+	}
+
+	err = reply.ValidateInput()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, err, e.ErrCommentShort, "Error should match")
+	}
+
+}
+
+func TestReplyValidateInputShortCommentWithImage(t *testing.T) {
+
+	var err error
+
+	reply := ReplyModel{
+		Uid:     1,
+		Ib:      1,
+		Thread:  1,
+		Ip:      "10.0.0.1",
+		Comment: "d",
+		Image:   true,
 	}
 
 	err = reply.ValidateInput()
