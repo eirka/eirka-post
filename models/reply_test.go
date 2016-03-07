@@ -289,11 +289,11 @@ func TestReplyPostImage(t *testing.T) {
 
 	mock.ExpectExec("INSERT INTO posts").
 		WithArgs(1, 1, "10.0.0.1", "test", 1).
-		WillReturnResult(sqlmock.NewResult(2, 1))
+		WillReturnResult(sqlmock.NewResult(6, 1))
 
 	mock.ExpectExec("INSERT INTO images").
-		WithArgs("test.jpg", "tests.jpg", "test", 1000, 1000, 100, 100).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WithArgs(6, "test.jpg", "tests.jpg", "test", 1000, 1000, 100, 100).
+		WillReturnResult(sqlmock.NewResult(2, 1))
 
 	mock.ExpectCommit()
 
