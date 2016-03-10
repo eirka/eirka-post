@@ -30,9 +30,7 @@ INSERT INTO acl_roles VALUES (2,"USER",1);
 INSERT INTO acl_roles VALUES (3,"MODERATOR",0);
 INSERT INTO acl_roles VALUES (4,"ADMIN",0);
 
---
--- Table structure for table `analytics`
---
+
 
 DROP TABLE IF EXISTS `analytics`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
