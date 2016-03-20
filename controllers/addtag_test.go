@@ -15,6 +15,10 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
+func init() {
+	user.Secret = "secret"
+}
+
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
 	w := httptest.NewRecorder()
