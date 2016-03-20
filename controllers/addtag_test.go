@@ -17,6 +17,9 @@ import (
 
 func init() {
 	user.Secret = "secret"
+
+	// Set up fake Redis connection
+	redis.NewRedisMock()
 }
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
