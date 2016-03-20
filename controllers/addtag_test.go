@@ -15,6 +15,13 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
+func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
+}
+
 func performJsonRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
