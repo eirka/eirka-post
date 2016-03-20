@@ -90,23 +90,15 @@ func TestAddTagController(t *testing.T) {
 
 }
 
-func TestAddTagControllerNoInput(t *testing.T) {
-
-	first := performRequest(router, "POST", "/tag/add")
-
-	assert.Equal(t, first.Code, 400, "HTTP request code should match")
-	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
-
-}
-
 func TestAddTagControllerBadInput(t *testing.T) {
 
 	var reuesttests = []struct {
 		name string
 		in   []byte
 	}{
-		{"badfield", []byte(`{"derp": 1`)},
-		{"badmissing", []byte(`{"ib": 0`)},
+		{"nofield", []byte(`{}`)},
+		{"badfield", []byte(`{"derp": 1}`)},
+		{"badmissing", []byte(`{"ib": 0}`)},
 		{"badmissing", []byte(`{"ib": 0, "tag": 1}`)},
 		{"badmissing", []byte(`{"image": 1}`)},
 		{"badib", []byte(`{"ib": 0, "tag": 1, "image": 1}`)},
@@ -146,7 +138,7 @@ func TestAddTagControllerDuplicate(t *testing.T) {
 	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrDuplicateTag), "HTTP response should match")
 }
 
-func TestAddTagControllerNoImage(t *testing.T) {
+func TestAddTagControllerImageNotFound(t *testing.T) {
 
 	var err error
 
