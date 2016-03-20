@@ -88,6 +88,8 @@ func TestAddTagController(t *testing.T) {
 	assert.Equal(t, first.Code, 200, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestAddTagControllerBadInput(t *testing.T) {
@@ -117,6 +119,26 @@ func TestAddTagControllerBadInput(t *testing.T) {
 
 }
 
+func TestAddTagControllerImageNotFound(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
+
+	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
+
+	first := performJsonRequest(router, "POST", "/tag/add", request)
+
+	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrNotFound), "HTTP response should match")
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
 func TestAddTagControllerDuplicate(t *testing.T) {
 
 	var err error
@@ -136,22 +158,6 @@ func TestAddTagControllerDuplicate(t *testing.T) {
 
 	assert.Equal(t, first.Code, 400, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrDuplicateTag), "HTTP response should match")
-}
 
-func TestAddTagControllerImageNotFound(t *testing.T) {
-
-	var err error
-
-	mock, err := db.NewTestDb()
-	assert.NoError(t, err, "An error was not expected")
-
-	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
-
-	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
-
-	first := performJsonRequest(router, "POST", "/tag/add", request)
-
-	assert.Equal(t, first.Code, 400, "HTTP request code should match")
-	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrNotFound), "HTTP response should match")
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
