@@ -102,8 +102,6 @@ func TestAddTagControllerNoInput(t *testing.T) {
 
 func TestAddTagControllerBadInput(t *testing.T) {
 
-	var err error
-
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
