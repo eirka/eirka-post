@@ -175,7 +175,6 @@ func TestReplyStatus(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 0, 2)
 	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
@@ -192,6 +191,8 @@ func TestReplyStatus(t *testing.T) {
 	err = reply.Status()
 	assert.NoError(t, err, "An error was not expected")
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestReplyStatusClosed(t *testing.T) {
@@ -200,7 +201,6 @@ func TestReplyStatusClosed(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, 100)
 	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
@@ -219,6 +219,8 @@ func TestReplyStatusClosed(t *testing.T) {
 		assert.Equal(t, err, e.ErrThreadClosed, "Error should match")
 	}
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestReplyStatusAutoclose(t *testing.T) {
@@ -227,7 +229,6 @@ func TestReplyStatusAutoclose(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, config.Settings.Limits.PostsMax)
 	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
@@ -250,6 +251,8 @@ func TestReplyStatusAutoclose(t *testing.T) {
 		assert.Equal(t, err, e.ErrThreadClosed, "Error should match")
 	}
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestReplyPost(t *testing.T) {
@@ -258,7 +261,6 @@ func TestReplyPost(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectBegin()
 
@@ -280,6 +282,8 @@ func TestReplyPost(t *testing.T) {
 	err = reply.Post()
 	assert.NoError(t, err, "An error was not expected")
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestReplyPostImage(t *testing.T) {
@@ -288,7 +292,6 @@ func TestReplyPostImage(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectBegin()
 
@@ -321,6 +324,8 @@ func TestReplyPostImage(t *testing.T) {
 	err = reply.Post()
 	assert.NoError(t, err, "An error was not expected")
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestReplyPostRollback(t *testing.T) {
@@ -329,7 +334,6 @@ func TestReplyPostRollback(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectBegin()
 
@@ -352,6 +356,8 @@ func TestReplyPostRollback(t *testing.T) {
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
 	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 }
 

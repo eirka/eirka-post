@@ -160,7 +160,6 @@ func TestThreadPost(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectBegin()
 
@@ -196,6 +195,8 @@ func TestThreadPost(t *testing.T) {
 	err = thread.Post()
 	assert.NoError(t, err, "An error was not expected")
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestThreadPostRollback(t *testing.T) {
@@ -204,7 +205,6 @@ func TestThreadPostRollback(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectBegin()
 
@@ -233,6 +233,8 @@ func TestThreadPostRollback(t *testing.T) {
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
 	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 }
 

@@ -29,7 +29,6 @@ func TestEmailValidate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	rows := sqlmock.NewRows([]string{"name", "email"}).AddRow("test", "old@test.com")
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
@@ -44,6 +43,8 @@ func TestEmailValidate(t *testing.T) {
 		assert.Equal(t, email.Name, "test", "Should match")
 		assert.Equal(t, email.CurrentEmail, "old@test.com", "Should match")
 	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 }
 
@@ -77,7 +78,6 @@ func TestEmailValidateNoUser(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnError(sql.ErrNoRows)
 
@@ -91,6 +91,8 @@ func TestEmailValidateNoUser(t *testing.T) {
 		assert.Equal(t, err, e.ErrUserNotExist, "Error should match")
 	}
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestEmailValidateSameEmail(t *testing.T) {
@@ -99,7 +101,6 @@ func TestEmailValidateSameEmail(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	rows := sqlmock.NewRows([]string{"name", "email"}).AddRow("test", "cool@test.com")
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
@@ -114,6 +115,8 @@ func TestEmailValidateSameEmail(t *testing.T) {
 		assert.Equal(t, err, e.ErrEmailSame, "Error should match")
 	}
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestEmailUpdate(t *testing.T) {
@@ -122,7 +125,6 @@ func TestEmailUpdate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectExec("UPDATE users SET user_email").
 		WithArgs("cool@test.com", 2).
@@ -136,6 +138,8 @@ func TestEmailUpdate(t *testing.T) {
 
 	err = email.Update()
 	assert.NoError(t, err, "An error was not expected")
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 }
 

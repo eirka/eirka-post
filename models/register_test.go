@@ -128,7 +128,6 @@ func TestRegister(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectBegin()
 
@@ -153,6 +152,8 @@ func TestRegister(t *testing.T) {
 
 	assert.Equal(t, register.Uid, uint(2), "Error should match")
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestRegisterRollback(t *testing.T) {
@@ -161,7 +162,6 @@ func TestRegisterRollback(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
-	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectBegin()
 
@@ -181,6 +181,8 @@ func TestRegisterRollback(t *testing.T) {
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
 	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 }
 
