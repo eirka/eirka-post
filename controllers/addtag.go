@@ -96,6 +96,8 @@ func AddTagController(c *gin.Context) {
 		Info:   fmt.Sprintf("%d", m.Image),
 	}
 
+	fmt.Println(audit)
+
 	// submit audit
 	err = audit.Submit()
 	if err != nil {
