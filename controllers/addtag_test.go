@@ -17,11 +17,22 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
+// gin router for tests
+var router *gin.Engine
+
 func init() {
 	user.Secret = "secret"
 
 	// Set up fake Redis connection
 	redis.NewRedisMock()
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router = gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
 }
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
@@ -50,14 +61,6 @@ func successMessage(message string) string {
 func TestAddTagController(t *testing.T) {
 
 	var err error
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-
-	router.Use(user.Auth(false))
-
-	router.POST("/tag/add", AddTagController)
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
@@ -89,14 +92,6 @@ func TestAddTagController(t *testing.T) {
 
 func TestAddTagControllerNoInput(t *testing.T) {
 
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-
-	router.Use(user.Auth(false))
-
-	router.POST("/tag/add", AddTagController)
-
 	first := performRequest(router, "POST", "/tag/add")
 
 	assert.Equal(t, first.Code, 400, "HTTP request code should match")
@@ -105,14 +100,6 @@ func TestAddTagControllerNoInput(t *testing.T) {
 }
 
 func TestAddTagControllerBadInput(t *testing.T) {
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-
-	router.Use(user.Auth(false))
-
-	router.POST("/tag/add", AddTagController)
 
 	request := []byte(`{"ib": 0, "tag": 1, "image": 1}`)
 
@@ -125,14 +112,6 @@ func TestAddTagControllerBadInput(t *testing.T) {
 func TestAddTagControllerDuplicate(t *testing.T) {
 
 	var err error
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-
-	router.Use(user.Auth(false))
-
-	router.POST("/tag/add", AddTagController)
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
@@ -154,14 +133,6 @@ func TestAddTagControllerDuplicate(t *testing.T) {
 func TestAddTagControllerNoImage(t *testing.T) {
 
 	var err error
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-
-	router.Use(user.Auth(false))
-
-	router.POST("/tag/add", AddTagController)
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
