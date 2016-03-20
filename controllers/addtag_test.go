@@ -101,11 +101,23 @@ func TestAddTagControllerNoInput(t *testing.T) {
 
 func TestAddTagControllerBadInput(t *testing.T) {
 
-	request := []byte(`{"ib": 0, "tag": 1, "image": 1}`)
+	var reuesttests = []struct {
+		name string
+		in   []byte
+	}{
+		{"badib", []byte(`{"ib": 0, "tag": 1, "image": 1}`)},
+		{"badib", []byte(`{"ib": dur, "tag": 1, "image": 1}`)},
+		{"badtag", []byte(`{"ib": 1, "tag": 0, "image": 1}`)},
+		{"badtag", []byte(`{"ib": 1, "tag": dur, "image": 1}`)},
+		{"badimage", []byte(`{"ib": 1, "tag": 1, "image": 0}`)},
+		{"badimage", []byte(`{"ib": 1, "tag": 1, "image": dur}`)},
+		{"badall", []byte(`{"ib": 0, "tag": 0, "image": 0}`)},
+	}
 
-	first := performJsonRequest(router, "POST", "/tag/add", request)
-
-	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	for _, test := range reuesttests {
+		first := performJsonRequest(router, "POST", "/tag/add", test.in)
+		assert.Equal(t, first.Code, 400, fmt.Sprintf("HTTP request code should match for request %s", test.name))
+	}
 
 }
 
