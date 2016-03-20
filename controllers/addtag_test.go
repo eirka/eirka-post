@@ -28,7 +28,7 @@ func init() {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	router = gin.Default()
+	router = gin.New()
 
 	router.Use(user.Auth(false))
 
