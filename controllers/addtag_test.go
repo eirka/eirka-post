@@ -12,6 +12,7 @@ import (
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 )
@@ -73,15 +74,30 @@ func TestAddTagController(t *testing.T) {
 
 	redis.RedisCache.Mock.Command("DEL", "tags:1", "tag:1:1", "image:1")
 
-	first := performRequest(router, "POST", "/tag/add")
-
-	assert.Equal(t, first.Code, 400, "HTTP request code should match")
-
 	request1 := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
 
 	second := performJsonRequest(router, "POST", "/tag/add", request1)
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
 	assert.JSONEq(t, second.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
+
+}
+
+func TestAddTagControllerNoInput(t *testing.T) {
+
+	var err error
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
+	first := performRequest(router, "POST", "/tag/add")
+
+	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	assert.JSONEq(t, second.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
 
 }
