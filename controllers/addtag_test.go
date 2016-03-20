@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"net/http"
@@ -72,7 +71,7 @@ func TestAddTagController(t *testing.T) {
 		WithArgs(1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	conn := c.Pool.Get()
+	conn := redis.Pool.Get()
 	conn.Command("DEL", "tags:1", "tag:1:1", "image:1")
 
 	first := performRequest(router, "POST", "/tag/add")
