@@ -28,7 +28,7 @@ func init() {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	router = gin.New()
+	router = gin.Default()
 
 	router.Use(user.Auth(false))
 
@@ -76,6 +76,7 @@ func TestAddTagController(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	mock.ExpectExec(`INSERT INTO audit \(user_id,ib_id,audit_type,audit_ip,audit_time,audit_action,audit_info\)`).
+		WithArgs(1, 1, audit.BoardLog, "127.0.0.1", audit.AuditAddTag, "1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	redis.RedisCache.Mock.Command("DEL", "tags:1", "tag:1:1", "image:1")
