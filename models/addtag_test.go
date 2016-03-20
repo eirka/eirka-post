@@ -45,6 +45,7 @@ func TestAddTagStatus(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
@@ -69,6 +70,7 @@ func TestAddTagStatusNotFound(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
@@ -95,6 +97,7 @@ func TestAddTagStatusDuplicate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
@@ -121,6 +124,7 @@ func TestAddTagPost(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectExec("INSERT into tagmap").
 		WithArgs(1, 1).

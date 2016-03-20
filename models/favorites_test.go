@@ -43,6 +43,7 @@ func TestFavoritesStatus(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	rows := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites`).WillReturnRows(rows)
@@ -63,6 +64,7 @@ func TestFavoritesStatusRemove(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites`).WillReturnRows(rows)
@@ -89,6 +91,7 @@ func TestFavoritesPost(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 	mock.ExpectExec("INSERT into favorites").
 		WithArgs(1, 2).
