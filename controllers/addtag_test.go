@@ -37,7 +37,7 @@ func init() {
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
-	req.RemoteAddr = "127.0.0.1"
+	req.Header.Set("X-Forwarded-For", "127.0.0.1")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
@@ -46,7 +46,7 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 func performJsonRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
-	req.RemoteAddr = "127.0.0.1"
+	req.Header.Set("X-Forwarded-For", "127.0.0.1")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
