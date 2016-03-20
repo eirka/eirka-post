@@ -28,7 +28,7 @@ func init() {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	router = gin.New()
+	router = gin.Default()
 
 	router.Use(user.Auth(false))
 
@@ -37,6 +37,7 @@ func init() {
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
+	req.RemoteAddr = "127.0.0.1"
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
