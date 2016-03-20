@@ -12,6 +12,7 @@ import (
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/db"
+	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 )
 
