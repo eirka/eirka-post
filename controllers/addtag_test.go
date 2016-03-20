@@ -71,7 +71,7 @@ func TestAddTagController(t *testing.T) {
 		WithArgs(1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	redis.RedisCache.MockCommand("DEL", "tags:1", "tag:1:1", "image:1")
+	redis.RedisCache.Mock.Command("DEL", "tags:1", "tag:1:1", "image:1")
 
 	first := performRequest(router, "POST", "/tag/add")
 

@@ -57,7 +57,7 @@ func AddTagController(c *gin.Context) {
 		c.Error(err).SetMeta("AddTagController.Status")
 		return
 	} else if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("AddTagController.Status")
 		return
 	}
@@ -65,7 +65,7 @@ func AddTagController(c *gin.Context) {
 	// Post data
 	err = m.Post()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("AddTagController.Post")
 		return
 	}
@@ -80,7 +80,7 @@ func AddTagController(c *gin.Context) {
 
 	err = cache.Delete(tags_key, tag_key, image_key)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("AddTagController.cache.Delete")
 		return
 	}
