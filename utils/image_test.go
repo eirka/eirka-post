@@ -373,6 +373,8 @@ func TestCheckBanned(t *testing.T) {
 		assert.Equal(t, err, errors.New("File is banned"), "Error should match")
 	}
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
 
 func TestCheckDuplicate(t *testing.T) {
@@ -400,6 +402,8 @@ func TestCheckDuplicate(t *testing.T) {
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, err, errors.New("Image has already been posted. Thread: 2 Post: 10"), "Error should match")
 	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
 }
 

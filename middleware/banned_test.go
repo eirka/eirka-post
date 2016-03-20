@@ -49,4 +49,6 @@ func TestBans(t *testing.T) {
 
 	assert.Equal(t, second.Code, 200, "HTTP request code should match")
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
 }
