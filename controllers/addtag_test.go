@@ -48,7 +48,7 @@ func successMessage(message string) string {
 
 func TestAddTagController(t *testing.T) {
 
-	var err error
+	//var err error
 
 	gin.SetMode(gin.ReleaseMode)
 
