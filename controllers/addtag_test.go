@@ -74,12 +74,12 @@ func TestAddTagController(t *testing.T) {
 
 	redis.RedisCache.Mock.Command("DEL", "tags:1", "tag:1:1", "image:1")
 
-	request1 := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
+	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
 
-	second := performJsonRequest(router, "POST", "/tag/add", request1)
+	first := performJsonRequest(router, "POST", "/tag/add", request)
 
-	assert.Equal(t, second.Code, 200, "HTTP request code should match")
-	assert.JSONEq(t, second.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
+	assert.Equal(t, first.Code, 200, "HTTP request code should match")
+	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
 
 }
 
@@ -98,6 +98,6 @@ func TestAddTagControllerNoInput(t *testing.T) {
 	first := performRequest(router, "POST", "/tag/add")
 
 	assert.Equal(t, first.Code, 400, "HTTP request code should match")
-	assert.JSONEq(t, second.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
+	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
 
 }
