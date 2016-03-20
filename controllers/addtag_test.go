@@ -105,6 +105,10 @@ func TestAddTagControllerBadInput(t *testing.T) {
 		name string
 		in   []byte
 	}{
+		{"badfield", []byte(`{"derp": 1`)},
+		{"badmissing", []byte(`{"ib": 0`)},
+		{"badmissing", []byte(`{"ib": 0, "tag": 1}`)},
+		{"badmissing", []byte(`{"image": 1}`)},
 		{"badib", []byte(`{"ib": 0, "tag": 1, "image": 1}`)},
 		{"badib", []byte(`{"ib": dur, "tag": 1, "image": 1}`)},
 		{"badtag", []byte(`{"ib": 1, "tag": 0, "image": 1}`)},
