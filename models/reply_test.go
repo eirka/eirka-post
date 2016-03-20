@@ -230,7 +230,7 @@ func TestReplyStatusAutoclose(t *testing.T) {
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
 
-	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, config.Settings.Limits.PostsMax)
+	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, (config.Settings.Limits.PostsMax + 1))
 	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
 
 	mock.ExpectExec("UPDATE threads SET thread_closed=1 WHERE thread_id").

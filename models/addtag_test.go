@@ -75,9 +75,6 @@ func TestAddTagStatusNotFound(t *testing.T) {
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
 
-	duperows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`select count\(1\) from tagmap`).WillReturnRows(duperows)
-
 	tag := AddTagModel{
 		Ib:    1,
 		Tag:   1,
