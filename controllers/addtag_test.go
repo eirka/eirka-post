@@ -99,3 +99,78 @@ func TestAddTagControllerNoInput(t *testing.T) {
 	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrInvalidParam), "HTTP response should match")
 
 }
+
+func TestAddTagControllerBadInput(t *testing.T) {
+
+	var err error
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
+	request := []byte(`{"ib": 0, "tag": 1, "image": 1}`)
+
+	first := performJsonRequest(router, "POST", "/tag/add", request)
+
+	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+
+}
+
+func TestAddTagControllerDuplicate(t *testing.T) {
+
+	var err error
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
+
+	duperows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`select count\(1\) from tagmap`).WillReturnRows(duperows)
+
+	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
+
+	first := performJsonRequest(router, "POST", "/tag/add", request)
+
+	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrDuplicateTag), "HTTP response should match")
+}
+
+func TestAddTagControllerNoImage(t *testing.T) {
+
+	var err error
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+
+	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
+
+	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
+
+	first := performJsonRequest(router, "POST", "/tag/add", request)
+
+	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrNotFound), "HTTP response should match")
+}
