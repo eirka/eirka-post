@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	//"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/eirka/eirka-libs/audit"
-	"github.com/eirka/eirka-libs/db"
+	//"github.com/eirka/eirka-libs/audit"
+	//"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 )
