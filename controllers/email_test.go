@@ -17,21 +17,6 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
-func init() {
-	user.Secret = "secret"
-
-	// Set up fake Redis connection
-	redis.NewRedisMock()
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router = gin.New()
-
-	router.Use(user.Auth(true))
-
-	router.POST("/email", EmailController)
-}
-
 func performJwtJsonRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("X-Real-Ip", "123.0.0.1")
@@ -55,6 +40,16 @@ func performJwtFormRequest(r http.Handler, method, path, token string, body byte
 func TestEmailController(t *testing.T) {
 
 	var err error
+
+	user.Secret = "secret"
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router = gin.New()
+
+	router.Use(user.Auth(true))
+
+	router.POST("/email", EmailController)
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")

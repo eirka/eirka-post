@@ -17,24 +17,6 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
-// gin router for tests
-var router *gin.Engine
-
-func init() {
-	user.Secret = "secret"
-
-	// Set up fake Redis connection
-	redis.NewRedisMock()
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router = gin.New()
-
-	router.Use(user.Auth(false))
-
-	router.POST("/tag/add", AddTagController)
-}
-
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, nil)
 	req.Header.Set("X-Real-Ip", "123.0.0.1")
@@ -63,6 +45,19 @@ func successMessage(message string) string {
 func TestAddTagController(t *testing.T) {
 
 	var err error
+
+	user.Secret = "secret"
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
+	// Set up fake Redis connection
+	redis.NewRedisMock()
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
@@ -96,6 +91,14 @@ func TestAddTagController(t *testing.T) {
 
 func TestAddTagControllerBadInput(t *testing.T) {
 
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
 	var reuesttests = []struct {
 		name string
 		in   []byte
@@ -125,6 +128,14 @@ func TestAddTagControllerImageNotFound(t *testing.T) {
 
 	var err error
 
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
 
@@ -145,6 +156,14 @@ func TestAddTagControllerImageNotFound(t *testing.T) {
 func TestAddTagControllerDuplicate(t *testing.T) {
 
 	var err error
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
