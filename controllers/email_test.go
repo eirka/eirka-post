@@ -30,13 +30,6 @@ func TestEmailController(t *testing.T) {
 	user.SetId(2)
 	user.SetAuthenticated()
 
-	user.hash, err = user.HashPassword("testpassword")
-	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotNil(t, user.hash, "password should be returned")
-	}
-
-	assert.True(t, user.ComparePassword("testpassword"), "Password should validate")
-
 	token, err := user.CreateToken()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, token, "token should be returned")
