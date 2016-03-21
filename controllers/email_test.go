@@ -26,16 +26,20 @@ func TestEmailController(t *testing.T) {
 
 	router.POST("/email", EmailController)
 
-	u := user.DefaultUser()
-	u.SetId(2)
-	u.SetAuthenticated()
-	u.Password()
+	user := DefaultUser()
+	user.SetId(2)
+	user.SetAuthenticated()
 
-	assert.True(t, u.ComparePassword("testpassword"), "Test user password should be set")
-
-	token, err := u.CreateToken()
+	user.hash, err = HashPassword("testpassword")
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, token, "token should be returned")
+		assert.NotNil(t, user.hash, "password should be returned")
+	}
+
+	assert.True(t, user.ComparePassword("testpassword"), "Password should validate")
+
+	token, err := user.CreateToken()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, badtoken, "token should be returned")
 	}
 
 	mock, err := db.NewTestDb()
