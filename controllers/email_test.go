@@ -26,11 +26,11 @@ func TestEmailController(t *testing.T) {
 
 	router.POST("/email", EmailController)
 
-	user := DefaultUser()
+	user := user.DefaultUser()
 	user.SetId(2)
 	user.SetAuthenticated()
 
-	user.hash, err = HashPassword("testpassword")
+	user.hash, err = user.HashPassword("testpassword")
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotNil(t, user.hash, "password should be returned")
 	}
@@ -39,7 +39,7 @@ func TestEmailController(t *testing.T) {
 
 	token, err := user.CreateToken()
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, badtoken, "token should be returned")
+		assert.NotEmpty(t, token, "token should be returned")
 	}
 
 	mock, err := db.NewTestDb()
