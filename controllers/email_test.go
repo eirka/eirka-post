@@ -45,7 +45,7 @@ func TestEmailController(t *testing.T) {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	router = gin.New()
+	router := gin.New()
 
 	router.Use(user.Auth(true))
 
