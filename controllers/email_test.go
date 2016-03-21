@@ -26,18 +26,6 @@ func TestEmailController(t *testing.T) {
 
 	router.POST("/email", EmailController)
 
-	u := user.DefaultUser()
-	u.SetId(2)
-	u.SetAuthenticated()
-	u.Password()
-
-	assert.True(t, u.ComparePassword("testpassword"), "Test user password should be set")
-
-	token, err := u.CreateToken()
-	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, token, "token should be returned")
-	}
-
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
 
@@ -50,7 +38,7 @@ func TestEmailController(t *testing.T) {
 
 	request := []byte(`{"ib": 1, "email": "test@test.com"}`)
 
-	first := performJsonRequest(router, "POST", "/email", request)
+	first := performJwtJsonRequest(router, "POST", "/email", token, request)
 
 	assert.Equal(t, first.Code, 200, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditEmailUpdate), "HTTP response should match")
