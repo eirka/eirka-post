@@ -16,26 +16,6 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
-func performJwtJsonRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
-	req.Header.Set("X-Real-Ip", "123.0.0.1")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}
-
-func performJwtFormRequest(r http.Handler, method, path, token string, body bytes.Buffer) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, &body)
-	req.Header.Set("X-Real-Ip", "123.0.0.1")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Set("Content-Type", "multipart/form-data")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}
-
 func TestEmailController(t *testing.T) {
 
 	var err error
@@ -49,6 +29,18 @@ func TestEmailController(t *testing.T) {
 	router.Use(user.Auth(true))
 
 	router.POST("/email", EmailController)
+
+	u := user.DefaultUser()
+	u.SetId(2)
+	u.SetAuthenticated()
+	u.Password()
+
+	assert.True(t, u.ComparePassword("testpassword"), "Test user password should be set")
+
+	token, err := u.CreateToken()
+	if assert.NoError(t, err, "An error was not expected") {
+		assert.NotEmpty(t, token, "token should be returned")
+	}
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")

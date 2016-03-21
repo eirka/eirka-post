@@ -34,6 +34,26 @@ func performJsonRequest(r http.Handler, method, path string, body []byte) *httpt
 	return w
 }
 
+func performJwtJsonRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
+	req.Header.Set("X-Real-Ip", "123.0.0.1")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
+}
+
+func performJwtFormRequest(r http.Handler, method, path, token string, body bytes.Buffer) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, &body)
+	req.Header.Set("X-Real-Ip", "123.0.0.1")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Set("Content-Type", "multipart/form-data")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
+}
+
 func errorMessage(err error) string {
 	return fmt.Sprintf(`{"error_message":"%s"}`, err)
 }
@@ -109,11 +129,11 @@ func TestAddTagControllerBadInput(t *testing.T) {
 		{"badmissing", []byte(`{"ib": 0, "tag": 1}`)},
 		{"badmissing", []byte(`{"image": 1}`)},
 		{"badib", []byte(`{"ib": 0, "tag": 1, "image": 1}`)},
-		{"badib", []byte(`{"ib": dur, "tag": 1, "image": 1}`)},
+		{"badib", []byte(`{"ib": "dur", "tag": 1, "image": 1}`)},
 		{"badtag", []byte(`{"ib": 1, "tag": 0, "image": 1}`)},
-		{"badtag", []byte(`{"ib": 1, "tag": dur, "image": 1}`)},
+		{"badtag", []byte(`{"ib": 1, "tag": "dur", "image": 1}`)},
 		{"badimage", []byte(`{"ib": 1, "tag": 1, "image": 0}`)},
-		{"badimage", []byte(`{"ib": 1, "tag": 1, "image": dur}`)},
+		{"badimage", []byte(`{"ib": 1, "tag": 1, "image": "dur"}`)},
 		{"badall", []byte(`{"ib": 0, "tag": 0, "image": 0}`)},
 	}
 
