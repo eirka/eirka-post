@@ -12,13 +12,10 @@ import (
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/db"
-	e "github.com/eirka/eirka-libs/errors"
+	//e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 )
-
-// gin router for tests
-var router *gin.Engine
 
 func init() {
 	user.Secret = "secret"
@@ -30,7 +27,7 @@ func init() {
 
 	router = gin.New()
 
-	users.Use(user.Auth(true))
+	router.Use(user.Auth(true))
 
 	router.POST("/email", EmailController)
 }
