@@ -1,13 +1,9 @@
 package controllers
 
 import (
-	"bytes"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/eirka/eirka-libs/audit"
