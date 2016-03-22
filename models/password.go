@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/eirka/eirka-libs/config"
-	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/user"
 	"github.com/eirka/eirka-libs/validate"
