@@ -6,6 +6,7 @@ import (
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/user"
 	"github.com/eirka/eirka-libs/validate"
 )
 
@@ -80,13 +81,8 @@ func (r *PasswordModel) Update() (err error) {
 		return errors.New("PasswordModel is not valid")
 	}
 
-	// Get Database handle
-	dbase, err := db.GetDb()
-	if err != nil {
-		return
-	}
-
-	_, err = dbase.Exec("UPDATE users SET user_password = ? WHERE user_id = ?", r.NewHashed, r.Uid)
+	// update user password
+	user.UpdatePassword(r.NewHashed, r.Uid)
 	if err != nil {
 		return
 	}
