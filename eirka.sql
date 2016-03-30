@@ -135,6 +135,7 @@ CREATE TABLE `favorites` (
   `image_id` int(10) unsigned NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`favorite_id`),
+  UNIQUE KEY `favorites_uniq_user_image` (`user_id`,`image_id`),
   KEY `favorites_image_id` (`image_id`),
   KEY `favorites_user_id` (`user_id`),
   CONSTRAINT `favorites_image_id` FOREIGN KEY (`image_id`) REFERENCES `images` (`image_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -160,6 +161,7 @@ CREATE TABLE `imageboards` (
   `ib_style` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `ib_logo` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`ib_id`),
+  UNIQUE KEY `imageboards_uniq` (`ib_title`),
   KEY `ib_id_ib_title` (`ib_id`,`ib_title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -228,6 +230,7 @@ CREATE TABLE `settings` (
   `settings_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `settings_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`settings_key`)
+  UNIQUE KEY `settings_uniq` (`settings_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -284,6 +287,7 @@ CREATE TABLE `tagmap` (
   `image_id` int(10) unsigned NOT NULL,
   `tag_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`image_id`,`tag_id`),
+  UNIQUE KEY `tagmap_uniq` (`image_id`,`tag_id`),
   KEY `image_id_idx` (`image_id`),
   KEY `tag_id_idx` (`tag_id`),
   KEY `tagmap_tag_i` (`image_id`,`tag_id`),
@@ -305,6 +309,7 @@ CREATE TABLE `tags` (
   `tagtype_id` int(10) unsigned NOT NULL,
   `tag_name` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`tag_id`),
+  UNIQUE KEY `tags_uniq` (`ib_id`,`tag_name`),
   KEY `tags_ib_id_idx` (`ib_id`),
   KEY `tag_id_tag_name` (`tag_id`,`tag_name`),
   KEY `tagtype_id_idx` (`tagtype_id`),
@@ -368,6 +373,7 @@ CREATE TABLE `user_ib_role_map` (
   `user_id` int(2) unsigned NOT NULL,
   `ib_id` tinyint(3) unsigned NOT NULL,
   `role_id` int(3) unsigned NOT NULL,
+  UNIQUE KEY `uirm_uniq` (`user_id`,`ib_id`,`role_id`),
   KEY `uirm_user_id` (`user_id`),
   KEY `uirm_ib_id` (`ib_id`),
   KEY `uirm_role_id` (`role_id`),
@@ -387,6 +393,7 @@ DROP TABLE IF EXISTS `user_role_map`;
 CREATE TABLE `user_role_map` (
   `user_id` int(10) unsigned NOT NULL,
   `role_id` int(2) unsigned NOT NULL,
+  UNIQUE KEY `urm_uniq` (`user_id`,`role_id`),
   KEY `urm_role_id` (`role_id`),
   KEY `urm_user_id` (`user_id`),
   CONSTRAINT `urm_role_id` FOREIGN KEY (`role_id`) REFERENCES `acl_roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE,

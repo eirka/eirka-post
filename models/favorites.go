@@ -67,7 +67,7 @@ func (i *FavoritesModel) Status() (err error) {
 	// delete if it does
 	if check {
 
-		_, err = dbase.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ? LIMIT 1", i.Image, i.Uid)
+		_, err = dbase.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ?", i.Image, i.Uid)
 		if err != nil {
 			return err
 		}
