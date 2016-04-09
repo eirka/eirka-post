@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"testing"
+
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"testing"
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/db"
@@ -30,6 +32,11 @@ func TestEmailController(t *testing.T) {
 	user.SetId(2)
 	user.SetAuthenticated()
 
+	//	hash, err := user.HashPassword("testpass")
+	//	if assert.NoError(t, err, "An error was not expected") {
+	//		assert.NotEmpty(t, hash, "token should be returned")
+	//	}
+
 	token, err := user.CreateToken()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, token, "token should be returned")
@@ -47,7 +54,7 @@ func TestEmailController(t *testing.T) {
 
 	request := []byte(`{"ib": 1, "email": "test@test.com"}`)
 
-	first := performJwtJsonRequest(router, "POST", "/email", token, request)
+	first := performJwtJSONRequest(router, "POST", "/email", token, request)
 
 	assert.Equal(t, first.Code, 200, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditEmailUpdate), "HTTP response should match")

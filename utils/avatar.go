@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
 	"github.com/1l0/identicon"
 
 	"github.com/eirka/eirka-libs/amazon"
 )
 
-// save an avatar
+// SaveAvatar will save a user provided avatar
 func (i *ImageType) SaveAvatar() (err error) {
 
 	// for special handling
@@ -72,7 +73,7 @@ func (i *ImageType) SaveAvatar() (err error) {
 
 }
 
-// this will create a random avatar
+// GenerateAvatar this will create a random avatar
 func GenerateAvatar(uid uint) (err error) {
 
 	if uid == 0 || uid == 1 {

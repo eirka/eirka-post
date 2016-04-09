@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"testing"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -13,9 +14,9 @@ import (
 func TestThreadIsValid(t *testing.T) {
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          0,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a cool thread",
 		Comment:     "test",
 		Filename:    "test.jpg",
@@ -33,9 +34,9 @@ func TestThreadIsValid(t *testing.T) {
 func TestThreadIsValidImageBadStats(t *testing.T) {
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a cool thread",
 		Comment:     "test",
 		Filename:    "test.jpg",
@@ -55,9 +56,9 @@ func TestThreadValidateInputCommentEmpty(t *testing.T) {
 	var err error
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a cool thread",
 		Comment:     "",
 		Filename:    "test.jpg",
@@ -81,9 +82,9 @@ func TestThreadValidateInputCommentShort(t *testing.T) {
 	var err error
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a cool thread",
 		Comment:     "t",
 		Filename:    "test.jpg",
@@ -107,9 +108,9 @@ func TestThreadValidateInputTitleEmpty(t *testing.T) {
 	var err error
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "",
 		Comment:     "cool post bro",
 		Filename:    "test.jpg",
@@ -133,9 +134,9 @@ func TestThreadValidateInputTitleShort(t *testing.T) {
 	var err error
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a",
 		Comment:     "cool post bro",
 		Filename:    "test.jpg",
@@ -178,9 +179,9 @@ func TestThreadPost(t *testing.T) {
 	mock.ExpectCommit()
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a cool thread",
 		Comment:     "test",
 		Filename:    "test.jpg",
@@ -215,9 +216,9 @@ func TestThreadPostRollback(t *testing.T) {
 	mock.ExpectRollback()
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a cool thread",
 		Comment:     "test",
 		Filename:    "test.jpg",
@@ -243,9 +244,9 @@ func TestThreadPostInvalid(t *testing.T) {
 	var err error
 
 	thread := ThreadModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          0,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Title:       "a cool thread",
 		Comment:     "test",
 		Filename:    "test.jpg",

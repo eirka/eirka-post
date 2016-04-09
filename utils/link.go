@@ -8,7 +8,7 @@ import (
 	"github.com/eirka/eirka-libs/db"
 )
 
-// Redirect to the correct imageboard after post
+// Link will create the redirect to the correct imageboard after post
 func Link(id uint, referer string) (host string, err error) {
 
 	// Get Database handle

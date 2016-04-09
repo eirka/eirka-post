@@ -74,7 +74,7 @@ func (i *ImageType) checkWebM() (err error) {
 	// set file duration
 	i.duration = int(duration)
 
-	orig_size, err := strconv.ParseFloat(avprobe.Format.Size, 64)
+	originalSize, err := strconv.ParseFloat(avprobe.Format.Size, 64)
 	if err != nil {
 		return
 	}
@@ -92,7 +92,7 @@ func (i *ImageType) checkWebM() (err error) {
 		return errors.New("WebM height too large")
 	case i.OrigHeight < config.Settings.Limits.ImageMinHeight:
 		return errors.New("WebM height too small")
-	case int(orig_size) > config.Settings.Limits.ImageMaxSize:
+	case int(originalSize) > config.Settings.Limits.ImageMaxSize:
 		return errors.New("WebM size too large")
 	case i.duration > config.Settings.Limits.WebmMaxLength:
 		return errors.New("WebM too long")

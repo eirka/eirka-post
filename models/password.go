@@ -9,35 +9,35 @@ import (
 	"github.com/eirka/eirka-libs/validate"
 )
 
-// Password contains information for initial account creation
+// PasswordModel contains information for initial account creation
 type PasswordModel struct {
-	Uid       uint
+	UID       uint
 	Name      string
 	OldPw     string
 	NewPw     string
 	NewHashed []byte
 }
 
-// check struct validity
-func (p *PasswordModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *PasswordModel) IsValid() bool {
 
-	if p.Uid == 0 || p.Uid == 1 {
+	if m.UID == 0 || m.UID == 1 {
 		return false
 	}
 
-	if p.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
-	if p.OldPw == "" {
+	if m.OldPw == "" {
 		return false
 	}
 
-	if p.NewPw == "" {
+	if m.NewPw == "" {
 		return false
 	}
 
-	if p.NewHashed == nil {
+	if m.NewHashed == nil {
 		return false
 	}
 
@@ -46,10 +46,10 @@ func (p *PasswordModel) IsValid() bool {
 }
 
 // Validate will check the provided password
-func (r *PasswordModel) Validate() (err error) {
+func (m *PasswordModel) Validate() (err error) {
 
 	// Validate new password input
-	newpassword := validate.Validate{Input: r.NewPw, Max: config.Settings.Limits.PasswordMaxLength, Min: config.Settings.Limits.PasswordMinLength}
+	newpassword := validate.Validate{Input: m.NewPw, Max: config.Settings.Limits.PasswordMaxLength, Min: config.Settings.Limits.PasswordMinLength}
 	if newpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if newpassword.MinLength() {
@@ -59,7 +59,7 @@ func (r *PasswordModel) Validate() (err error) {
 	}
 
 	// Validate old password input
-	oldpassword := validate.Validate{Input: r.OldPw, Max: config.Settings.Limits.PasswordMaxLength, Min: config.Settings.Limits.PasswordMinLength}
+	oldpassword := validate.Validate{Input: m.OldPw, Max: config.Settings.Limits.PasswordMaxLength, Min: config.Settings.Limits.PasswordMinLength}
 	if oldpassword.IsEmpty() {
 		return e.ErrPasswordEmpty
 	} else if oldpassword.MinLength() {
@@ -72,16 +72,16 @@ func (r *PasswordModel) Validate() (err error) {
 
 }
 
-// change password
-func (r *PasswordModel) Update() (err error) {
+// Update will update the password model
+func (m *PasswordModel) Update() (err error) {
 
 	// check model validity
-	if !r.IsValid() {
+	if !m.IsValid() {
 		return errors.New("PasswordModel is not valid")
 	}
 
 	// update user password
-	user.UpdatePassword(r.NewHashed, r.Uid)
+	user.UpdatePassword(m.NewHashed, m.UID)
 	if err != nil {
 		return
 	}

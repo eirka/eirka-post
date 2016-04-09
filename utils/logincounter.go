@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	maxLogins    int  = 5
+	maxLogins         = 5
 	limitSeconds uint = 180
 )
 
-// will increment a counter in redis to limit login attempts
+// LoginCounter will increment a counter in redis to limit login attempts
 func LoginCounter(userid uint, ip string) (err error) {
 
 	// Initialize cache handle

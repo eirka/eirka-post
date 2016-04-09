@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"github.com/microcosm-cc/bluemonday"
 	"html"
+
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -11,10 +12,11 @@ import (
 	"github.com/eirka/eirka-libs/validate"
 )
 
+// ThreadModel holds the request input
 type ThreadModel struct {
-	Uid         uint
+	UID         uint
 	Ib          uint
-	Ip          string
+	IP          string
 	Title       string
 	Comment     string
 	Filename    string
@@ -26,54 +28,54 @@ type ThreadModel struct {
 	ThumbHeight int
 }
 
-// check struct validity
-func (t *ThreadModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *ThreadModel) IsValid() bool {
 
-	if t.Uid == 0 {
+	if m.UID == 0 {
 		return false
 	}
 
-	if t.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
-	if t.Ip == "" {
+	if m.IP == "" {
 		return false
 	}
 
-	if t.Title == "" {
+	if m.Title == "" {
 		return false
 	}
 
-	if t.Comment == "" {
+	if m.Comment == "" {
 		return false
 	}
 
-	if t.Filename == "" {
+	if m.Filename == "" {
 		return false
 	}
 
-	if t.Thumbnail == "" {
+	if m.Thumbnail == "" {
 		return false
 	}
 
-	if t.MD5 == "" {
+	if m.MD5 == "" {
 		return false
 	}
 
-	if t.OrigWidth == 0 {
+	if m.OrigWidth == 0 {
 		return false
 	}
 
-	if t.OrigHeight == 0 {
+	if m.OrigHeight == 0 {
 		return false
 	}
 
-	if t.ThumbWidth == 0 {
+	if m.ThumbWidth == 0 {
 		return false
 	}
 
-	if t.ThumbHeight == 0 {
+	if m.ThumbHeight == 0 {
 		return false
 	}
 
@@ -82,16 +84,16 @@ func (t *ThreadModel) IsValid() bool {
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *ThreadModel) ValidateInput() (err error) {
+func (m *ThreadModel) ValidateInput() (err error) {
 
 	// Initialize bluemonday
 	p := bluemonday.StrictPolicy()
 
 	// sanitize html and xss
-	i.Title = html.UnescapeString(p.Sanitize(i.Title))
+	m.Title = html.UnescapeString(p.Sanitize(m.Title))
 
 	// Validate title input
-	title := validate.Validate{Input: i.Title, Max: config.Settings.Limits.TitleMaxLength, Min: config.Settings.Limits.TitleMinLength}
+	title := validate.Validate{Input: m.Title, Max: config.Settings.Limits.TitleMaxLength, Min: config.Settings.Limits.TitleMinLength}
 	if title.IsEmpty() {
 		return e.ErrNoTitle
 	} else if title.MinLength() {
@@ -101,10 +103,10 @@ func (i *ThreadModel) ValidateInput() (err error) {
 	}
 
 	// sanitize html and xss
-	i.Comment = html.UnescapeString(p.Sanitize(i.Comment))
+	m.Comment = html.UnescapeString(p.Sanitize(m.Comment))
 
 	// Validate comment input
-	comment := validate.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
+	comment := validate.Validate{Input: m.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
 	if comment.IsEmpty() {
 		return e.ErrNoComment
 	} else if comment.MinLength() {
@@ -118,10 +120,10 @@ func (i *ThreadModel) ValidateInput() (err error) {
 }
 
 // Post will add the thread to the database with a transaction
-func (i *ThreadModel) Post() (err error) {
+func (m *ThreadModel) Post() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("ThreadModel is not valid")
 	}
 
@@ -134,33 +136,33 @@ func (i *ThreadModel) Post() (err error) {
 
 	// insert into threads table
 	e1, err := tx.Exec("INSERT INTO threads (ib_id,thread_title) VALUES (?,?)",
-		i.Ib, i.Title)
+		m.Ib, m.Title)
 	if err != nil {
 		return
 	}
 
 	// Get new thread id
-	t_id, err := e1.LastInsertId()
+	tID, err := e1.LastInsertId()
 	if err != nil {
 		return
 	}
 
 	// insert into posts table
 	e2, err := tx.Exec("INSERT INTO posts (thread_id,user_id,post_time,post_ip,post_text) VALUES (?,?,NOW(),?,?)",
-		t_id, i.Uid, i.Ip, i.Comment)
+		tID, m.UID, m.IP, m.Comment)
 	if err != nil {
 		return
 	}
 
 	// Get new post id
-	p_id, err := e2.LastInsertId()
+	pID, err := e2.LastInsertId()
 	if err != nil {
 		return
 	}
 
 	// insert into images table
 	_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)",
-		p_id, i.Filename, i.Thumbnail, i.MD5, i.OrigHeight, i.OrigWidth, i.ThumbHeight, i.ThumbWidth)
+		pID, m.Filename, m.Thumbnail, m.MD5, m.OrigHeight, m.OrigWidth, m.ThumbHeight, m.ThumbWidth)
 	if err != nil {
 		return
 	}

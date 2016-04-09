@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/config"
@@ -128,9 +129,9 @@ func ThreadController(c *gin.Context) {
 		return
 	}
 
-	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
+	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
 
-	err = cache.Delete(directory_key)
+	err = cache.Delete(directoryKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ThreadController.cache.Delete")

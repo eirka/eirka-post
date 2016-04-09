@@ -7,19 +7,20 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+// FavoritesModel holds the request input
 type FavoritesModel struct {
-	Uid   uint
+	UID   uint
 	Image uint
 }
 
-// check struct validity
-func (f *FavoritesModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *FavoritesModel) IsValid() bool {
 
-	if f.Uid == 0 || f.Uid == 1 {
+	if m.UID == 0 || m.UID == 1 {
 		return false
 	}
 
-	if f.Image == 0 {
+	if m.Image == 0 {
 		return false
 	}
 
@@ -28,13 +29,13 @@ func (f *FavoritesModel) IsValid() bool {
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *FavoritesModel) ValidateInput() (err error) {
+func (m *FavoritesModel) ValidateInput() (err error) {
 
-	if i.Uid == 0 || i.Uid == 1 {
+	if m.UID == 0 || m.UID == 1 {
 		return e.ErrInvalidParam
 	}
 
-	if i.Image == 0 {
+	if m.Image == 0 {
 		return e.ErrInvalidParam
 	}
 
@@ -43,10 +44,10 @@ func (i *FavoritesModel) ValidateInput() (err error) {
 }
 
 // Status will return info
-func (i *FavoritesModel) Status() (err error) {
+func (m *FavoritesModel) Status() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("FavoritesModel is not valid")
 	}
 
@@ -59,7 +60,7 @@ func (i *FavoritesModel) Status() (err error) {
 	var check bool
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT count(1) FROM favorites WHERE image_id = ? AND user_id = ?", i.Image, i.Uid).Scan(&check)
+	err = dbase.QueryRow("SELECT count(1) FROM favorites WHERE image_id = ? AND user_id = ?", m.Image, m.UID).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -67,7 +68,7 @@ func (i *FavoritesModel) Status() (err error) {
 	// delete if it does
 	if check {
 
-		_, err = dbase.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ?", i.Image, i.Uid)
+		_, err = dbase.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ?", m.Image, m.UID)
 		if err != nil {
 			return err
 		}
@@ -81,10 +82,10 @@ func (i *FavoritesModel) Status() (err error) {
 }
 
 // Post will add the fav to the database
-func (i *FavoritesModel) Post() (err error) {
+func (m *FavoritesModel) Post() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("FavoritesModel is not valid")
 	}
 
@@ -94,7 +95,7 @@ func (i *FavoritesModel) Post() (err error) {
 		return
 	}
 
-	_, err = dbase.Exec("INSERT into favorites (image_id, user_id) VALUES (?,?)", i.Image, i.Uid)
+	_, err = dbase.Exec("INSERT into favorites (image_id, user_id) VALUES (?,?)", m.Image, m.UID)
 	if err != nil {
 		return
 	}

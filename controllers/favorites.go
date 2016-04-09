@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -16,7 +17,7 @@ type favoritesForm struct {
 	Image uint `json:"image" binding:"required"`
 }
 
-// FavoritessController handles adding an image to a users favorites
+// FavoritesController handles adding an image to a users favorites
 func FavoritesController(c *gin.Context) {
 	var err error
 	var ff favoritesForm

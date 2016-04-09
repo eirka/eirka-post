@@ -3,9 +3,10 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"testing"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -14,7 +15,7 @@ import (
 func TestEmailIsValid(t *testing.T) {
 
 	email := EmailModel{
-		Uid:   1,
+		UID:   1,
 		Name:  "test",
 		Email: "cool@test.com",
 	}
@@ -34,7 +35,7 @@ func TestEmailValidate(t *testing.T) {
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
 
 	email := EmailModel{
-		Uid:   2,
+		UID:   2,
 		Email: "cool@test.com",
 	}
 
@@ -82,7 +83,7 @@ func TestEmailValidateNoUser(t *testing.T) {
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnError(sql.ErrNoRows)
 
 	email := EmailModel{
-		Uid:   2,
+		UID:   2,
 		Email: "cool@test.com",
 	}
 
@@ -106,7 +107,7 @@ func TestEmailValidateSameEmail(t *testing.T) {
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
 
 	email := EmailModel{
-		Uid:   2,
+		UID:   2,
 		Email: "cool@test.com",
 	}
 
@@ -131,7 +132,7 @@ func TestEmailUpdate(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	email := EmailModel{
-		Uid:   2,
+		UID:   2,
 		Name:  "test",
 		Email: "cool@test.com",
 	}
@@ -148,7 +149,7 @@ func TestEmailUpdateIsValid(t *testing.T) {
 	var err error
 
 	email := EmailModel{
-		Uid:   2,
+		UID:   2,
 		Email: "cool@test.com",
 	}
 

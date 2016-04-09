@@ -3,26 +3,27 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/eirka/eirka-libs/config"
 )
 
 var (
-	ErrBlacklisted = errors.New("IP is on spam blacklist")
+	errBlacklisted = errors.New("IP is on spam blacklist")
 )
 
-// check ip with stop forum spam
+// StopSpam check ip with stop forum spam
 func StopSpam() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// check ip against stop forum spam
 		err := CheckStopForumSpam(c.ClientIP())
-		if err == ErrBlacklisted {
+		if err == errBlacklisted {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": "IP is on spam blacklist"})
 			c.Error(err).SetMeta("StopSpam.CheckStopForumSpam")
 			c.Abort()
@@ -34,9 +35,9 @@ func StopSpam() gin.HandlerFunc {
 	}
 }
 
-// Stop Forum Spam return format
+// StopForumSpam is the request return format
 type StopForumSpam struct {
-	Ip struct {
+	IP struct {
 		Appears    float64 `json:"appears"`
 		Confidence float64 `json:"confidence"`
 		Frequency  float64 `json:"frequency"`
@@ -45,7 +46,7 @@ type StopForumSpam struct {
 	Success float64 `json:"success"`
 }
 
-// Check Stop Forum Spam blacklist for IP
+// CheckStopForumSpam will query blacklist api for IP
 func CheckStopForumSpam(ip string) (err error) {
 
 	if len(ip) == 0 {
@@ -58,7 +59,7 @@ func CheckStopForumSpam(ip string) (err error) {
 	queryValues.Set("f", "json")
 
 	// construct the api request
-	sfs_endpoint := &url.URL{
+	sfsEndpoint := &url.URL{
 		Scheme:   "http",
 		Host:     "api.stopforumspam.org",
 		Path:     "api",
@@ -66,7 +67,7 @@ func CheckStopForumSpam(ip string) (err error) {
 	}
 
 	// our http request
-	req, err := http.NewRequest(http.MethodGet, sfs_endpoint.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, sfsEndpoint.String(), nil)
 	if err != nil {
 		return errors.New("Error creating SFS request")
 	}
@@ -93,17 +94,17 @@ func CheckStopForumSpam(ip string) (err error) {
 		return errors.New("Error parsing SFS response")
 	}
 
-	sfs_data := StopForumSpam{}
+	sfsData := StopForumSpam{}
 
 	// unmarshal into struct
-	err = json.Unmarshal(body, &sfs_data)
+	err = json.Unmarshal(body, &sfsData)
 	if err != nil {
 		return errors.New("Error parsing SFS data")
 	}
 
 	// check if the spammer confidence level is over our setting
-	if sfs_data.Ip.Confidence > config.Settings.StopForumSpam.Confidence {
-		return ErrBlacklisted
+	if sfsData.IP.Confidence > config.Settings.StopForumSpam.Confidence {
+		return errBlacklisted
 	}
 
 	return

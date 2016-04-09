@@ -3,12 +3,14 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/db"
@@ -25,7 +27,7 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 	return w
 }
 
-func performJsonRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
+func performJSONRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Real-Ip", "123.0.0.1")
@@ -34,7 +36,7 @@ func performJsonRequest(r http.Handler, method, path string, body []byte) *httpt
 	return w
 }
 
-func performJwtJsonRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
+func performJwtJSONRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("X-Real-Ip", "123.0.0.1")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
@@ -100,7 +102,7 @@ func TestAddTagController(t *testing.T) {
 
 	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
 
-	first := performJsonRequest(router, "POST", "/tag/add", request)
+	first := performJSONRequest(router, "POST", "/tag/add", request)
 
 	assert.Equal(t, first.Code, 200, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
@@ -138,7 +140,7 @@ func TestAddTagControllerBadInput(t *testing.T) {
 	}
 
 	for _, test := range reuesttests {
-		first := performJsonRequest(router, "POST", "/tag/add", test.in)
+		first := performJSONRequest(router, "POST", "/tag/add", test.in)
 		assert.Equal(t, first.Code, 400, fmt.Sprintf("HTTP request code should match for request %s", test.name))
 	}
 
@@ -164,7 +166,7 @@ func TestAddTagControllerImageNotFound(t *testing.T) {
 
 	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
 
-	first := performJsonRequest(router, "POST", "/tag/add", request)
+	first := performJSONRequest(router, "POST", "/tag/add", request)
 
 	assert.Equal(t, first.Code, 400, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrNotFound), "HTTP response should match")
@@ -196,7 +198,7 @@ func TestAddTagControllerDuplicate(t *testing.T) {
 
 	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
 
-	first := performJsonRequest(router, "POST", "/tag/add", request)
+	first := performJSONRequest(router, "POST", "/tag/add", request)
 
 	assert.Equal(t, first.Code, 400, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrDuplicateTag), "HTTP response should match")

@@ -7,13 +7,14 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+// AddTagModel holds the data from the request
 type AddTagModel struct {
 	Ib    uint
 	Tag   uint
 	Image uint
 }
 
-// check struct validity
+// IsValid will check struct validity
 func (a *AddTagModel) IsValid() bool {
 
 	if a.Ib == 0 {
@@ -33,16 +34,16 @@ func (a *AddTagModel) IsValid() bool {
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *AddTagModel) ValidateInput() (err error) {
-	if i.Ib == 0 {
+func (a *AddTagModel) ValidateInput() (err error) {
+	if a.Ib == 0 {
 		return e.ErrInvalidParam
 	}
 
-	if i.Tag == 0 {
+	if a.Tag == 0 {
 		return e.ErrInvalidParam
 	}
 
-	if i.Image == 0 {
+	if a.Image == 0 {
 		return e.ErrInvalidParam
 	}
 
@@ -51,7 +52,7 @@ func (i *AddTagModel) ValidateInput() (err error) {
 }
 
 // Status will return info about the thread
-func (i *AddTagModel) Status() (err error) {
+func (a *AddTagModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -65,7 +66,7 @@ func (i *AddTagModel) Status() (err error) {
 	err = dbase.QueryRow(`SELECT count(1) FROM images
 	LEFT JOIN posts on images.post_id = posts.post_id
 	LEFT JOIN threads on posts.thread_id = threads.thread_id
-	WHERE image_id = ? AND ib_id = ?`, i.Image, i.Ib).Scan(&check)
+	WHERE image_id = ? AND ib_id = ?`, a.Image, a.Ib).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -76,7 +77,7 @@ func (i *AddTagModel) Status() (err error) {
 	}
 
 	// Check if tag is already there
-	err = dbase.QueryRow("select count(1) from tagmap where tag_id = ? AND image_id = ?", i.Tag, i.Image).Scan(&check)
+	err = dbase.QueryRow("select count(1) from tagmap where tag_id = ? AND image_id = ?", a.Tag, a.Image).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -91,10 +92,10 @@ func (i *AddTagModel) Status() (err error) {
 }
 
 // Post will add the reply to the database with a transaction
-func (i *AddTagModel) Post() (err error) {
+func (a *AddTagModel) Post() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !a.IsValid() {
 		return errors.New("AddTagModel is not valid")
 	}
 
@@ -104,7 +105,7 @@ func (i *AddTagModel) Post() (err error) {
 		return
 	}
 
-	_, err = dbase.Exec("INSERT into tagmap (image_id, tag_id) VALUES (?,?)", i.Image, i.Tag)
+	_, err = dbase.Exec("INSERT into tagmap (image_id, tag_id) VALUES (?,?)", a.Image, a.Tag)
 	if err != nil {
 		return
 	}

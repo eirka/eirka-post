@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	"html"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/microcosm-cc/bluemonday"
-	"html"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -12,16 +13,16 @@ import (
 	"github.com/eirka/eirka-libs/validate"
 )
 
-// Register contains information for initial account creation
+// RegisterModel contains information for initial account creation
 type RegisterModel struct {
-	Uid      uint
+	UID      uint
 	Name     string
 	Email    string
 	Password string
 	Hashed   []byte
 }
 
-// check struct validity
+// IsValid will check struct validity
 func (r *RegisterModel) IsValid() bool {
 
 	if r.Name == "" {
@@ -76,7 +77,7 @@ func (r *RegisterModel) Validate() (err error) {
 
 }
 
-// register new user
+// Register will create a new user
 func (r *RegisterModel) Register() (err error) {
 
 	// check model validity
@@ -102,9 +103,9 @@ func (r *RegisterModel) Register() (err error) {
 		return err
 	}
 
-	r.Uid = uint(uid)
+	r.UID = uint(uid)
 
-	_, err = tx.Exec("INSERT into user_role_map VALUES (?,?)", r.Uid, 2)
+	_, err = tx.Exec("INSERT into user_role_map VALUES (?,?)", r.UID, 2)
 	if err != nil {
 		return
 	}

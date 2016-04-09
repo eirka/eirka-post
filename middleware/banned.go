@@ -7,7 +7,7 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
-// check ip with the banned list
+// Bans will check ip with the banned list
 func Bans() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -32,6 +32,7 @@ func Bans() gin.HandlerFunc {
 	}
 }
 
+// CheckBannedIps will check the database for the ip
 func CheckBannedIps(ip string) (check bool, err error) {
 
 	// Get Database handle

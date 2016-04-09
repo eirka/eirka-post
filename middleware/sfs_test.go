@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCheckStopForumSpam(t *testing.T) {
@@ -18,7 +19,7 @@ func TestCheckStopForumSpam(t *testing.T) {
 
 	err = CheckStopForumSpam("188.143.232.34")
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, ErrBlacklisted, "Error should match")
+		assert.Equal(t, err, errBlacklisted, "Error should match")
 	}
 
 }

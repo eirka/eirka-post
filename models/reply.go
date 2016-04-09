@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"github.com/microcosm-cc/bluemonday"
 	"html"
+
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -11,11 +12,12 @@ import (
 	"github.com/eirka/eirka-libs/validate"
 )
 
+// ReplyModel holds the request input
 type ReplyModel struct {
-	Uid         uint
+	UID         uint
 	Ib          uint
 	Thread      uint
-	Ip          string
+	IP          string
 	Comment     string
 	Filename    string
 	Thumbnail   string
@@ -27,56 +29,56 @@ type ReplyModel struct {
 	Image       bool
 }
 
-// check struct validity
-func (r *ReplyModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *ReplyModel) IsValid() bool {
 
-	if r.Uid == 0 {
+	if m.UID == 0 {
 		return false
 	}
 
-	if r.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
-	if r.Thread == 0 {
+	if m.Thread == 0 {
 		return false
 	}
 
-	if r.Ip == "" {
+	if m.IP == "" {
 		return false
 	}
 
-	if !r.Image && r.Comment == "" {
+	if !m.Image && m.Comment == "" {
 		return false
 	}
 
-	if r.Image {
+	if m.Image {
 
-		if r.Filename == "" {
+		if m.Filename == "" {
 			return false
 		}
 
-		if r.Thumbnail == "" {
+		if m.Thumbnail == "" {
 			return false
 		}
 
-		if r.MD5 == "" {
+		if m.MD5 == "" {
 			return false
 		}
 
-		if r.OrigWidth == 0 {
+		if m.OrigWidth == 0 {
 			return false
 		}
 
-		if r.OrigHeight == 0 {
+		if m.OrigHeight == 0 {
 			return false
 		}
 
-		if r.ThumbWidth == 0 {
+		if m.ThumbWidth == 0 {
 			return false
 		}
 
-		if r.ThumbHeight == 0 {
+		if m.ThumbHeight == 0 {
 			return false
 		}
 
@@ -87,20 +89,20 @@ func (r *ReplyModel) IsValid() bool {
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *ReplyModel) ValidateInput() (err error) {
+func (m *ReplyModel) ValidateInput() (err error) {
 
 	// Initialize bluemonday
 	p := bluemonday.StrictPolicy()
 
 	// sanitize for html and xss
-	i.Comment = html.UnescapeString(p.Sanitize(i.Comment))
+	m.Comment = html.UnescapeString(p.Sanitize(m.Comment))
 
 	// There must either be a comment, an image, or an image with a comment
 	// If theres no image a comment is required
-	comment := validate.Validate{Input: i.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
+	comment := validate.Validate{Input: m.Comment, Max: config.Settings.Limits.CommentMaxLength, Min: config.Settings.Limits.CommentMinLength}
 
 	// if there is no image check the comment
-	if !i.Image {
+	if !m.Image {
 		if comment.IsEmpty() {
 			return e.ErrNoComment
 		} else if comment.MinLength() {
@@ -111,7 +113,7 @@ func (i *ReplyModel) ValidateInput() (err error) {
 	}
 
 	// If theres an image and a comment validate comment
-	if i.Image && !comment.IsEmpty() {
+	if m.Image && !comment.IsEmpty() {
 		if comment.MinLength() {
 			return e.ErrCommentShort
 		} else if comment.MaxLength() {
@@ -124,7 +126,7 @@ func (i *ReplyModel) ValidateInput() (err error) {
 }
 
 // Status will return info about the thread
-func (i *ReplyModel) Status() (err error) {
+func (m *ReplyModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -138,7 +140,7 @@ func (i *ReplyModel) Status() (err error) {
 	// Check if thread is closed and get the total amount of posts
 	err = dbase.QueryRow(`SELECT ib_id,thread_closed,count(post_num) FROM threads
     INNER JOIN posts on threads.thread_id = posts.thread_id
-    WHERE threads.thread_id = ? AND post_deleted != 1`, i.Thread).Scan(&i.Ib, &closed, &total)
+    WHERE threads.thread_id = ? AND post_deleted != 1`, m.Thread).Scan(&m.Ib, &closed, &total)
 	if err != nil {
 		return
 	}
@@ -152,7 +154,7 @@ func (i *ReplyModel) Status() (err error) {
 	if total > config.Settings.Limits.PostsMax {
 
 		_, err = dbase.Exec("UPDATE threads SET thread_closed=1 WHERE thread_id = ?",
-			i.Thread)
+			m.Thread)
 		if err != nil {
 			return err
 		}
@@ -165,10 +167,10 @@ func (i *ReplyModel) Status() (err error) {
 }
 
 // Post will add the reply to the database with a transaction
-func (i *ReplyModel) Post() (err error) {
+func (m *ReplyModel) Post() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("ReplyModel is not valid")
 	}
 
@@ -182,21 +184,23 @@ func (i *ReplyModel) Post() (err error) {
 	// insert new post
 	e1, err := tx.Exec(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text)
     SELECT ?,?,max(post_num)+1,NOW(),?,?
-    FROM posts WHERE thread_id = ?`, i.Thread, i.Uid, i.Ip, i.Comment, i.Thread)
+    FROM posts WHERE thread_id = ?`, m.Thread, m.UID, m.IP, m.Comment, m.Thread)
 	if err != nil {
 		return
 	}
 
-	if i.Image {
+	if m.Image {
 
-		p_id, err := e1.LastInsertId()
+		var pID int64
+
+		pID, err = e1.LastInsertId()
 		if err != nil {
 			return err
 		}
 
 		// insert image if there is one
 		_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)",
-			p_id, i.Filename, i.Thumbnail, i.MD5, i.OrigHeight, i.OrigWidth, i.ThumbHeight, i.ThumbWidth)
+			pID, m.Filename, m.Thumbnail, m.MD5, m.OrigHeight, m.OrigWidth, m.ThumbHeight, m.ThumbWidth)
 		if err != nil {
 			return err
 		}

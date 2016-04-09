@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"github.com/microcosm-cc/bluemonday"
 	"html"
+
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -11,24 +12,25 @@ import (
 	"github.com/eirka/eirka-libs/validate"
 )
 
+// NewTagModel holds the request input
 type NewTagModel struct {
 	Ib      uint
 	Tag     string
 	TagType uint
 }
 
-// check struct validity
-func (n *NewTagModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *NewTagModel) IsValid() bool {
 
-	if n.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
-	if n.Tag == "" {
+	if m.Tag == "" {
 		return false
 	}
 
-	if n.TagType == 0 {
+	if m.TagType == 0 {
 		return false
 	}
 
@@ -37,12 +39,12 @@ func (n *NewTagModel) IsValid() bool {
 }
 
 // ValidateInput will make sure all the parameters are valid
-func (i *NewTagModel) ValidateInput() (err error) {
-	if i.Ib == 0 {
+func (m *NewTagModel) ValidateInput() (err error) {
+	if m.Ib == 0 {
 		return e.ErrInvalidParam
 	}
 
-	if i.TagType == 0 {
+	if m.TagType == 0 {
 		return e.ErrInvalidParam
 	}
 
@@ -50,10 +52,10 @@ func (i *NewTagModel) ValidateInput() (err error) {
 	p := bluemonday.StrictPolicy()
 
 	// sanitize for html and xss
-	i.Tag = html.UnescapeString(p.Sanitize(i.Tag))
+	m.Tag = html.UnescapeString(p.Sanitize(m.Tag))
 
 	// Validate name input
-	tag := validate.Validate{Input: i.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
+	tag := validate.Validate{Input: m.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
 	if tag.IsEmpty() {
 		return e.ErrNoTagName
 	} else if tag.MinPartsLength() {
@@ -67,7 +69,7 @@ func (i *NewTagModel) ValidateInput() (err error) {
 }
 
 // Status will return info about the thread
-func (i *NewTagModel) Status() (err error) {
+func (m *NewTagModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -78,7 +80,7 @@ func (i *NewTagModel) Status() (err error) {
 	var check bool
 
 	// Check if tag is already there
-	err = dbase.QueryRow("select count(1) from tags where ib_id = ? AND tag_name = ?", i.Ib, i.Tag).Scan(&check)
+	err = dbase.QueryRow("select count(1) from tags where ib_id = ? AND tag_name = ?", m.Ib, m.Tag).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -93,10 +95,10 @@ func (i *NewTagModel) Status() (err error) {
 }
 
 // Post will add the reply to the database with a transaction
-func (i *NewTagModel) Post() (err error) {
+func (m *NewTagModel) Post() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("NewTagModel is not valid")
 	}
 
@@ -107,7 +109,7 @@ func (i *NewTagModel) Post() (err error) {
 	}
 
 	_, err = dbase.Exec("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)",
-		i.Tag, i.Ib, i.TagType)
+		m.Tag, m.Ib, m.TagType)
 	if err != nil {
 		return
 	}

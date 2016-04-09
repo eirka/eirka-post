@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+
 	"github.com/asaskevich/govalidator"
 
 	"github.com/eirka/eirka-libs/db"
@@ -11,24 +12,24 @@ import (
 
 // EmailModel contains new email
 type EmailModel struct {
-	Uid          uint
+	UID          uint
 	Name         string
 	Email        string
 	CurrentEmail string
 }
 
-// check struct validity
-func (e *EmailModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *EmailModel) IsValid() bool {
 
-	if e.Uid == 0 || e.Uid == 1 {
+	if m.UID == 0 || m.UID == 1 {
 		return false
 	}
 
-	if e.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
-	if e.Email == "" {
+	if m.Email == "" {
 		return false
 	}
 
@@ -37,10 +38,10 @@ func (e *EmailModel) IsValid() bool {
 }
 
 // Validate will check the provided email
-func (r *EmailModel) Validate() (err error) {
+func (m *EmailModel) Validate() (err error) {
 
 	// Validate email
-	if !govalidator.IsEmail(r.Email) {
+	if !govalidator.IsEmail(m.Email) {
 		return e.ErrInvalidEmail
 	}
 
@@ -51,7 +52,7 @@ func (r *EmailModel) Validate() (err error) {
 	}
 
 	// get current email
-	err = dbase.QueryRow("SELECT user_name,user_email FROM users WHERE user_id = ?", r.Uid).Scan(&r.Name, &r.CurrentEmail)
+	err = dbase.QueryRow("SELECT user_name,user_email FROM users WHERE user_id = ?", m.UID).Scan(&m.Name, &m.CurrentEmail)
 	if err == sql.ErrNoRows {
 		return e.ErrUserNotExist
 	} else if err != nil {
@@ -59,7 +60,7 @@ func (r *EmailModel) Validate() (err error) {
 	}
 
 	// we dont care if the email is already the same
-	if r.Email == r.CurrentEmail {
+	if m.Email == m.CurrentEmail {
 		return e.ErrEmailSame
 	}
 
@@ -67,11 +68,11 @@ func (r *EmailModel) Validate() (err error) {
 
 }
 
-// update email
-func (r *EmailModel) Update() (err error) {
+// Update will update the email model
+func (m *EmailModel) Update() (err error) {
 
 	// check model validity
-	if !r.IsValid() {
+	if !m.IsValid() {
 		return errors.New("EmailModel is not valid")
 	}
 
@@ -81,7 +82,7 @@ func (r *EmailModel) Update() (err error) {
 		return
 	}
 
-	_, err = dbase.Exec("UPDATE users SET user_email = ? WHERE user_id = ?", r.Email, r.Uid)
+	_, err = dbase.Exec("UPDATE users SET user_email = ? WHERE user_id = ?", m.Email, m.UID)
 	if err != nil {
 		return
 	}

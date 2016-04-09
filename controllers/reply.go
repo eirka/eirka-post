@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/config"
@@ -145,11 +146,11 @@ func ReplyController(c *gin.Context) {
 		return
 	}
 
-	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
-	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
-	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
+	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
+	threadKey := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
+	imageKey := fmt.Sprintf("%s:%d", "image", m.Ib)
 
-	err = cache.Delete(directory_key, thread_key, image_key)
+	err = cache.Delete(directoryKey, threadKey, imageKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ReplyController.cache.Delete")

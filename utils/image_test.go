@@ -5,8 +5,6 @@ import (
 	crand "crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -17,6 +15,9 @@ import (
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"

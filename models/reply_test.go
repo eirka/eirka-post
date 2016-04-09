@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"testing"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -14,10 +15,10 @@ import (
 func TestReplyIsValid(t *testing.T) {
 
 	reply := ReplyModel{
-		Uid:     0,
+		UID:     0,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "hehehe",
 		Image:   false,
 	}
@@ -28,10 +29,10 @@ func TestReplyIsValid(t *testing.T) {
 func TestReplyIsValidNoImage(t *testing.T) {
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "a cool comment",
 		Image:   false,
 	}
@@ -42,10 +43,10 @@ func TestReplyIsValidNoImage(t *testing.T) {
 func TestReplyIsValidNoCommentNoImage(t *testing.T) {
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "",
 		Image:   false,
 	}
@@ -56,10 +57,10 @@ func TestReplyIsValidNoCommentNoImage(t *testing.T) {
 func TestReplyIsValidImage(t *testing.T) {
 
 	reply := ReplyModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
 		Thread:      1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Comment:     "",
 		Image:       true,
 		Filename:    "test.jpg",
@@ -77,10 +78,10 @@ func TestReplyIsValidImage(t *testing.T) {
 func TestReplyIsValidImageNoStats(t *testing.T) {
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "",
 		Image:   true,
 	}
@@ -91,10 +92,10 @@ func TestReplyIsValidImageNoStats(t *testing.T) {
 func TestReplyIsValidImageBadStats(t *testing.T) {
 
 	reply := ReplyModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
 		Thread:      1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Comment:     "",
 		Image:       true,
 		Filename:    "",
@@ -114,10 +115,10 @@ func TestReplyValidateInputCommentEmpty(t *testing.T) {
 	var err error
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "",
 		Image:   false,
 	}
@@ -134,10 +135,10 @@ func TestReplyValidateInputCommentShort(t *testing.T) {
 	var err error
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "d",
 		Image:   false,
 	}
@@ -154,10 +155,10 @@ func TestReplyValidateInputShortCommentWithImage(t *testing.T) {
 	var err error
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "d",
 		Image:   true,
 	}
@@ -180,10 +181,10 @@ func TestReplyStatus(t *testing.T) {
 	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "d",
 		Image:   true,
 	}
@@ -206,10 +207,10 @@ func TestReplyStatusClosed(t *testing.T) {
 	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).WillReturnRows(rows)
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "d",
 		Image:   true,
 	}
@@ -238,10 +239,10 @@ func TestReplyStatusAutoclose(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "d",
 		Image:   true,
 	}
@@ -271,10 +272,10 @@ func TestReplyPost(t *testing.T) {
 	mock.ExpectCommit()
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "test",
 		Image:   false,
 	}
@@ -306,10 +307,10 @@ func TestReplyPostImage(t *testing.T) {
 	mock.ExpectCommit()
 
 	reply := ReplyModel{
-		Uid:         1,
+		UID:         1,
 		Ib:          1,
 		Thread:      1,
-		Ip:          "10.0.0.1",
+		IP:          "10.0.0.1",
 		Comment:     "test",
 		Image:       true,
 		Filename:    "test.jpg",
@@ -344,10 +345,10 @@ func TestReplyPostRollback(t *testing.T) {
 	mock.ExpectRollback()
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "10.0.0.1",
+		IP:      "10.0.0.1",
 		Comment: "test",
 		Image:   false,
 	}
@@ -366,10 +367,10 @@ func TestReplyPostInvalid(t *testing.T) {
 	var err error
 
 	reply := ReplyModel{
-		Uid:     1,
+		UID:     1,
 		Ib:      1,
 		Thread:  1,
-		Ip:      "",
+		IP:      "",
 		Comment: "test",
 		Image:   false,
 	}

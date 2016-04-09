@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"testing"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -150,7 +151,7 @@ func TestRegister(t *testing.T) {
 	err = register.Register()
 	assert.NoError(t, err, "An error was not expected")
 
-	assert.Equal(t, register.Uid, uint(2), "Error should match")
+	assert.Equal(t, register.UID, uint(2), "Error should match")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 

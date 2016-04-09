@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -74,9 +75,9 @@ func NewTagController(c *gin.Context) {
 	cache := redis.RedisCache
 
 	// Delete redis stuff
-	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
+	tagsKey := fmt.Sprintf("%s:%d", "tags", m.Ib)
 
-	err = cache.Delete(tags_key)
+	err = cache.Delete(tagsKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("NewTagController.cache.Delete")

@@ -8,8 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	// gif support
 	_ "image/gif"
+	// jpeg support
 	_ "image/jpeg"
+	// png support
 	_ "image/png"
 	"io"
 	"math/rand"
@@ -49,6 +52,7 @@ func init() {
 
 }
 
+// FileUploader defines the file processing functions
 type FileUploader interface {
 	// struct integrity
 	IsValid() bool
@@ -77,6 +81,7 @@ type FileUploader interface {
 	avatarToS3() (err error)
 }
 
+// ImageType defines an image and its metadata for processing
 type ImageType struct {
 	File        multipart.File
 	Header      *multipart.FileHeader
@@ -100,6 +105,7 @@ type ImageType struct {
 
 var _ = FileUploader(&ImageType{})
 
+// IsValid will check struct integrity
 func (i *ImageType) IsValid() bool {
 
 	if i.Filename == "" {
@@ -137,6 +143,7 @@ func (i *ImageType) IsValid() bool {
 	return true
 }
 
+// IsValidPost will check final struct integrity
 func (i *ImageType) IsValidPost() bool {
 	if i.OrigWidth == 0 {
 		return false
@@ -157,7 +164,7 @@ func (i *ImageType) IsValidPost() bool {
 	return true
 }
 
-// save an image file
+// SaveImage runs the entire file processing pipeline
 func (i *ImageType) SaveImage() (err error) {
 
 	// check given file ext
@@ -470,19 +477,19 @@ func (i *ImageType) makeFilenames() {
 	rand.Seed(time.Now().UnixNano())
 
 	// Get random 3 digit int to append to unix time
-	rand_t := rand.Intn(899) + 100
+	randTime := rand.Intn(899) + 100
 
 	// Get current unix time
-	time_t := time.Now().Unix()
+	unixTime := time.Now().Unix()
 
 	// Append random int to unix time
-	file_t := fmt.Sprintf("%d%d", time_t, rand_t)
+	filenameTime := fmt.Sprintf("%d%d", unixTime, randTime)
 
 	// Append ext to filename
-	i.Filename = fmt.Sprintf("%s%s", file_t, i.Ext)
+	i.Filename = fmt.Sprintf("%s%s", filenameTime, i.Ext)
 
 	// Append jpg to thumbnail name because it is always a jpg
-	i.Thumbnail = fmt.Sprintf("%ss.jpg", file_t)
+	i.Thumbnail = fmt.Sprintf("%ss.jpg", filenameTime)
 
 	// set the full file path
 	i.Filepath = filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
@@ -504,7 +511,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 		imagef = fmt.Sprintf("%s[0]", i.Filepath)
 	}
 
-	orig_dimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
+	originalDimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
 
 	var args []string
 
@@ -512,7 +519,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	if i.avatar {
 		args = []string{
 			"-size",
-			orig_dimensions,
+			originalDimensions,
 			imagef,
 			"-background",
 			"none",
@@ -530,7 +537,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 			"white",
 			"-flatten",
 			"-size",
-			orig_dimensions,
+			originalDimensions,
 			"-resize",
 			fmt.Sprintf("%dx%d>", maxwidth, maxheight),
 			"-quality",

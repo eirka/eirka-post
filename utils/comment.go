@@ -6,8 +6,9 @@ import (
 	"github.com/eirka/eirka-post/akismet"
 )
 
+// Akismet holds information for an akismet query
 type Akismet struct {
-	Ip      string
+	IP      string
 	Name    string
 	Ua      string
 	Referer string
@@ -31,7 +32,7 @@ func (c *Akismet) Check() (err error) {
 	}
 
 	comment := akismet.Comment{
-		UserIP:    c.Ip,
+		UserIP:    c.IP,
 		UserAgent: c.Ua,
 		Content:   c.Comment,
 		Referrer:  c.Referer,

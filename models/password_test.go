@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"testing"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -15,7 +16,7 @@ func TestPasswordValidateShortNewPw(t *testing.T) {
 	var err error
 
 	password := PasswordModel{
-		Uid:   1,
+		UID:   1,
 		Name:  "test",
 		OldPw: "oldpassword",
 		NewPw: "short",
@@ -33,7 +34,7 @@ func TestPasswordValidateShortOldPw(t *testing.T) {
 	var err error
 
 	password := PasswordModel{
-		Uid:   1,
+		UID:   1,
 		Name:  "test",
 		OldPw: "short",
 		NewPw: "newpassword",
@@ -51,7 +52,7 @@ func TestPasswordValidateEmptyNewPw(t *testing.T) {
 	var err error
 
 	password := PasswordModel{
-		Uid:   1,
+		UID:   1,
 		Name:  "test",
 		OldPw: "oldpassword",
 		NewPw: "",
@@ -69,7 +70,7 @@ func TestPasswordValidateEmptyOldPw(t *testing.T) {
 	var err error
 
 	password := PasswordModel{
-		Uid:   1,
+		UID:   1,
 		Name:  "test",
 		OldPw: "",
 		NewPw: "newpassword",
@@ -85,7 +86,7 @@ func TestPasswordValidateEmptyOldPw(t *testing.T) {
 func TestPasswordIsValid(t *testing.T) {
 
 	password := PasswordModel{
-		Uid:   1,
+		UID:   1,
 		Name:  "test",
 		OldPw: "blah",
 		NewPw: "newpassword",
@@ -107,7 +108,7 @@ func TestPasswordUpdate(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	password := PasswordModel{
-		Uid:       2,
+		UID:       2,
 		Name:      "test",
 		OldPw:     "blah",
 		NewPw:     "newpassword",
@@ -126,7 +127,7 @@ func TestPasswordUpdateInvalid(t *testing.T) {
 	var err error
 
 	password := PasswordModel{
-		Uid:       1,
+		UID:       1,
 		NewHashed: []byte("fake"),
 	}
 

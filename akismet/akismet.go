@@ -39,7 +39,7 @@ func (c *Config) SubmitSpamURL() string {
 	return fmt.Sprintf("http://%v.rest.akismet.com/1.1/submit-spam", c.APIKey)
 }
 
-// SubmitSpamURL returns the akismet api's ham submission URL
+// SubmitHamURL returns the akismet api's ham submission URL
 func (c *Config) SubmitHamURL() string {
 	return fmt.Sprintf("http://%v.rest.akismet.com/1.1/submit-ham", c.APIKey)
 }
@@ -96,14 +96,14 @@ func (comment *Comment) MakePOST(config *Config, url string) (resp *http.Respons
 }
 
 var (
-	ErrSpam           error = errors.New("Comment is spam")
-	ErrInvalidRequest error = errors.New("Malformed request")
+	errSpam           = errors.New("Comment is spam")
+	errInvalidRequest = errors.New("Malformed request")
 )
 
 // CommentCheck submits the given comment to Akismet, and
-// returns nil if the comment isn't spam; ErrSpam if it is;
-// ErrInvalidRequest if the comment or configuration is incorrect;
-// and ErrUnknown otherwise.
+// returns nil if the comment isn't spam; errSpam if it is;
+// errInvalidRequest if the comment or configuration is incorrect;
+// and errUnknown otherwise.
 func CommentCheck(config *Config, comment Comment) error {
 	resp, err := comment.MakePOST(config, config.CommentCheckURL())
 	if err != nil {
@@ -112,20 +112,24 @@ func CommentCheck(config *Config, comment Comment) error {
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
 	bodyStr := string(body)
 	switch bodyStr {
 	case "false":
 		return nil
 	case "true":
-		return ErrSpam
+		return errSpam
 	case "invalid":
-		return ErrInvalidRequest
+		return errInvalidRequest
 	}
-	return ErrUnknown
+	return errUnknown
 }
 
 // CommentSubmitHam submits the given comment to Akismet as Ham
-// Returns nil if the submission was successful, or ErrUnknown
+// Returns nil if the submission was successful, or errUnknown
 // otherwise.
 func CommentSubmitHam(config *Config, comment Comment) error {
 	resp, err := comment.MakePOST(config, config.SubmitHamURL())
@@ -135,16 +139,20 @@ func CommentSubmitHam(config *Config, comment Comment) error {
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
 	bodyStr := string(body)
 	switch bodyStr {
 	case "Thanks for making the web a better place.":
 		return nil
 	}
-	return ErrUnknown
+	return errUnknown
 }
 
 // CommentSubmitSpam submits the given comment to Akismet as Spam
-// Returns nil if the submission was successful, or ErrUnknown
+// Returns nil if the submission was successful, or errUnknown
 // otherwise.
 func CommentSubmitSpam(config *Config, comment Comment) error {
 	resp, err := comment.MakePOST(config, config.SubmitHamURL())
@@ -154,12 +162,16 @@ func CommentSubmitSpam(config *Config, comment Comment) error {
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
 	bodyStr := string(body)
 	switch bodyStr {
 	case "Thanks for making the web a better place.":
 		return nil
 	}
-	return ErrUnknown
+	return errUnknown
 }
 
 // request is a map of key:value pairs to be POSTed to the api
@@ -183,16 +195,16 @@ func (req request) Reader() *strings.Reader {
 }
 
 var (
-	ErrInvalidKey error = errors.New("Key invalid")
-	ErrUnknown    error = errors.New("Unknown response")
+	errInvalidKey = errors.New("Key invalid")
+	errUnknown    = errors.New("Unknown response")
 )
 
 // VerifyKey checks the configuration with Akismet. This should be performed
 // at application startup, otherwise future api calls may fail due to invalid
 // configuration
 // Returns nil if the configuration is valid;
-// returns ErrInvalidKey if it is not;
-// returns ErrUnknown otherwise.
+// returns errInvalidKey if it is not;
+// returns errUnknown otherwise.
 func VerifyKey(config *Config) error {
 
 	client := &http.Client{
@@ -219,6 +231,9 @@ func VerifyKey(config *Config) error {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 
 	bodyStr := string(body)
 
@@ -226,8 +241,8 @@ func VerifyKey(config *Config) error {
 	case "valid":
 		return nil
 	case "invalid":
-		return ErrInvalidKey
+		return errInvalidKey
 	}
 
-	return ErrUnknown
+	return errUnknown
 }

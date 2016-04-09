@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"testing"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -15,7 +16,7 @@ func TestFavoritesValidateInput(t *testing.T) {
 	var err error
 
 	favorite := FavoritesModel{
-		Uid:   1,
+		UID:   1,
 		Image: 1,
 	}
 
@@ -29,7 +30,7 @@ func TestFavoritesValidateInput(t *testing.T) {
 func TestFavoritesIsValid(t *testing.T) {
 
 	favorite := FavoritesModel{
-		Uid:   1,
+		UID:   1,
 		Image: 1,
 	}
 
@@ -48,7 +49,7 @@ func TestFavoritesStatus(t *testing.T) {
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites`).WillReturnRows(rows)
 
 	favorite := FavoritesModel{
-		Uid:   2,
+		UID:   2,
 		Image: 1,
 	}
 
@@ -74,7 +75,7 @@ func TestFavoritesStatusRemove(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	favorite := FavoritesModel{
-		Uid:   2,
+		UID:   2,
 		Image: 1,
 	}
 
@@ -99,7 +100,7 @@ func TestFavoritesPost(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	favorite := FavoritesModel{
-		Uid:   2,
+		UID:   2,
 		Image: 1,
 	}
 
@@ -115,7 +116,7 @@ func TestFavoritesPostInvalid(t *testing.T) {
 	var err error
 
 	favorite := FavoritesModel{
-		Uid:   1,
+		UID:   1,
 		Image: 1,
 	}
 
