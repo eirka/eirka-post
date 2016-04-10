@@ -22,7 +22,7 @@ func Bans() gin.HandlerFunc {
 
 		if check {
 			c.JSON(e.ErrorMessage(e.ErrUnauthorized))
-			c.Error(e.ErrIpBanned).SetMeta("Bans.CheckBannedIps")
+			c.Error(e.ErrIPBanned).SetMeta("Bans.CheckBannedIps")
 			c.Abort()
 			return
 		}

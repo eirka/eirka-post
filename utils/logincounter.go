@@ -16,7 +16,7 @@ var (
 func LoginCounter(userid uint, ip string) (err error) {
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	// key is like login:21
 	key := fmt.Sprintf("login:%s:%d", ip, userid)
