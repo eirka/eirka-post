@@ -72,7 +72,7 @@ func NewTagController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	// Delete redis stuff
 	tagsKey := fmt.Sprintf("%s:%d", "tags", m.Ib)
@@ -87,10 +87,10 @@ func NewTagController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditNewTag})
 
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.BoardLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditNewTag,
 		Info:   fmt.Sprintf("%s", m.Tag),
 	}

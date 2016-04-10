@@ -36,7 +36,7 @@ func PasswordController(c *gin.Context) {
 
 	// Set parameters to PasswordModel
 	m := models.PasswordModel{
-		Uid:   userdata.Id,
+		UID:   userdata.ID,
 		OldPw: pf.OldPw,
 		NewPw: pf.NewPw,
 	}
@@ -86,10 +86,10 @@ func PasswordController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditChangePassword})
 
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     pf.Ib,
 		Type:   audit.UserLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditChangePassword,
 		Info:   m.Name,
 	}

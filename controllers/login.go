@@ -49,7 +49,7 @@ func LoginController(c *gin.Context) {
 	}
 
 	// rate limit login
-	err = u.LoginCounter(user.Id, c.ClientIP())
+	err = u.LoginCounter(user.ID, c.ClientIP())
 	if err != nil {
 		c.JSON(429, gin.H{"error_message": err.Error()})
 		c.Error(err).SetMeta("LoginController.LoginCounter")

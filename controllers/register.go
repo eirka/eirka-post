@@ -82,7 +82,7 @@ func RegisterController(c *gin.Context) {
 	}
 
 	// make a random avatar for the new user
-	err = u.GenerateAvatar(m.Uid)
+	err = u.GenerateAvatar(m.UID)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("RegisterController.GenerateAvatar")
@@ -92,10 +92,10 @@ func RegisterController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditRegister})
 
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     rf.Ib,
 		Type:   audit.UserLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditRegister,
 		Info:   m.Name,
 	}

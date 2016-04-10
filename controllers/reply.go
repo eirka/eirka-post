@@ -50,8 +50,8 @@ func ReplyController(c *gin.Context) {
 
 	// Set parameters to ReplyModel
 	m := models.ReplyModel{
-		Uid:     userdata.Id,
-		Ip:      c.ClientIP(),
+		UID:     userdata.ID,
+		IP:      c.ClientIP(),
 		Comment: rf.Comment,
 		Thread:  rf.Thread,
 		Image:   true,
@@ -90,7 +90,7 @@ func ReplyController(c *gin.Context) {
 
 		// Check comment in SFS and Akismet
 		akismet := u.Akismet{
-			Ip:      m.Ip,
+			IP:      m.IP,
 			Ua:      req.UserAgent(),
 			Referer: req.Referer(),
 			Comment: m.Comment,
@@ -137,7 +137,7 @@ func ReplyController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	err = redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib)).Delete()
 	if err != nil {
@@ -168,10 +168,10 @@ func ReplyController(c *gin.Context) {
 	c.Redirect(303, redirect)
 
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.BoardLog,
-		Ip:     m.Ip,
+		IP:     m.IP,
 		Action: audit.AuditReply,
 		Info:   fmt.Sprintf("%d", m.Thread),
 	}

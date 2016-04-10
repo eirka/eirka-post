@@ -29,7 +29,7 @@ func TestEmailController(t *testing.T) {
 	router.POST("/email", EmailController)
 
 	user := user.DefaultUser()
-	user.SetId(2)
+	user.SetID(2)
 	user.SetAuthenticated()
 
 	//	hash, err := user.HashPassword("testpass")

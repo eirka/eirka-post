@@ -51,8 +51,8 @@ func ThreadController(c *gin.Context) {
 
 	// Set parameters to ThreadModel
 	m := models.ThreadModel{
-		Uid:     userdata.Id,
-		Ip:      c.ClientIP(),
+		UID:     userdata.ID,
+		IP:      c.ClientIP(),
 		Title:   tf.Title,
 		Comment: tf.Comment,
 		Ib:      tf.Ib,
@@ -78,7 +78,7 @@ func ThreadController(c *gin.Context) {
 
 	// Check comment in SFS and Akismet
 	akismet := u.Akismet{
-		Ip:      m.Ip,
+		IP:      m.IP,
 		Ua:      req.UserAgent(),
 		Referer: req.Referer(),
 		Comment: m.Comment,
@@ -119,7 +119,7 @@ func ThreadController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	// Delete redis stuff
 	err = redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib)).Delete()
@@ -149,10 +149,10 @@ func ThreadController(c *gin.Context) {
 	c.Redirect(303, redirect)
 
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.BoardLog,
-		Ip:     m.Ip,
+		IP:     m.IP,
 		Action: audit.AuditNewThread,
 		Info:   fmt.Sprintf("%s", m.Title),
 	}

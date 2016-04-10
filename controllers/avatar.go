@@ -41,7 +41,7 @@ func AvatarController(c *gin.Context) {
 	}
 
 	// set the user id as the ib ;D
-	image.Ib = userdata.Id
+	image.Ib = userdata.ID
 
 	// Save the image to a file
 	err = image.SaveAvatar()

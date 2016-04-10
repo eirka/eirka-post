@@ -34,7 +34,7 @@ func FavoritesController(c *gin.Context) {
 
 	// Set parameters to FavoritesModel
 	m := models.FavoritesModel{
-		Uid:   userdata.Id,
+		UID:   userdata.ID,
 		Image: ff.Image,
 	}
 

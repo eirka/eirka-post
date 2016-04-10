@@ -35,7 +35,7 @@ func EmailController(c *gin.Context) {
 
 	// Set parameters to EmailModel
 	m := models.EmailModel{
-		Uid:   userdata.Id,
+		UID:   userdata.ID,
 		Email: ef.Email,
 	}
 
@@ -58,10 +58,10 @@ func EmailController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditEmailUpdate})
 
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     ef.Ib,
 		Type:   audit.UserLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditEmailUpdate,
 		Info:   m.Name,
 	}
