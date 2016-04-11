@@ -22,7 +22,7 @@ type ThreadModel struct {
 	Filename    string
 	Thumbnail   string
 	MD5         string
-	SHA         []byte
+	SHA         string
 	OrigWidth   int
 	OrigHeight  int
 	ThumbWidth  int

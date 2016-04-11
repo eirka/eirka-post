@@ -93,7 +93,7 @@ type ImageType struct {
 	Thumbpath   string
 	Ext         string
 	MD5         string
-	SHA         []byte
+	SHA         string
 	OrigWidth   int
 	OrigHeight  int
 	ThumbWidth  int
@@ -138,7 +138,7 @@ func (i *ImageType) IsValid() bool {
 		return false
 	}
 
-	if i.SHA == nil {
+	if i.SHA == "" {
 		return false
 	}
 
@@ -320,7 +320,7 @@ func (i *ImageType) getHash() (err error) {
 	}
 
 	// Set sha1
-	i.SHA = sha.Sum(nil)
+	i.SHA = hex.EncodeToString(sha.Sum(nil))
 
 	return
 
