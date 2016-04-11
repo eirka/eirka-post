@@ -16,14 +16,14 @@ import (
 	// png support
 	_ "image/png"
 	"io"
-	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
+
+	shortid "github.com/ventu-io/go-shortid"
 
 	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
@@ -490,23 +490,17 @@ func (i *ImageType) saveFile() (err error) {
 // Make a random unix time filename
 func (i *ImageType) makeFilenames() {
 
-	// Create seed for random
-	rand.Seed(time.Now().UnixNano())
+	// get new short id generator
+	sid := shortid.MustNew(1, shortid.DefaultABC, 9001)
 
-	// Get random 3 digit int to append to unix time
-	randTime := rand.Intn(899) + 100
-
-	// Get current unix time
-	unixTime := time.Now().Unix()
-
-	// Append random int to unix time
-	filenameTime := fmt.Sprintf("%d%d", unixTime, randTime)
+	// generate filename
+	filename := sid.MustGenerate()
 
 	// Append ext to filename
-	i.Filename = fmt.Sprintf("%s%s", filenameTime, i.Ext)
+	i.Filename = fmt.Sprintf("%s%s", filename, i.Ext)
 
 	// Append jpg to thumbnail name because it is always a jpg
-	i.Thumbnail = fmt.Sprintf("%ss.jpg", filenameTime)
+	i.Thumbnail = fmt.Sprintf("%ss.jpg", filename)
 
 	// set the full file path
 	i.Filepath = filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
