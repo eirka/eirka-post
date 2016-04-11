@@ -173,7 +173,7 @@ func TestCheckReqBadExtExploit1(t *testing.T) {
 		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
 
-	err = img.getMD5()
+	err = img.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 	}
@@ -261,7 +261,7 @@ func TestGetMD5(t *testing.T) {
 		assert.NotEmpty(t, img1.image, "File bytes should be returned")
 	}
 
-	err = img1.getMD5()
+	err = img1.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
 	}
@@ -277,7 +277,7 @@ func TestGetMD5(t *testing.T) {
 		assert.NotEmpty(t, img2.image, "File bytes should be returned")
 	}
 
-	err = img2.getMD5()
+	err = img2.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img2.MD5, "MD5 should be returned")
 	}
@@ -313,7 +313,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 		assert.NotEmpty(t, img1.image, "File bytes should be returned")
 	}
 
-	err = img1.getMD5()
+	err = img1.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
 	}
@@ -340,7 +340,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 		assert.NotEmpty(t, img2.image, "File bytes should be returned")
 	}
 
-	err = img2.getMD5()
+	err = img2.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img2.MD5, "MD5 should be returned")
 	}
@@ -421,7 +421,7 @@ func TestCheckMagicGood(t *testing.T) {
 		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
 
-	err = img.getMD5()
+	err = img.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 	}
@@ -446,7 +446,7 @@ func TestCheckMagicBad(t *testing.T) {
 		assert.NotEmpty(t, img.image, "File bytes should be returned")
 	}
 
-	err = img.getMD5()
+	err = img.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 	}

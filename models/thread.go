@@ -22,6 +22,7 @@ type ThreadModel struct {
 	Filename    string
 	Thumbnail   string
 	MD5         string
+	SHA         []byte
 	OrigWidth   int
 	OrigHeight  int
 	ThumbWidth  int
@@ -161,8 +162,8 @@ func (m *ThreadModel) Post() (err error) {
 	}
 
 	// insert into images table
-	_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)",
-		pID, m.Filename, m.Thumbnail, m.MD5, m.OrigHeight, m.OrigWidth, m.ThumbHeight, m.ThumbWidth)
+	_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_sha,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)",
+		pID, m.Filename, m.Thumbnail, m.MD5, m.SHA, m.OrigHeight, m.OrigWidth, m.ThumbHeight, m.ThumbWidth)
 	if err != nil {
 		return
 	}

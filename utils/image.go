@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"crypto/md5"
+	"crypto/sha1"
 	"database/sql"
 	"encoding/hex"
 	"errors"
@@ -62,7 +63,7 @@ type FileUploader interface {
 	SaveImage() (err error)
 	checkReqExt() (err error)
 	copyBytes() (err error)
-	getMD5() (err error)
+	getHash() (err error)
 	checkBanned() (err error)
 	checkDuplicate() (err error)
 	checkMagic() (err error)
@@ -92,6 +93,7 @@ type ImageType struct {
 	Thumbpath   string
 	Ext         string
 	MD5         string
+	SHA         []byte
 	OrigWidth   int
 	OrigHeight  int
 	ThumbWidth  int
@@ -133,6 +135,10 @@ func (i *ImageType) IsValid() bool {
 	}
 
 	if i.MD5 == "" {
+		return false
+	}
+
+	if i.SHA == nil {
 		return false
 	}
 
@@ -180,7 +186,7 @@ func (i *ImageType) SaveImage() (err error) {
 	}
 
 	// get file md5
-	err = i.getMD5()
+	err = i.getHash()
 	if err != nil {
 		return
 	}
@@ -292,11 +298,13 @@ func (i *ImageType) copyBytes() (err error) {
 }
 
 // Get image MD5 and write file into buffer
-func (i *ImageType) getMD5() (err error) {
+func (i *ImageType) getHash() (err error) {
 
 	hasher := md5.New()
 
-	// Save file and also read into hasher for md5
+	sha := sha1.New()
+
+	// read into hasher for md5
 	_, err = io.Copy(hasher, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
 		return errors.New("Problem creating MD5 hash")
@@ -304,6 +312,15 @@ func (i *ImageType) getMD5() (err error) {
 
 	// Set md5sum from hasher
 	i.MD5 = hex.EncodeToString(hasher.Sum(nil))
+
+	// read into hasher for md5
+	_, err = io.Copy(sha, bytes.NewReader(i.image.Bytes()))
+	if err != nil {
+		return errors.New("Problem creating SHA1 hash")
+	}
+
+	// Set sha1
+	i.SHA = sha.Sum(nil)
 
 	return
 

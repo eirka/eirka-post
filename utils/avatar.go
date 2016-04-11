@@ -28,8 +28,8 @@ func (i *ImageType) SaveAvatar() (err error) {
 		return
 	}
 
-	// get file md5
-	err = i.getMD5()
+	// get file hash
+	err = i.getHash()
 	if err != nil {
 		return
 	}
