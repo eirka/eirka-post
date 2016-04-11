@@ -200,7 +200,7 @@ func (m *ReplyModel) Post() (err error) {
 		}
 
 		// insert image if there is one
-		_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_sha,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?)",
+		_, err = tx.Exec("INSERT INTO images (post_id,image_file,image_thumbnail,image_hash,image_sha,image_orig_height,image_orig_width,image_tn_height,image_tn_width) VALUES (?,?,?,?,?,?,?,?,?)",
 			pID, m.Filename, m.Thumbnail, m.MD5, m.SHA, m.OrigHeight, m.OrigWidth, m.ThumbHeight, m.ThumbWidth)
 		if err != nil {
 			return err
