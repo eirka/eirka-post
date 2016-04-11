@@ -182,14 +182,17 @@ CREATE TABLE `images` (
   `image_file` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `image_thumbnail` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `image_hash` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `image_sha` char(40) COLLATE utf8_unicode_ci NOT NULL,
   `image_orig_height` smallint(5) unsigned NOT NULL DEFAULT '0',
   `image_orig_width` smallint(5) unsigned NOT NULL DEFAULT '0',
   `image_tn_height` smallint(5) unsigned NOT NULL DEFAULT '0',
   `image_tn_width` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`image_id`),
+  UNIQUE KEY `image_filename_uniq` (`image_file`),
   KEY `post_id_idx` (`post_id`),
   KEY `p_id_i_id` (`post_id`,`image_id`),
   KEY `hash_idx` (`image_hash`),
+  KEY `image_sha_idx` (`image_sha`),
   CONSTRAINT `post_id` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
