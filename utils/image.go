@@ -32,6 +32,9 @@ import (
 	local "github.com/eirka/eirka-post/config"
 )
 
+// Allowed chars for filenames
+const fileChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 // valid file extensions
 var validExt = map[string]bool{
 	".jpg":  true,
@@ -491,7 +494,7 @@ func (i *ImageType) saveFile() (err error) {
 func (i *ImageType) makeFilenames() {
 
 	// get new short id generator
-	sid := shortid.MustNew(1, shortid.DefaultABC, 9001)
+	sid := shortid.MustNew(1, fileChars, 9001)
 
 	// generate filename
 	filename := sid.MustGenerate()
