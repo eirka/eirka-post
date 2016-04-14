@@ -88,6 +88,7 @@ func GenerateAvatar(uid uint) (err error) {
 		image:      new(bytes.Buffer),
 		Ib:         uid,
 		MD5:        "fake",
+		SHA:        "fake",
 		mime:       "image/png",
 	}
 
