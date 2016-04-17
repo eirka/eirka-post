@@ -173,7 +173,7 @@ func TestThreadPost(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(7, 1))
 
 	mock.ExpectExec("INSERT INTO images").
-		WithArgs(7, "test.jpg", "tests.jpg", "test", 1000, 1000, 100, 100).
+		WithArgs(7, "test.jpg", "tests.jpg", "test", "test", 1000, 1000, 100, 100).
 		WillReturnResult(sqlmock.NewResult(2, 1))
 
 	mock.ExpectCommit()
