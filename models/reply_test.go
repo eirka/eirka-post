@@ -316,6 +316,7 @@ func TestReplyPostImage(t *testing.T) {
 		Filename:    "test.jpg",
 		Thumbnail:   "tests.jpg",
 		MD5:         "test",
+		SHA:         "test",
 		OrigWidth:   1000,
 		OrigHeight:  1000,
 		ThumbWidth:  100,
