@@ -18,7 +18,7 @@ func LoginCounter(userid uint, ip string) (err error) {
 	// Initialize cache handle
 	cache := redis.Cache
 
-	// key is like login:21
+	// key is like login:10.0.0.1:21
 	key := fmt.Sprintf("login:%s:%d", ip, userid)
 
 	// increment login key
@@ -27,12 +27,13 @@ func LoginCounter(userid uint, ip string) (err error) {
 		return e.ErrInternalError
 	}
 
-	// increment login key
+	// set expire ib key
 	err = cache.Expire(key, limitSeconds)
 	if err != nil {
 		return e.ErrInternalError
 	}
 
+	// return error if we are at the max
 	if result >= maxLogins {
 		return e.ErrMaxLogins
 	}
