@@ -176,6 +176,7 @@ func TestCheckReqBadExtExploit1(t *testing.T) {
 	err = img.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img.SHA, "SHA should be returned")
 	}
 
 	err = img.checkMagic()
@@ -264,6 +265,7 @@ func TestGetMD5(t *testing.T) {
 	err = img1.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img1.SHA, "SHA should be returned")
 	}
 
 	req2 := formJpegRequest(300, "test.jpeg")
@@ -280,9 +282,11 @@ func TestGetMD5(t *testing.T) {
 	err = img2.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img2.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img2.SHA, "SHA should be returned")
 	}
 
 	assert.NotEqual(t, img1.MD5, img2.MD5, "MD5 should not be the same")
+	assert.NotEqual(t, img1.SHA, img2.SHA, "SHA should not be the same")
 
 }
 
@@ -316,6 +320,7 @@ func TestGetMD5Duplicate(t *testing.T) {
 	err = img1.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img1.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img1.SHA, "SHA should be returned")
 	}
 
 	b.Reset()
@@ -343,9 +348,11 @@ func TestGetMD5Duplicate(t *testing.T) {
 	err = img2.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img2.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img2.SHA, "SHA should be returned")
 	}
 
 	assert.Equal(t, img1.MD5, img2.MD5, "MD5 should be the same")
+	assert.Equal(t, img1.SHA, img2.SHA, "SHA should be the same")
 	assert.Equal(t, img1.image.Len(), img2.image.Len(), "Size should be the same")
 }
 
@@ -424,6 +431,7 @@ func TestCheckMagicGood(t *testing.T) {
 	err = img.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img.SHA, "SHA should be returned")
 	}
 
 	err = img.checkMagic()
@@ -449,6 +457,7 @@ func TestCheckMagicBad(t *testing.T) {
 	err = img.getHash()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img.SHA, "SHA should be returned")
 	}
 
 	err = img.checkMagic()
@@ -592,6 +601,7 @@ func TestSaveFile(t *testing.T) {
 	err := img.SaveImage()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+		assert.NotEmpty(t, img.SHA, "SHA should be returned")
 		assert.Equal(t, img.Ext, ".jpg", "Ext should be the same")
 		assert.Equal(t, img.mime, "image/jpeg", "Mime type should be the same")
 		assert.Equal(t, img.OrigHeight, 300, "Height should be the same")
