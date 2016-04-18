@@ -140,7 +140,8 @@ func ReplyController(c *gin.Context) {
 	// Initialize cache handle
 	cache := redis.Cache
 
-	err = redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib)).Delete()
+	// needs a fake hash index
+	err = redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib), "0").Delete()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ReplyController.cache.Delete")
