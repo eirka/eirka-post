@@ -6,60 +6,24 @@ import (
 	"os"
 )
 
-// Settings holds the current config options
-var Settings *Config
-
-// Config represents the possible configurable parameters
-type Config struct {
-	Post struct {
-		// Settings for daemon
-		Address string
-		Port    uint
-	}
-
-	Directories struct {
-		// Storage directory for images
-		ImageDir     string
-		ThumbnailDir string
-	}
-
-	// sites for CORS
-	CORS struct {
-		Sites []string
-	}
-
-	Database struct {
-		// Database connection settings
-		User           string
-		Password       string
-		Proto          string
-		Host           string
-		Database       string
-		MaxIdle        int
-		MaxConnections int
-	}
-
-	Redis struct {
-		// Redis address and max pool connections
-		Protocol       string
-		Address        string
-		MaxIdle        int
-		MaxConnections int
-	}
-
-	// HMAC secret for bcrypt
-	Session struct {
-		Secret string
-	}
-}
-
 func init() {
 	file, err := os.Open("/etc/pram/pram.conf")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		// file was not found so use default settings
+		Settings = &Config{
+			Post: Post{
+				Host: "127.0.0.1",
+				Port: 5015,
+			},
+			Directories: Directories{
+				ImageDir:     "/tmp/eirka/src/",
+				ThumbnailDir: "/tmp/eirka/thumb/",
+			},
+		}
+		return
 	}
 
+	// if the file is found fill settings with json
 	Settings = &Config{}
 
 	decoder := json.NewDecoder(file)
@@ -70,4 +34,59 @@ func init() {
 		os.Exit(1)
 	}
 
+}
+
+// Settings holds the current config options
+var Settings *Config
+
+// Config represents the possible configurable parameters
+// for the local daemon
+type Config struct {
+	Post        Post
+	Directories Directories
+	CORS        CORS
+	Database    Database
+	Redis       Redis
+	Session     Session
+}
+
+// Post sets what the daemon listens on
+type Post struct {
+	Host                   string
+	Port                   uint
+	DatabaseMaxIdle        int
+	DatabaseMaxConnections int
+	RedisMaxIdle           int
+	RedisMaxConnections    int
+}
+
+// Database holds the connection settings for MySQL
+type Database struct {
+	Host     string
+	Protocol string
+	User     string
+	Password string
+	Database string
+}
+
+// Redis holds the connection settings for the redis cache
+type Redis struct {
+	Host     string
+	Protocol string
+}
+
+// Directories sets where files will be stored locally
+type Directories struct {
+	ImageDir     string
+	ThumbnailDir string
+}
+
+// CORS is a list of allowed remote addresses
+type CORS struct {
+	Sites []string
+}
+
+// Session holds secret for JWT key
+type Session struct {
+	Secret string
 }

@@ -18,11 +18,11 @@ func TestSaveAvatar(t *testing.T) {
 
 		User:           local.Settings.Database.User,
 		Password:       local.Settings.Database.Password,
-		Proto:          local.Settings.Database.Proto,
+		Proto:          local.Settings.Database.Protocol,
 		Host:           local.Settings.Database.Host,
 		Database:       local.Settings.Database.Database,
-		MaxIdle:        local.Settings.Database.MaxIdle,
-		MaxConnections: local.Settings.Database.MaxConnections,
+		MaxIdle:        local.Settings.Post.DatabaseMaxIdle,
+		MaxConnections: local.Settings.Post.DatabaseMaxConnections,
 	}
 
 	// Set up DB connection
