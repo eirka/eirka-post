@@ -20,16 +20,16 @@ func init() {
 
 	var err error
 
-	// test for avprobe
-	_, err = exec.Command("avprobe", "-version").Output()
+	// test for ffprobe
+	_, err = exec.Command("ffprobe", "-version").Output()
 	if err != nil {
-		panic("avprobe not found")
+		panic("ffprobe not found")
 	}
 
-	// test for avconv
-	_, err = exec.Command("avconv", "-version").Output()
+	// test for ffmpeg
+	_, err = exec.Command("ffmpeg", "-version").Output()
 	if err != nil {
-		panic("avconv not found")
+		panic("ffmpeg not found")
 	}
 
 }
@@ -37,36 +37,36 @@ func init() {
 // check webm metadata to make sure its the correct type of video, size, etc
 func (i *ImageType) checkWebM() (err error) {
 
-	avprobeArgs := []string{
+	ffprobeArgs := []string{
 		"-v",
 		"quiet",
-		"-of",
+		"-print_format",
 		"json",
 		"-show_format",
 		"-show_streams",
 		i.Filepath,
 	}
 
-	cmd, err := exec.Command("avprobe", avprobeArgs...).Output()
+	cmd, err := exec.Command("ffprobe", ffprobeArgs...).Output()
 	if err != nil {
 		return errors.New("Problem decoding webm")
 	}
 
-	avprobe := avprobe{}
+	ffprobe := ffprobe{}
 
-	err = json.Unmarshal(cmd, &avprobe)
+	err = json.Unmarshal(cmd, &ffprobe)
 	if err != nil {
 		return errors.New("Problem decoding webm")
 	}
 
 	switch {
-	case avprobe.Format.FormatName != "matroska,webm":
-		return errors.New("File is not vp8 video")
-	case !codecs[strings.ToLower(avprobe.Streams[0].CodecName)]:
+	case ffprobe.Format.FormatName != "matroska,webm":
+		return errors.New("File is not a WebM")
+	case !codecs[strings.ToLower(ffprobe.Streams[0].CodecName)]:
 		return errors.New("File is not allowed WebM codec")
 	}
 
-	duration, err := strconv.ParseFloat(avprobe.Format.Duration, 64)
+	duration, err := strconv.ParseFloat(ffprobe.Format.Duration, 64)
 	if err != nil {
 		return errors.New("Problem decoding WebM")
 	}
@@ -74,13 +74,13 @@ func (i *ImageType) checkWebM() (err error) {
 	// set file duration
 	i.duration = int(duration)
 
-	originalSize, err := strconv.ParseFloat(avprobe.Format.Size, 64)
+	originalSize, err := strconv.ParseFloat(ffprobe.Format.Size, 64)
 	if err != nil {
 		return
 	}
 
-	i.OrigWidth = avprobe.Streams[0].Width
-	i.OrigHeight = avprobe.Streams[0].Height
+	i.OrigWidth = ffprobe.Streams[0].Width
+	i.OrigHeight = ffprobe.Streams[0].Height
 
 	// Check against maximum sizes
 	switch {
@@ -114,7 +114,7 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 		timepoint = "00:00:00"
 	}
 
-	avconvArgs := []string{
+	ffmpegArgs := []string{
 		"-i",
 		i.Filepath,
 		"-v",
@@ -129,8 +129,8 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 		i.Thumbpath,
 	}
 
-	// Make an image of first frame with avconv
-	_, err = exec.Command("avconv", avconvArgs...).Output()
+	// Make an image of first frame with ffmpeg
+	_, err = exec.Command("ffmpeg", ffmpegArgs...).Output()
 	if err != nil {
 		return errors.New("Problem decoding WebM")
 	}
@@ -139,18 +139,8 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 
 }
 
-// avprobe json format
-type avprobe struct {
-	Format struct {
-		Filename       string `json:"filename"`
-		NbStreams      int    `json:"nb_streams"`
-		FormatName     string `json:"format_name"`
-		FormatLongName string `json:"format_long_name"`
-		StartTime      string `json:"start_time"`
-		Duration       string `json:"duration"`
-		Size           string `json:"size"`
-		BitRate        string `json:"bit_rate"`
-	} `json:"format"`
+// ffprobe json format
+type ffprobe struct {
 	Streams []struct {
 		Index              int    `json:"index"`
 		CodecName          string `json:"codec_name"`
@@ -166,9 +156,33 @@ type avprobe struct {
 		DisplayAspectRatio string `json:"display_aspect_ratio"`
 		PixFmt             string `json:"pix_fmt"`
 		Level              int    `json:"level"`
+		RFrameRate         string `json:"r_frame_rate"`
 		AvgFrameRate       string `json:"avg_frame_rate"`
 		TimeBase           string `json:"time_base"`
+		StartPts           int    `json:"start_pts"`
 		StartTime          string `json:"start_time"`
-		Duration           string `json:"duration"`
+		Disposition        struct {
+			Default         int `json:"default"`
+			Dub             int `json:"dub"`
+			Original        int `json:"original"`
+			Comment         int `json:"comment"`
+			Lyrics          int `json:"lyrics"`
+			Karaoke         int `json:"karaoke"`
+			Forced          int `json:"forced"`
+			HearingImpaired int `json:"hearing_impaired"`
+			VisualImpaired  int `json:"visual_impaired"`
+			CleanEffects    int `json:"clean_effects"`
+			AttachedPic     int `json:"attached_pic"`
+		} `json:"disposition"`
 	} `json:"streams"`
+	Format struct {
+		Filename       string `json:"filename"`
+		NbStreams      int    `json:"nb_streams"`
+		FormatName     string `json:"format_name"`
+		FormatLongName string `json:"format_long_name"`
+		StartTime      string `json:"start_time"`
+		Duration       string `json:"duration"`
+		Size           string `json:"size"`
+		BitRate        string `json:"bit_rate"`
+	} `json:"format"`
 }
