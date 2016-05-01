@@ -232,7 +232,7 @@ DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
   `settings_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `settings_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`settings_key`)
+  PRIMARY KEY (`settings_key`),
   UNIQUE KEY `settings_uniq` (`settings_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
