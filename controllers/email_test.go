@@ -58,7 +58,7 @@ func TestEmailController(t *testing.T) {
 
 	first := performJWTRequest(router, "POST", "/email", token, request)
 
-	assert.Equal(t, first.Code, 200, "HTTP request code should match")
+	assert.Equal(t, 200, first.Code, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditEmailUpdate), "HTTP response should match")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")

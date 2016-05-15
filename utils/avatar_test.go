@@ -43,12 +43,12 @@ func TestSaveAvatar(t *testing.T) {
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 		assert.NotEmpty(t, img.SHA, "SHA should be returned")
-		assert.Equal(t, img.Ext, ".jpg", "Ext should be the same")
-		assert.Equal(t, img.mime, "image/jpeg", "Mime type should be the same")
-		assert.Equal(t, img.OrigHeight, 300, "Height should be the same")
-		assert.Equal(t, img.OrigWidth, 300, "Width should be the same")
-		assert.Equal(t, img.ThumbHeight, 128, "Thumbnail height should be returned")
-		assert.Equal(t, img.ThumbWidth, 128, "Thumbnail width should be returned")
+		assert.Equal(t, ".jpg", img.Ext, "Ext should be the same")
+		assert.Equal(t, "image/jpeg", img.mime, "Mime type should be the same")
+		assert.Equal(t, 300, img.OrigHeight, "Height should be the same")
+		assert.Equal(t, 300, img.OrigWidth, "Width should be the same")
+		assert.Equal(t, 128, img.ThumbHeight, "Thumbnail height should be returned")
+		assert.Equal(t, 128, img.ThumbWidth, "Thumbnail width should be returned")
 		assert.NotEmpty(t, img.Filename, "Filename should be returned")
 		assert.NotEmpty(t, img.Thumbnail, "Thumbnail name should be returned")
 	}
@@ -58,7 +58,7 @@ func TestSaveAvatar(t *testing.T) {
 
 	fileinfo, err := file.Stat()
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.Equal(t, fileinfo.Name(), img.Filename, "Name should be the same")
+		assert.Equal(t, img.Filename, fileinfo.Name(), "Name should be the same")
 	}
 
 	thumb, err := os.Open(img.Thumbpath)
@@ -66,7 +66,7 @@ func TestSaveAvatar(t *testing.T) {
 
 	thumbinfo, err := thumb.Stat()
 	if assert.NoError(t, err, "An error was not expected") {
-		assert.Equal(t, thumbinfo.Name(), img.Thumbnail, "Name should be the same")
+		assert.Equal(t, img.Thumbnail, thumbinfo.Name(), "Name should be the same")
 	}
 
 }

@@ -125,7 +125,7 @@ func TestReplyValidateInputCommentEmpty(t *testing.T) {
 
 	err = reply.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrNoComment, "Error should match")
+		assert.Equal(t, e.ErrNoComment, err, "Error should match")
 	}
 
 }
@@ -145,7 +145,7 @@ func TestReplyValidateInputCommentShort(t *testing.T) {
 
 	err = reply.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrCommentShort, "Error should match")
+		assert.Equal(t, e.ErrCommentShort, err, "Error should match")
 	}
 
 }
@@ -165,7 +165,7 @@ func TestReplyValidateInputShortCommentWithImage(t *testing.T) {
 
 	err = reply.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrCommentShort, "Error should match")
+		assert.Equal(t, e.ErrCommentShort, err, "Error should match")
 	}
 
 }
@@ -217,7 +217,7 @@ func TestReplyStatusClosed(t *testing.T) {
 
 	err = reply.Status()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrThreadClosed, "Error should match")
+		assert.Equal(t, e.ErrThreadClosed, err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -249,7 +249,7 @@ func TestReplyStatusAutoclose(t *testing.T) {
 
 	err = reply.Status()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrThreadClosed, "Error should match")
+		assert.Equal(t, e.ErrThreadClosed, err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -356,7 +356,7 @@ func TestReplyPostRollback(t *testing.T) {
 
 	err = reply.Post()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
+		assert.Equal(t, errors.New("SQL error"), err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -379,7 +379,7 @@ func TestReplyPostInvalid(t *testing.T) {
 	err = reply.Post()
 
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("ReplyModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("ReplyModel is not valid"), err, "Error should match")
 	}
 
 }

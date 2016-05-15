@@ -22,7 +22,7 @@ func TestFavoritesValidateInput(t *testing.T) {
 
 	err = favorite.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrInvalidParam, "Error should match")
+		assert.Equal(t, e.ErrInvalidParam, err, "Error should match")
 	}
 
 }
@@ -81,7 +81,7 @@ func TestFavoritesStatusRemove(t *testing.T) {
 
 	err = favorite.Status()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrFavoriteRemoved, "Error should match")
+		assert.Equal(t, e.ErrFavoriteRemoved, err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -122,7 +122,7 @@ func TestFavoritesPostInvalid(t *testing.T) {
 
 	err = favorite.Post()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("FavoritesModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("FavoritesModel is not valid"), err, "Error should match")
 	}
 
 }

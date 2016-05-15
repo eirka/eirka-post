@@ -76,7 +76,7 @@ func TestAddTagController(t *testing.T) {
 
 	first := performJSONRequest(router, "POST", "/tag/add", request)
 
-	assert.Equal(t, first.Code, 200, "HTTP request code should match")
+	assert.Equal(t, 200, first.Code, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -113,7 +113,7 @@ func TestAddTagControllerBadInput(t *testing.T) {
 
 	for _, test := range reuesttests {
 		first := performJSONRequest(router, "POST", "/tag/add", test.in)
-		assert.Equal(t, first.Code, 400, fmt.Sprintf("HTTP request code should match for request %s", test.name))
+		assert.Equal(t, 400, first.Code, fmt.Sprintf("HTTP request code should match for request %s", test.name))
 	}
 
 }
@@ -140,7 +140,7 @@ func TestAddTagControllerImageNotFound(t *testing.T) {
 
 	first := performJSONRequest(router, "POST", "/tag/add", request)
 
-	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	assert.Equal(t, 400, first.Code, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrNotFound), "HTTP response should match")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -172,7 +172,7 @@ func TestAddTagControllerDuplicate(t *testing.T) {
 
 	first := performJSONRequest(router, "POST", "/tag/add", request)
 
-	assert.Equal(t, first.Code, 400, "HTTP request code should match")
+	assert.Equal(t, 400, first.Code, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), errorMessage(e.ErrDuplicateTag), "HTTP response should match")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")

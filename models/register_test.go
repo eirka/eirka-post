@@ -23,7 +23,7 @@ func TestRegisterValidatePasswordEmpty(t *testing.T) {
 
 	err = register.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrPasswordEmpty, "Error should match")
+		assert.Equal(t, e.ErrPasswordEmpty, err, "Error should match")
 	}
 
 }
@@ -40,7 +40,7 @@ func TestRegisterValidatePasswordShort(t *testing.T) {
 
 	err = register.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrPasswordShort, "Error should match")
+		assert.Equal(t, e.ErrPasswordShort, err, "Error should match")
 	}
 
 }
@@ -57,7 +57,7 @@ func TestRegisterValidateNameEmpty(t *testing.T) {
 
 	err = register.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrNameEmpty, "Error should match")
+		assert.Equal(t, e.ErrNameEmpty, err, "Error should match")
 	}
 
 }
@@ -74,7 +74,7 @@ func TestRegisterValidateNameShort(t *testing.T) {
 
 	err = register.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrNameShort, "Error should match")
+		assert.Equal(t, e.ErrNameShort, err, "Error should match")
 	}
 
 }
@@ -91,7 +91,7 @@ func TestRegisterValidateEmail(t *testing.T) {
 
 	err = register.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrInvalidEmail, "Error should match")
+		assert.Equal(t, e.ErrInvalidEmail, err, "Error should match")
 	}
 
 }
@@ -180,7 +180,7 @@ func TestRegisterRollback(t *testing.T) {
 
 	err = register.Register()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
+		assert.Equal(t, errors.New("SQL error"), err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -199,7 +199,7 @@ func TestRegisterInvalidName(t *testing.T) {
 
 	err = register.Register()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("RegisterModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("RegisterModel is not valid"), err, "Error should match")
 	}
 
 }
@@ -214,7 +214,7 @@ func TestRegisterInvalidHash(t *testing.T) {
 
 	err = register.Register()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("RegisterModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("RegisterModel is not valid"), err, "Error should match")
 	}
 
 }

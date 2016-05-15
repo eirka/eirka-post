@@ -23,7 +23,7 @@ func TestAddTagValidateInput(t *testing.T) {
 
 	err = tag.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrInvalidParam, "Error should match")
+		assert.Equal(t, e.ErrInvalidParam, err, "Error should match")
 	}
 
 }
@@ -84,7 +84,7 @@ func TestAddTagStatusNotFound(t *testing.T) {
 
 	err = tag.Status()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrNotFound, "Error should match")
+		assert.Equal(t, e.ErrNotFound, err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -112,7 +112,7 @@ func TestAddTagStatusDuplicate(t *testing.T) {
 
 	err = tag.Status()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrDuplicateTag, "Error should match")
+		assert.Equal(t, e.ErrDuplicateTag, err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -155,7 +155,7 @@ func TestAddTagPostInvalid(t *testing.T) {
 
 	err = tag.Post()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("AddTagModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("AddTagModel is not valid"), err, "Error should match")
 	}
 
 }

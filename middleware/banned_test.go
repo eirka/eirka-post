@@ -41,14 +41,14 @@ func TestBans(t *testing.T) {
 
 	first := performRequest(router, "POST", "/reply")
 
-	assert.Equal(t, first.Code, 403, "HTTP request code should match")
+	assert.Equal(t, 403, first.Code, "HTTP request code should match")
 
 	clearrow := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(clearrow)
 
 	second := performRequest(router, "POST", "/reply")
 
-	assert.Equal(t, second.Code, 200, "HTTP request code should match")
+	assert.Equal(t, 200, second.Code, "HTTP request code should match")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 

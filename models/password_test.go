@@ -24,7 +24,7 @@ func TestPasswordValidateShortNewPw(t *testing.T) {
 
 	err = password.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrPasswordShort, "Error should match")
+		assert.Equal(t, e.ErrPasswordShort, err, "Error should match")
 	}
 
 }
@@ -42,7 +42,7 @@ func TestPasswordValidateShortOldPw(t *testing.T) {
 
 	err = password.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrPasswordShort, "Error should match")
+		assert.Equal(t, e.ErrPasswordShort, err, "Error should match")
 	}
 
 }
@@ -60,7 +60,7 @@ func TestPasswordValidateEmptyNewPw(t *testing.T) {
 
 	err = password.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrPasswordEmpty, "Error should match")
+		assert.Equal(t, e.ErrPasswordEmpty, err, "Error should match")
 	}
 
 }
@@ -78,7 +78,7 @@ func TestPasswordValidateEmptyOldPw(t *testing.T) {
 
 	err = password.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrPasswordEmpty, "Error should match")
+		assert.Equal(t, e.ErrPasswordEmpty, err, "Error should match")
 	}
 
 }
@@ -133,7 +133,7 @@ func TestPasswordUpdateInvalid(t *testing.T) {
 
 	err = password.Update()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("PasswordModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("PasswordModel is not valid"), err, "Error should match")
 	}
 
 }

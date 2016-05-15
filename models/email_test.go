@@ -59,7 +59,7 @@ func TestEmailValidateBadEmails(t *testing.T) {
 
 	err = first.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrInvalidEmail, "Error should match")
+		assert.Equal(t, e.ErrInvalidEmail, err, "Error should match")
 	}
 
 	second := EmailModel{
@@ -68,7 +68,7 @@ func TestEmailValidateBadEmails(t *testing.T) {
 
 	err = second.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrInvalidEmail, "Error should match")
+		assert.Equal(t, e.ErrInvalidEmail, err, "Error should match")
 	}
 
 }
@@ -89,7 +89,7 @@ func TestEmailValidateNoUser(t *testing.T) {
 
 	err = email.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrUserNotExist, "Error should match")
+		assert.Equal(t, e.ErrUserNotExist, err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -113,7 +113,7 @@ func TestEmailValidateSameEmail(t *testing.T) {
 
 	err = email.Validate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrEmailSame, "Error should match")
+		assert.Equal(t, e.ErrEmailSame, err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -155,7 +155,7 @@ func TestEmailUpdateIsValid(t *testing.T) {
 
 	err = email.Update()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("EmailModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("EmailModel is not valid"), err, "Error should match")
 	}
 
 }

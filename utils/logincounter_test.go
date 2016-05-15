@@ -33,7 +33,7 @@ func TestLoginCounterMax(t *testing.T) {
 	err := LoginCounter(2, "10.0.0.1")
 
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrMaxLogins, "Error should match")
+		assert.Equal(t, e.ErrMaxLogins, err, "Error should match")
 	}
 
 }

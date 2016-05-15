@@ -72,7 +72,7 @@ func TestThreadValidateInputCommentEmpty(t *testing.T) {
 
 	err = thread.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrNoComment, "Error should match")
+		assert.Equal(t, e.ErrNoComment, err, "Error should match")
 	}
 
 }
@@ -98,7 +98,7 @@ func TestThreadValidateInputCommentShort(t *testing.T) {
 
 	err = thread.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrCommentShort, "Error should match")
+		assert.Equal(t, e.ErrCommentShort, err, "Error should match")
 	}
 
 }
@@ -124,7 +124,7 @@ func TestThreadValidateInputTitleEmpty(t *testing.T) {
 
 	err = thread.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrNoTitle, "Error should match")
+		assert.Equal(t, e.ErrNoTitle, err, "Error should match")
 	}
 
 }
@@ -150,7 +150,7 @@ func TestThreadValidateInputTitleShort(t *testing.T) {
 
 	err = thread.ValidateInput()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, e.ErrTitleShort, "Error should match")
+		assert.Equal(t, e.ErrTitleShort, err, "Error should match")
 	}
 
 }
@@ -233,7 +233,7 @@ func TestThreadPostRollback(t *testing.T) {
 
 	err = thread.Post()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("SQL error"), "Error should match")
+		assert.Equal(t, errors.New("SQL error"), err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -262,7 +262,7 @@ func TestThreadPostInvalid(t *testing.T) {
 	err = thread.Post()
 
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, err, errors.New("ThreadModel is not valid"), "Error should match")
+		assert.Equal(t, errors.New("ThreadModel is not valid"), err, "Error should match")
 	}
 
 }
