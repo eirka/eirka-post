@@ -92,6 +92,7 @@ func main() {
 	public.POST("/tag/add", c.AddTagController)
 	public.POST("/register", m.StopSpam(), c.RegisterController)
 	public.POST("/login", c.LoginController)
+	public.POST("/logout", c.LogoutController)
 
 	// requires user perms
 	users := r.Group("/user")

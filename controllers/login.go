@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -72,17 +71,8 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	// set the users jwt cookie
-	jwtCookie := &http.Cookie{
-		Name:     user.CookieName,
-		Value:    token,
-		Expires:  time.Now().Add(90 * 24 * time.Hour),
-		Path:     "/",
-		HttpOnly: true,
-	}
-
-	// set the csrf token cookie
-	http.SetCookie(c.Writer, jwtCookie)
+	// set the jwt cookie
+	http.SetCookie(c.Writer, user.CreateCookie(token))
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
 
