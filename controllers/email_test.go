@@ -51,7 +51,7 @@ func TestEmailController(t *testing.T) {
 		WithArgs("cool@test.com", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	request := []byte(`{"ib": 1, "email": "test@test.com"}`)
+	request := []byte(`{"ib": 1, "email": "cool@test.com"}`)
 
 	token, err := user.MakeToken("secret", 2)
 	assert.NoError(t, err, "An error was not expected")
