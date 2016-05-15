@@ -33,9 +33,9 @@ func TestEmailController(t *testing.T) {
 
 	user.Secret = "secret"
 
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 
-	router := gin.Default()
+	router := gin.New()
 
 	router.Use(user.Auth(true))
 
