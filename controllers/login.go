@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -38,10 +39,10 @@ func LoginController(c *gin.Context) {
 	}
 
 	// default user
-	user := user.DefaultUser()
+	usr := user.DefaultUser()
 
 	// get user id from name, this populates the password hash
-	err = user.FromName(lf.Name)
+	err = usr.FromName(lf.Name)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrUserNotExist.Error()})
 		c.Error(err).SetMeta("LoginController.user.FromName")
@@ -49,7 +50,7 @@ func LoginController(c *gin.Context) {
 	}
 
 	// rate limit login
-	err = u.LoginCounter(user.ID, c.ClientIP())
+	err = u.LoginCounter(usr.ID, c.ClientIP())
 	if err != nil {
 		c.JSON(429, gin.H{"error_message": err.Error()})
 		c.Error(err).SetMeta("LoginController.LoginCounter")
@@ -57,21 +58,33 @@ func LoginController(c *gin.Context) {
 	}
 
 	// compare passwords
-	if !user.ComparePassword(lf.Password) {
+	if !usr.ComparePassword(lf.Password) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidPassword.Error()})
 		c.Error(e.ErrInvalidPassword).SetMeta("LoginController.user.ComparePassword")
 		return
 	}
 
 	// create jwt token
-	token, err := user.CreateToken()
+	token, err := usr.CreateToken()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("LoginController.user.CreateToken")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful", "token": token})
+	// set the users jwt cookie
+	jwtCookie := &http.Cookie{
+		Name:     user.CookieName,
+		Value:    token,
+		Expires:  time.Now().Add(90 * 24 * time.Hour),
+		Path:     "/",
+		HttpOnly: true,
+	}
+
+	// set the csrf token cookie
+	http.SetCookie(c.Writer, jwtCookie)
+
+	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
 
 	return
 
