@@ -19,38 +19,10 @@ import (
 	"github.com/eirka/eirka-libs/user"
 )
 
-func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, nil)
-	req.Header.Set("X-Real-Ip", "123.0.0.1")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}
-
 func performJSONRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Real-Ip", "123.0.0.1")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}
-
-func performJwtJSONRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
-	req.Header.Set("X-Real-Ip", "123.0.0.1")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}
-
-func performJwtFormRequest(r http.Handler, method, path, token string, body bytes.Buffer) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, &body)
-	req.Header.Set("X-Real-Ip", "123.0.0.1")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Set("Content-Type", "multipart/form-data")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w

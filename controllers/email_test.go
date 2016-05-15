@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"bytes"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
@@ -13,6 +16,16 @@ import (
 	//e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/user"
 )
+
+func performJWTRequest(r http.Handler, method, path, token string, body []byte) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Real-Ip", "123.0.0.1")
+	req.AddCookie(user.CreateCookie(token))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
+}
 
 func TestEmailController(t *testing.T) {
 
@@ -43,7 +56,7 @@ func TestEmailController(t *testing.T) {
 	token, err := user.MakeToken("secret", 2)
 	assert.NoError(t, err, "An error was not expected")
 
-	first := performJwtJSONRequest(router, "POST", "/email", token, request)
+	first := performJWTRequest(router, "POST", "/email", token, request)
 
 	assert.Equal(t, first.Code, 200, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditEmailUpdate), "HTTP response should match")
