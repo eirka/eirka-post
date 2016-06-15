@@ -160,6 +160,7 @@ CREATE TABLE `imageboards` (
   `ib_img` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `ib_style` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `ib_logo` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `ib_discord` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`ib_id`),
   UNIQUE KEY `imageboards_uniq` (`ib_title`),
   KEY `ib_id_ib_title` (`ib_id`,`ib_title`)
