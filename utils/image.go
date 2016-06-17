@@ -377,7 +377,7 @@ func (i *ImageType) checkDuplicate() (err error) {
 	err = dbase.QueryRow(`select count(1),posts.post_num,threads.thread_id from threads
 	LEFT JOIN posts on threads.thread_id = posts.thread_id
 	LEFT JOIN images on posts.post_id = images.post_id
-	WHERE image_hash = ? AND ib_id = ? AND post_deleted != 1`, i.MD5, i.Ib).Scan(&check, &post, &thread)
+	WHERE image_hash = ? AND ib_id = ? AND post_deleted = 0`, i.MD5, i.Ib).Scan(&check, &post, &thread)
 	if err != nil {
 		return
 	}
