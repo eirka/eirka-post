@@ -168,7 +168,7 @@ CREATE TABLE `imageboards` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
-INSERT INTO imageboards VALUES (1,"Default","A default board","default.com",0,"default.com/api","default.com/img","default.css","logo.png");
+INSERT INTO imageboards VALUES (1,"Default","A default board","default.com",0,"default.com/api","default.com/img","default.css","logo.png","");
 
 --
 -- Table structure for table `images`
