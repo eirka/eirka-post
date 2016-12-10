@@ -126,14 +126,11 @@ func ReplyController(c *gin.Context) {
 		return
 	}
 
-	// Initialize cache handle
-	cache := redis.Cache
-
 	// needs a fake hash index
 	err = redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib), "0").Delete()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ReplyController.cache.Delete")
+		c.Error(err).SetMeta("ReplyController.redis.Cache.Delete")
 		return
 	}
 
@@ -141,10 +138,10 @@ func ReplyController(c *gin.Context) {
 	threadKey := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
 	imageKey := fmt.Sprintf("%s:%d", "image", m.Ib)
 
-	err = cache.Delete(directoryKey, threadKey, imageKey)
+	err = redis.Cache.Delete(directoryKey, threadKey, imageKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ReplyController.cache.Delete")
+		c.Error(err).SetMeta("ReplyController.redis.Cache.Delete")
 		return
 	}
 

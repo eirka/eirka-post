@@ -8,6 +8,7 @@ import (
 	"github.com/1l0/identicon"
 
 	"github.com/eirka/eirka-libs/amazon"
+	"github.com/eirka/eirka-libs/config"
 )
 
 // SaveAvatar will save a user provided avatar
@@ -125,6 +126,11 @@ func GenerateAvatar(uid uint) (err error) {
 
 // uploads to the avatar folder
 func (i *ImageType) avatarToS3() (err error) {
+
+	// noop if amazon is not configured
+	if !config.Settings.Amazon.Configured {
+		return
+	}
 
 	s3 := amazon.New()
 

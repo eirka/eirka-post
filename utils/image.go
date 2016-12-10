@@ -463,7 +463,7 @@ func (i *ImageType) saveFile() (err error) {
 	// avatar filename is the users id
 	if i.avatar {
 		i.Thumbnail = fmt.Sprintf("%d.png", i.Ib)
-		i.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
+		i.Thumbpath = filepath.Join(local.Settings.Directories.AvatarDir, i.Thumbnail)
 	}
 
 	if !i.IsValid() {
@@ -582,6 +582,11 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 }
 
 func (i *ImageType) copyToS3() (err error) {
+
+	// noop if amazon is not configured
+	if !config.Settings.Amazon.Configured {
+		return
+	}
 
 	s3 := amazon.New()
 

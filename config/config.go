@@ -18,6 +18,7 @@ func init() {
 			Directories: Directories{
 				ImageDir:     "/tmp/eirka/src/",
 				ThumbnailDir: "/tmp/eirka/thumb/",
+				AvatarDir:    "/tmp/eirka/avatars/",
 			},
 		}
 		return
@@ -79,6 +80,7 @@ type Redis struct {
 type Directories struct {
 	ImageDir     string
 	ThumbnailDir string
+	AvatarDir    string
 }
 
 // CORS is a list of allowed remote addresses

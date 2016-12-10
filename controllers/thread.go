@@ -108,23 +108,20 @@ func ThreadController(c *gin.Context) {
 		return
 	}
 
-	// Initialize cache handle
-	cache := redis.Cache
-
 	// needs a fake hash index
 	err = redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib), "0").Delete()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ThreadController.cache.Delete")
+		c.Error(err).SetMeta("ThreadController.redis.Cache.Delete")
 		return
 	}
 
 	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
 
-	err = cache.Delete(directoryKey)
+	err = redis.Cache.Delete(directoryKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ThreadController.cache.Delete")
+		c.Error(err).SetMeta("ThreadController.redis.Cache.Delete")
 		return
 	}
 

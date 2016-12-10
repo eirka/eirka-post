@@ -71,16 +71,13 @@ func NewTagController(c *gin.Context) {
 		return
 	}
 
-	// Initialize cache handle
-	cache := redis.Cache
-
 	// Delete redis stuff
 	tagsKey := fmt.Sprintf("%s:%d", "tags", m.Ib)
 
-	err = cache.Delete(tagsKey)
+	err = redis.Cache.Delete(tagsKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("NewTagController.cache.Delete")
+		c.Error(err).SetMeta("NewTagController.redis.Cache.Delete")
 		return
 	}
 

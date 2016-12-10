@@ -18,6 +18,11 @@ type Akismet struct {
 // Check comment for spam with akismet
 func (c *Akismet) Check() (err error) {
 
+	// noop if akismet is not configured
+	if !config.Settings.Akismet.Configured {
+		return
+	}
+
 	config := &akismet.Config{
 		APIKey:    config.Settings.Akismet.Key,
 		Host:      config.Settings.Akismet.Host,
