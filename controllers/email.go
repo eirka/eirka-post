@@ -72,6 +72,4 @@ func EmailController(c *gin.Context) {
 		c.Error(err).SetMeta("EmailController.audit.Submit")
 	}
 
-	return
-
 }

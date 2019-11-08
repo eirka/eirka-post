@@ -106,6 +106,4 @@ func RegisterController(c *gin.Context) {
 		c.Error(err).SetMeta("RegisterController.audit.Submit")
 	}
 
-	return
-
 }

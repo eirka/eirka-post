@@ -21,8 +21,6 @@ import (
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
-
-	local "github.com/eirka/eirka-post/config"
 )
 
 func testPng(size int) *bytes.Buffer {
@@ -246,7 +244,6 @@ func TestCopyBytes(t *testing.T) {
 
 	assert.Equal(t, img.image.Len(), filesize, "File sizes should match")
 
-	return
 }
 
 func TestGetMD5(t *testing.T) {
@@ -362,6 +359,7 @@ func TestCheckBanned(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	nomatch := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).WillReturnRows(nomatch)
@@ -391,6 +389,7 @@ func TestCheckDuplicate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	nomatch := sqlmock.NewRows([]string{"count", "post", "thread"}).AddRow(0, 0, 0)
 	mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).WillReturnRows(nomatch)
@@ -572,25 +571,25 @@ func TestMakeFilenames(t *testing.T) {
 
 func TestSaveFile(t *testing.T) {
 
-	// Database connection settings
-	dbase := db.Database{
+	var err error
 
-		User:           local.Settings.Database.User,
-		Password:       local.Settings.Database.Password,
-		Proto:          local.Settings.Database.Protocol,
-		Host:           local.Settings.Database.Host,
-		Database:       local.Settings.Database.Database,
-		MaxIdle:        local.Settings.Post.DatabaseMaxIdle,
-		MaxConnections: local.Settings.Post.DatabaseMaxConnections,
-	}
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
-	// Set up DB connection
-	dbase.NewDb()
+	noban := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	nodupe := sqlmock.NewRows([]string{"count", "post", "thread"}).AddRow(0, 0, 0)
 
-	// Get limits and stuff from database
-	config.GetDatabaseSettings()
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).WillReturnRows(noban)
+	mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).WillReturnRows(nodupe)
 
-	req := formJpegRequest(300, "test.jpeg")
+	config.Settings.Limits.ImageMaxWidth = 1000
+	config.Settings.Limits.ImageMinWidth = 100
+	config.Settings.Limits.ImageMaxHeight = 1000
+	config.Settings.Limits.ImageMinHeight = 100
+	config.Settings.Limits.ImageMaxSize = 3000000
+
+	req := formJpegRequest(1000, "test.jpeg")
 
 	img := ImageType{}
 
@@ -598,14 +597,14 @@ func TestSaveFile(t *testing.T) {
 
 	img.Ib = 1
 
-	err := img.SaveImage()
+	err = img.SaveImage()
 	if assert.NoError(t, err, "An error was not expected") {
 		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
 		assert.NotEmpty(t, img.SHA, "SHA should be returned")
 		assert.Equal(t, ".jpg", img.Ext, "Ext should be the same")
 		assert.Equal(t, "image/jpeg", img.mime, "Mime type should be the same")
-		assert.Equal(t, 300, img.OrigHeight, "Height should be the same")
-		assert.Equal(t, 300, img.OrigWidth, "Width should be the same")
+		assert.Equal(t, 1000, img.OrigHeight, "Height should be the same")
+		assert.Equal(t, 1000, img.OrigWidth, "Width should be the same")
 		assert.NotZero(t, img.ThumbHeight, "Thumbnail height should be returned")
 		assert.NotZero(t, img.ThumbWidth, "Thumbnail width should be returned")
 		assert.NotEmpty(t, img.Filename, "Filename should be returned")
@@ -632,13 +631,25 @@ func TestSaveFile(t *testing.T) {
 
 func TestSaveFileNoIb(t *testing.T) {
 
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	noban := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	nodupe := sqlmock.NewRows([]string{"count", "post", "thread"}).AddRow(0, 0, 0)
+
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).WillReturnRows(noban)
+	mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).WillReturnRows(nodupe)
+
 	req := formJpegRequest(300, "test.jpeg")
 
 	img := ImageType{}
 
 	img.File, img.Header, _ = req.FormFile("file")
 
-	err := img.SaveImage()
+	err = img.SaveImage()
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, errors.New("No imageboard set on duplicate check"), err, "Error should match")
 	}

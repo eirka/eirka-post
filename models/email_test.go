@@ -30,6 +30,7 @@ func TestEmailValidate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	rows := sqlmock.NewRows([]string{"name", "email"}).AddRow("test", "old@test.com")
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
@@ -79,6 +80,7 @@ func TestEmailValidateNoUser(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnError(sql.ErrNoRows)
 
@@ -102,6 +104,7 @@ func TestEmailValidateSameEmail(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	rows := sqlmock.NewRows([]string{"name", "email"}).AddRow("test", "cool@test.com")
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
@@ -126,6 +129,7 @@ func TestEmailUpdate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	mock.ExpectExec("UPDATE users SET user_email").
 		WithArgs("cool@test.com", 2).

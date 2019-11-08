@@ -16,6 +16,4 @@ func LogoutController(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Logout successful"})
 
-	return
-
 }

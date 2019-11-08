@@ -42,6 +42,4 @@ func AvatarController(c *gin.Context) {
 
 	c.Redirect(303, req.Referer())
 
-	return
-
 }

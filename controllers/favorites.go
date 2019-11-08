@@ -67,6 +67,4 @@ func FavoritesController(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditFavoriteAdded})
 
-	return
-
 }

@@ -76,6 +76,4 @@ func LoginController(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
 
-	return
-
 }

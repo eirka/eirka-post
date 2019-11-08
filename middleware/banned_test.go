@@ -30,11 +30,11 @@ func TestBans(t *testing.T) {
 
 	router.POST("/reply", func(c *gin.Context) {
 		c.String(200, "OK")
-		return
 	})
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	bannedrow := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip`).WillReturnRows(bannedrow)

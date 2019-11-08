@@ -13,6 +13,7 @@ import (
 
 	"github.com/eirka/eirka-libs/audit"
 	"github.com/eirka/eirka-libs/db"
+
 	//e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/user"
 )
@@ -43,6 +44,7 @@ func TestEmailController(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	rows := sqlmock.NewRows([]string{"name", "email"}).AddRow("test", "old@test.com")
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)

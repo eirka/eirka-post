@@ -100,6 +100,4 @@ func PasswordController(c *gin.Context) {
 		c.Error(err).SetMeta("PasswordController.audit.Submit")
 	}
 
-	return
-
 }

@@ -80,6 +80,7 @@ func TestNewTagStatus(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`select count\(1\) from tags`).WillReturnRows(statusrows)
@@ -103,6 +104,7 @@ func TestNewTagStatusDuplicate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`select count\(1\) from tags`).WillReturnRows(statusrows)
@@ -128,6 +130,7 @@ func TestNewTagPost(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	mock.ExpectExec("INSERT into tags").
 		WithArgs("test", 1, 1).

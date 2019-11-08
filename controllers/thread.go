@@ -141,7 +141,7 @@ func ThreadController(c *gin.Context) {
 		Type:   audit.BoardLog,
 		IP:     m.IP,
 		Action: audit.AuditNewThread,
-		Info:   fmt.Sprintf("%s", m.Title),
+		Info:   m.Title,
 	}
 
 	// submit audit
@@ -149,7 +149,5 @@ func ThreadController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("ThreadController.audit.Submit")
 	}
-
-	return
 
 }

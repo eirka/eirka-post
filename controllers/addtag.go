@@ -100,6 +100,4 @@ func AddTagController(c *gin.Context) {
 		c.Error(err).SetMeta("AddTagController.audit.Submit")
 	}
 
-	return
-
 }

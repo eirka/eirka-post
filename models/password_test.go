@@ -102,6 +102,7 @@ func TestPasswordUpdate(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	mock.ExpectExec("UPDATE users SET user_password").
 		WithArgs([]byte("fake"), 2).

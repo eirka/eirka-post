@@ -129,6 +129,7 @@ func TestRegister(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	mock.ExpectBegin()
 
@@ -163,6 +164,7 @@ func TestRegisterRollback(t *testing.T) {
 
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
 
 	mock.ExpectBegin()
 

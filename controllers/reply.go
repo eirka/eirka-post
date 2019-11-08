@@ -170,6 +170,4 @@ func ReplyController(c *gin.Context) {
 		c.Error(err).SetMeta("ReplyController.audit.Submit")
 	}
 
-	return
-
 }

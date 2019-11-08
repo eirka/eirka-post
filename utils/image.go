@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+
 	// gif support
 	_ "image/gif"
 	// jpeg support
@@ -507,8 +508,6 @@ func (i *ImageType) makeFilenames() {
 
 	// set the full thumbnail path
 	i.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
-
-	return
 
 }
 

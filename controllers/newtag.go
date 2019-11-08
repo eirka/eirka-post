@@ -89,7 +89,7 @@ func NewTagController(c *gin.Context) {
 		Type:   audit.BoardLog,
 		IP:     c.ClientIP(),
 		Action: audit.AuditNewTag,
-		Info:   fmt.Sprintf("%s", m.Tag),
+		Info:   m.Tag,
 	}
 
 	// submit audit
@@ -97,7 +97,5 @@ func NewTagController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("NewTagController.audit.Submit")
 	}
-
-	return
 
 }
