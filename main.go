@@ -85,16 +85,14 @@ func main() {
 	// all users
 	public := r.Group("/")
 	public.Use(user.Auth(false))
-	public.Use(m.StopSpam())
-	public.Use(m.Scamalytics())
 
-	public.POST("/thread/new", c.ThreadController)
-	public.POST("/thread/reply", c.ReplyController)
-	public.POST("/tag/new", c.NewTagController)
-	public.POST("/tag/add", c.AddTagController)
-	public.POST("/register", c.RegisterController)
+	public.POST("/thread/new", m.StopSpam(), m.Scamalytics(), c.ThreadController)
+	public.POST("/thread/reply", m.StopSpam(), m.Scamalytics(), c.ReplyController)
+	public.POST("/register", m.StopSpam(), m.Scamalytics(), c.RegisterController)
 	public.POST("/login", c.LoginController)
 	public.POST("/logout", c.LogoutController)
+	public.POST("/tag/new", c.NewTagController)
+	public.POST("/tag/add", c.AddTagController)
 
 	// requires user perms
 	users := r.Group("/user")
