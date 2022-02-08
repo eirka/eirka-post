@@ -85,8 +85,8 @@ func main() {
 	// all users
 	public := r.Group("/")
 	public.Use(user.Auth(false))
-	r.Use(m.StopSpam())
-	r.Use(m.Scamalytics())
+	public.Use(m.StopSpam())
+	public.Use(m.Scamalytics())
 
 	public.POST("/thread/new", c.ThreadController)
 	public.POST("/thread/reply", c.ReplyController)
