@@ -11,10 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/config"
-)
-
-var (
-	errBlacklisted = errors.New("IP is on spam blacklist")
+	e "github.com/eirka/eirka-libs/errors"
 )
 
 // StopSpam check ip with stop forum spam
@@ -23,7 +20,7 @@ func StopSpam() gin.HandlerFunc {
 
 		// check ip against stop forum spam
 		err := CheckStopForumSpam(c.ClientIP())
-		if err == errBlacklisted {
+		if err == e.ErrBlacklist {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": "IP is on spam blacklist"})
 			c.Error(err).SetMeta("StopSpam.CheckStopForumSpam")
 			c.Abort()
@@ -69,7 +66,7 @@ func CheckStopForumSpam(ip string) (err error) {
 	// our http request
 	req, err := http.NewRequest(http.MethodGet, sfsEndpoint.String(), nil)
 	if err != nil {
-		return errors.New("Error creating SFS request")
+		return errors.New("error creating SFS request")
 	}
 
 	// set ua header
@@ -84,14 +81,14 @@ func CheckStopForumSpam(ip string) (err error) {
 	// TODO: add errors here to a system log
 	resp, err := netClient.Do(req)
 	if err != nil {
-		return errors.New("Error reaching SFS")
+		return errors.New("error reaching SFS")
 	}
 	defer resp.Body.Close()
 
 	// read the response
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return errors.New("Error parsing SFS response")
+		return errors.New("error parsing SFS response")
 	}
 
 	sfsData := StopForumSpam{}
@@ -99,12 +96,12 @@ func CheckStopForumSpam(ip string) (err error) {
 	// unmarshal into struct
 	err = json.Unmarshal(body, &sfsData)
 	if err != nil {
-		return errors.New("Error parsing SFS data")
+		return errors.New("error parsing SFS data")
 	}
 
 	// check if the spammer confidence level is over our setting
 	if sfsData.IP.Confidence > config.Settings.StopForumSpam.Confidence {
-		return errBlacklisted
+		return e.ErrBlacklist
 	}
 
 	return

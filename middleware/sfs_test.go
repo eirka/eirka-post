@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	e "github.com/eirka/eirka-libs/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +20,7 @@ func TestCheckStopForumSpam(t *testing.T) {
 
 	err = CheckStopForumSpam("188.143.232.34")
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errBlacklisted, err, "Error should match")
+		assert.Equal(t, e.ErrBlacklist, err, "Error should match")
 	}
 
 }
