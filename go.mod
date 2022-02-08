@@ -14,7 +14,6 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/ventu-io/go-shortid v0.0.0-20201117134242-e59966efd125
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
-
 )
 
 require (
