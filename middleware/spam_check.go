@@ -10,8 +10,8 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
-// patterns has all the bad words we want to block
-var patterns = []*regexp.Regexp{
+// wordPatterns has all the bad words we want to block
+var wordPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?i:kid)`),
 	regexp.MustCompile(`(?i:loli)`),
 	regexp.MustCompile(`(?i:lola)`),
@@ -24,6 +24,10 @@ var patterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?i:cp)`),
 	regexp.MustCompile(`(?i:rape)`),
 	regexp.MustCompile(`(?i:torture)`),
+}
+
+// urlPatterns has a regex for bad urls (shorteners)
+var urlPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?i:(https?:\/\/)?(www\.)?([A-Za-z0-9\-]+\.)+[A-Za-z]{2,6}(\/[A-Za-z]{1})?\/[\-A-Za-z0-9]+)`),
 }
 
@@ -31,7 +35,16 @@ var patterns = []*regexp.Regexp{
 func SpamFilter() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		if containsWords(stripNonAlpha(c.PostForm("comment")), patterns...) {
+		//we strip all the weird characters and spacing here to check for bad words
+		if containsWords(stripNonAlpha(c.PostForm("comment")), wordPatterns...) {
+			c.JSON(e.ErrorMessage(e.ErrForbidden))
+			c.Error(e.ErrBlacklist).SetMeta("SpamFilter.containsWords")
+			c.Abort()
+			return
+		}
+
+		//we check for bad urls here
+		if containsWords(c.PostForm("comment"), urlPatterns...) {
 			c.JSON(e.ErrorMessage(e.ErrForbidden))
 			c.Error(e.ErrBlacklist).SetMeta("SpamFilter.containsWords")
 			c.Abort()
@@ -55,7 +68,6 @@ func stripNonAlpha(input string) string {
 
 // containsWords checks the comment for all the regex filters
 func containsWords(s string, patterns ...*regexp.Regexp) bool {
-	println(s)
 	for _, pattern := range patterns {
 		if pattern.MatchString(s) {
 			return true
