@@ -24,7 +24,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	shortid "github.com/ventu-io/go-shortid"
+	shortid "github.com/teris-io/shortid"
 
 	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
