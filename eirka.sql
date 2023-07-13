@@ -1,7 +1,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -15,14 +15,14 @@
 
 DROP TABLE IF EXISTS `acl_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_roles` (
-  `role_id` int(2) unsigned NOT NULL AUTO_INCREMENT,
-  `role_name` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `role_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(30) COLLATE utf8mb3_unicode_ci NOT NULL,
   `role_global` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`role_id`),
   UNIQUE KEY `role_name` (`role_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 INSERT INTO acl_roles VALUES (1,"GUEST",1);
@@ -36,19 +36,19 @@ INSERT INTO acl_roles VALUES (4,"ADMIN",0);
 
 DROP TABLE IF EXISTS `analytics`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `analytics` (
-  `analytics_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ib_id` tinyint(3) unsigned NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
+  `analytics_id` int NOT NULL AUTO_INCREMENT,
+  `ib_id` tinyint unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
   `request_time` datetime NOT NULL,
-  `request_ip` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `request_path` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `request_itemkey` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `request_itemvalue` int(10) unsigned NOT NULL DEFAULT '0',
-  `request_cached` tinyint(1) unsigned DEFAULT NULL,
-  `request_status` tinyint(3) unsigned NOT NULL,
-  `request_latency` int(10) unsigned NOT NULL,
+  `request_ip` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `request_path` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `request_itemkey` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `request_itemvalue` int unsigned NOT NULL DEFAULT '0',
+  `request_cached` tinyint unsigned DEFAULT NULL,
+  `request_status` tinyint unsigned NOT NULL,
+  `request_latency` int unsigned NOT NULL,
   PRIMARY KEY (`analytics_id`),
   KEY `analytics_ib_id` (`ib_id`),
   KEY `analytics_user_id` (`user_id`),
@@ -56,7 +56,7 @@ CREATE TABLE `analytics` (
   KEY `analytics_ib_time` (`ib_id`,`request_time`),
   CONSTRAINT `analytics_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `analytics_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,22 +65,22 @@ CREATE TABLE `analytics` (
 
 DROP TABLE IF EXISTS `audit`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `audit` (
-  `audit_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `ib_id` tinyint(3) unsigned NOT NULL,
-  `audit_type` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `audit_ip` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `audit_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `ib_id` tinyint unsigned NOT NULL,
+  `audit_type` tinyint unsigned NOT NULL DEFAULT '1',
+  `audit_ip` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
   `audit_time` datetime NOT NULL,
-  `audit_action` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `audit_info` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `audit_action` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `audit_info` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
   PRIMARY KEY (`audit_id`),
   KEY `audit_user_id_idx` (`user_id`),
   KEY `audit_ib_id_idx` (`ib_id`),
   CONSTRAINT `audit_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `audit_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -89,18 +89,18 @@ CREATE TABLE `audit` (
 
 DROP TABLE IF EXISTS `banned_files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `banned_files` (
-  `user_id` int(10) unsigned NOT NULL,
-  `ib_id` tinyint(3) unsigned NOT NULL,
-  `ban_hash` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  `ban_reason` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `ib_id` tinyint unsigned NOT NULL,
+  `ban_hash` varchar(32) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ban_reason` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
   UNIQUE KEY `bf_ban_hash` (`ban_hash`),
   KEY `bf_user_id` (`user_id`),
   KEY `bf_ib_id` (`ib_id`),
   CONSTRAINT `bf_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `bf_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,18 +109,18 @@ CREATE TABLE `banned_files` (
 
 DROP TABLE IF EXISTS `banned_ips`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `banned_ips` (
-  `user_id` int(10) unsigned NOT NULL,
-  `ib_id` tinyint(3) unsigned NOT NULL,
-  `ban_ip` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `ban_reason` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `ib_id` tinyint unsigned NOT NULL,
+  `ban_ip` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ban_reason` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
   UNIQUE KEY `bip_ban_ip` (`ban_ip`),
   KEY `bip_user_id` (`user_id`),
   KEY `bip_ib_id` (`ib_id`),
   CONSTRAINT `bip_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `bip_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,18 +129,18 @@ CREATE TABLE `banned_ips` (
 
 DROP TABLE IF EXISTS `favorites`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `favorites` (
-  `favorite_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `image_id` int(10) unsigned NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
+  `favorite_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `image_id` int unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
   PRIMARY KEY (`favorite_id`),
   UNIQUE KEY `favorites_uniq_user_image` (`user_id`,`image_id`),
   KEY `favorites_image_id` (`image_id`),
   KEY `favorites_user_id` (`user_id`),
   CONSTRAINT `favorites_image_id` FOREIGN KEY (`image_id`) REFERENCES `images` (`image_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `favorites_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -149,24 +149,23 @@ CREATE TABLE `favorites` (
 
 DROP TABLE IF EXISTS `imageboards`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `imageboards` (
-  `ib_id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
-  `ib_title` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `ib_description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `ib_domain` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  `ib_id` tinyint unsigned NOT NULL AUTO_INCREMENT,
+  `ib_title` varchar(45) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ib_description` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ib_domain` varchar(40) COLLATE utf8mb3_unicode_ci NOT NULL,
   `ib_nsfw` tinyint(1) NOT NULL DEFAULT '0',
-  `ib_api` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `ib_img` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `ib_style` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `ib_logo` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `ib_discord` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `ib_api` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ib_img` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ib_style` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ib_logo` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ib_discord` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
   PRIMARY KEY (`ib_id`),
   UNIQUE KEY `imageboards_uniq` (`ib_title`),
   KEY `ib_id_ib_title` (`ib_id`,`ib_title`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 
 INSERT INTO imageboards VALUES (1,"Default","A default board","default.com",0,"default.com/api","default.com/img","default.css","logo.png","");
 
@@ -176,18 +175,18 @@ INSERT INTO imageboards VALUES (1,"Default","A default board","default.com",0,"d
 
 DROP TABLE IF EXISTS `images`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `images` (
-  `image_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `post_id` int(10) unsigned NOT NULL,
-  `image_file` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `image_thumbnail` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `image_hash` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  `image_sha` char(40) COLLATE utf8_unicode_ci NOT NULL,
-  `image_orig_height` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `image_orig_width` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `image_tn_height` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `image_tn_width` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `image_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `post_id` int unsigned NOT NULL,
+  `image_file` varchar(20) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `image_thumbnail` varchar(20) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `image_hash` varchar(32) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `image_sha` char(40) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `image_orig_height` smallint unsigned NOT NULL DEFAULT '0',
+  `image_orig_width` smallint unsigned NOT NULL DEFAULT '0',
+  `image_tn_height` smallint unsigned NOT NULL DEFAULT '0',
+  `image_tn_width` smallint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`image_id`),
   UNIQUE KEY `image_filename_uniq` (`image_file`),
   KEY `post_id_idx` (`post_id`),
@@ -195,7 +194,7 @@ CREATE TABLE `images` (
   KEY `hash_idx` (`image_hash`),
   KEY `image_sha_idx` (`image_sha`),
   CONSTRAINT `post_id` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -204,23 +203,23 @@ CREATE TABLE `images` (
 
 DROP TABLE IF EXISTS `posts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `posts` (
-  `post_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `thread_id` smallint(5) unsigned NOT NULL,
-  `user_id` int(10) unsigned NOT NULL DEFAULT '1',
+  `post_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `thread_id` smallint unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL DEFAULT '1',
   `post_deleted` tinyint(1) NOT NULL DEFAULT '0',
-  `post_num` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `post_ip` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `post_num` smallint unsigned NOT NULL DEFAULT '1',
+  `post_ip` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
   `post_time` datetime NOT NULL,
-  `post_text` text COLLATE utf8_unicode_ci,
+  `post_text` text COLLATE utf8mb3_unicode_ci,
   PRIMARY KEY (`post_id`),
   KEY `thread_id_idx` (`thread_id`),
   KEY `t_id_p_id` (`thread_id`,`post_id`),
   KEY `posts_user_id` (`user_id`),
   CONSTRAINT `posts_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `thread_id` FOREIGN KEY (`thread_id`) REFERENCES `threads` (`thread_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -229,13 +228,13 @@ CREATE TABLE `posts` (
 
 DROP TABLE IF EXISTS `settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `settings` (
-  `settings_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `settings_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `settings_key` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `settings_value` varchar(255) COLLATE utf8mb3_unicode_ci NOT NULL,
   PRIMARY KEY (`settings_key`),
   UNIQUE KEY `settings_uniq` (`settings_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 INSERT INTO settings VALUES ("akismet_host","");
@@ -279,6 +278,10 @@ INSERT INTO settings VALUES ("password_minlength",8);
 INSERT INTO settings VALUES ("password_maxlength",128);
 INSERT INTO settings VALUES ("cloudflare_key","");
 INSERT INTO settings VALUES ("cloudflare_email","");
+INSERT INTO settings VALUES ("scamalytics_endpoint","");
+INSERT INTO settings VALUES ("scamalytics_key","");
+INSERT INTO settings VALUES ("scamalytics_path","");
+INSERT INTO settings VALUES ("scamalytics_score","60");
 
 --
 -- Table structure for table `tagmap`
@@ -286,10 +289,10 @@ INSERT INTO settings VALUES ("cloudflare_email","");
 
 DROP TABLE IF EXISTS `tagmap`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tagmap` (
-  `image_id` int(10) unsigned NOT NULL,
-  `tag_id` int(10) unsigned NOT NULL,
+  `image_id` int unsigned NOT NULL,
+  `tag_id` int unsigned NOT NULL,
   PRIMARY KEY (`image_id`,`tag_id`),
   UNIQUE KEY `tagmap_uniq` (`image_id`,`tag_id`),
   KEY `image_id_idx` (`image_id`),
@@ -297,7 +300,7 @@ CREATE TABLE `tagmap` (
   KEY `tagmap_tag_i` (`image_id`,`tag_id`),
   CONSTRAINT `image_id` FOREIGN KEY (`image_id`) REFERENCES `images` (`image_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tag_id` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -306,12 +309,12 @@ CREATE TABLE `tagmap` (
 
 DROP TABLE IF EXISTS `tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tags` (
-  `tag_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `ib_id` tinyint(3) unsigned NOT NULL,
-  `tagtype_id` int(10) unsigned NOT NULL,
-  `tag_name` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `tag_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `ib_id` tinyint unsigned NOT NULL,
+  `tagtype_id` int unsigned NOT NULL,
+  `tag_name` varchar(128) COLLATE utf8mb3_unicode_ci NOT NULL,
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `tags_uniq` (`ib_id`,`tag_name`),
   KEY `tags_ib_id_idx` (`ib_id`),
@@ -321,7 +324,7 @@ CREATE TABLE `tags` (
   FULLTEXT KEY `tags_tag_name_idx` (`tag_name`),
   CONSTRAINT `ib_id_tags` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tagtype_id` FOREIGN KEY (`tagtype_id`) REFERENCES `tagtype` (`tagtype_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -330,13 +333,13 @@ CREATE TABLE `tags` (
 
 DROP TABLE IF EXISTS `tagtype`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tagtype` (
-  `tagtype_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `tagtype_name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `tagtype_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `tagtype_name` varchar(45) COLLATE utf8mb3_unicode_ci NOT NULL,
   PRIMARY KEY (`tagtype_id`),
   KEY `tt_id_tt_name` (`tagtype_id`,`tagtype_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 INSERT INTO tagtype VALUES (1,"Tag");
@@ -350,11 +353,11 @@ INSERT INTO tagtype VALUES (4,"Copyright");
 
 DROP TABLE IF EXISTS `threads`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `threads` (
-  `thread_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `ib_id` tinyint(3) unsigned NOT NULL,
-  `thread_title` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `thread_id` smallint unsigned NOT NULL AUTO_INCREMENT,
+  `ib_id` tinyint unsigned NOT NULL,
+  `thread_title` varchar(45) COLLATE utf8mb3_unicode_ci NOT NULL,
   `thread_closed` tinyint(1) NOT NULL DEFAULT '0',
   `thread_sticky` tinyint(1) NOT NULL DEFAULT '0',
   `thread_deleted` tinyint(1) NOT NULL DEFAULT '0',
@@ -363,7 +366,7 @@ CREATE TABLE `threads` (
   KEY `t_id_ib_id` (`ib_id`,`thread_id`),
   FULLTEXT KEY `threads_thread_title_idx` (`thread_title`),
   CONSTRAINT `ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -372,11 +375,11 @@ CREATE TABLE `threads` (
 
 DROP TABLE IF EXISTS `user_ib_role_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_ib_role_map` (
-  `user_id` int(2) unsigned NOT NULL,
-  `ib_id` tinyint(3) unsigned NOT NULL,
-  `role_id` int(3) unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `ib_id` tinyint unsigned NOT NULL,
+  `role_id` int unsigned NOT NULL,
   UNIQUE KEY `uirm_uniq` (`user_id`,`ib_id`,`role_id`),
   KEY `uirm_user_id` (`user_id`),
   KEY `uirm_ib_id` (`ib_id`),
@@ -384,7 +387,7 @@ CREATE TABLE `user_ib_role_map` (
   CONSTRAINT `uirm_ib_id` FOREIGN KEY (`ib_id`) REFERENCES `imageboards` (`ib_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `uirm_role_id` FOREIGN KEY (`role_id`) REFERENCES `acl_roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `uirm_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -393,16 +396,16 @@ CREATE TABLE `user_ib_role_map` (
 
 DROP TABLE IF EXISTS `user_role_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_role_map` (
-  `user_id` int(10) unsigned NOT NULL,
-  `role_id` int(2) unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `role_id` int unsigned NOT NULL,
   UNIQUE KEY `urm_uniq` (`user_id`,`role_id`),
   KEY `urm_role_id` (`role_id`),
   KEY `urm_user_id` (`user_id`),
   CONSTRAINT `urm_role_id` FOREIGN KEY (`role_id`) REFERENCES `acl_roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `urm_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 INSERT INTO user_role_map VALUES (1,1);
@@ -413,23 +416,24 @@ INSERT INTO user_role_map VALUES (1,1);
 
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_name` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `user_email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(20) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `user_email` varchar(255) COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `user_password` binary(60) DEFAULT NULL,
   `user_confirmed` tinyint(1) NOT NULL DEFAULT '0',
   `user_banned` tinyint(1) NOT NULL DEFAULT '0',
   `user_locked` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_name` (`user_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 INSERT INTO users VALUES (1,"Anonymous",NULL,NULL,0,0,0);
 
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
