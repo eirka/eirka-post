@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"regexp"
 	"strings"
 	"unicode"
@@ -38,7 +39,7 @@ func SpamFilter() gin.HandlerFunc {
 		//we strip all the weird characters and spacing here to check for bad words
 		if containsWords(stripNonAlpha(c.PostForm("comment")), wordPatterns...) {
 			c.JSON(e.ErrorMessage(e.ErrForbidden))
-			c.Error(e.ErrBlacklist).SetMeta("SpamFilter.containsWords")
+			c.Error(errors.New(c.PostForm("comment"))).SetMeta("SpamFilter.containsWords")
 			c.Abort()
 			return
 		}
@@ -46,7 +47,7 @@ func SpamFilter() gin.HandlerFunc {
 		//we check for bad urls here
 		if containsWords(c.PostForm("comment"), urlPatterns...) {
 			c.JSON(e.ErrorMessage(e.ErrForbidden))
-			c.Error(e.ErrBlacklist).SetMeta("SpamFilter.containsWords")
+			c.Error(errors.New(c.PostForm("comment"))).SetMeta("SpamFilter.containsWords")
 			c.Abort()
 			return
 		}
