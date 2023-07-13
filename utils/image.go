@@ -266,12 +266,12 @@ func (i *ImageType) checkReqExt() (err error) {
 	ext := filepath.Ext(name)
 
 	if ext == "" {
-		return errors.New("No file extension")
+		return errors.New("no file extension")
 	}
 
 	// Check to see if extension is allowed
 	if !isAllowedExt(ext) {
-		return errors.New("Format not supported")
+		return errors.New("format not supported")
 	}
 
 	return
@@ -292,7 +292,7 @@ func (i *ImageType) copyBytes() (err error) {
 	// Save file and also read into hasher for md5
 	_, err = io.Copy(i.image, i.File)
 	if err != nil {
-		return errors.New("Problem copying file to buffer")
+		return errors.New("problem copying file to buffer")
 	}
 
 	return
@@ -308,7 +308,7 @@ func (i *ImageType) getHash() (err error) {
 	// read into hasher for md5
 	_, err = io.Copy(hasher, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
-		return errors.New("Problem creating MD5 hash")
+		return errors.New("problem creating MD5 hash")
 	}
 
 	// Set md5sum from hasher
@@ -317,7 +317,7 @@ func (i *ImageType) getHash() (err error) {
 	// read into hasher for md5
 	_, err = io.Copy(sha, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
-		return errors.New("Problem creating SHA1 hash")
+		return errors.New("problem creating SHA1 hash")
 	}
 
 	// Set sha1
@@ -337,7 +337,7 @@ func (i *ImageType) checkBanned() (err error) {
 	}
 
 	if i.MD5 == "" {
-		return errors.New("No hash set on file banned check")
+		return errors.New("no hash set on file banned check")
 	}
 
 	var check bool
@@ -349,7 +349,7 @@ func (i *ImageType) checkBanned() (err error) {
 
 	// return error if it exists
 	if check {
-		return fmt.Errorf("File is banned")
+		return fmt.Errorf("file is banned")
 	}
 
 	return
@@ -365,11 +365,11 @@ func (i *ImageType) checkDuplicate() (err error) {
 	}
 
 	if i.MD5 == "" {
-		return errors.New("No hash set on duplicate check")
+		return errors.New("no hash set on duplicate check")
 	}
 
 	if i.Ib == 0 {
-		return errors.New("No imageboard set on duplicate check")
+		return errors.New("no imageboard set on duplicate check")
 	}
 
 	var check bool
@@ -385,7 +385,7 @@ func (i *ImageType) checkDuplicate() (err error) {
 
 	// return error if it exists
 	if check {
-		return fmt.Errorf("Image has already been posted. Thread: %d Post: %d", thread.Int64, post.Int64)
+		return fmt.Errorf("image has already been posted. Thread: %d Post: %d", thread.Int64, post.Int64)
 	}
 
 	return
@@ -407,12 +407,12 @@ func (i *ImageType) checkMagic() (err error) {
 		i.Ext = ".webm"
 		i.video = true
 	default:
-		return errors.New("Unknown file type")
+		return errors.New("unknown file type")
 	}
 
 	// Check to see if extension is allowed
 	if !isAllowedExt(i.Ext) {
-		return errors.New("Format not supported")
+		return errors.New("format not supported")
 	}
 
 	return
@@ -429,7 +429,7 @@ func (i *ImageType) getStats() (err error) {
 	// decode image config
 	img, _, err := image.DecodeConfig(bytes.NewReader(i.image.Bytes()))
 	if err != nil {
-		return errors.New("Problem decoding image")
+		return errors.New("problem decoding image")
 	}
 
 	// set original width
@@ -440,15 +440,15 @@ func (i *ImageType) getStats() (err error) {
 	// Check against maximum sizes
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
-		return fmt.Errorf("Image width too large. Max: %dpx", config.Settings.Limits.ImageMaxWidth)
+		return fmt.Errorf("image width too large. Max: %dpx", config.Settings.Limits.ImageMaxWidth)
 	case img.Width < config.Settings.Limits.ImageMinWidth:
-		return fmt.Errorf("Image width too small. Min: %dpx", config.Settings.Limits.ImageMinWidth)
+		return fmt.Errorf("image width too small. Min: %dpx", config.Settings.Limits.ImageMinWidth)
 	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
-		return fmt.Errorf("Image height too large. Max: %dpx", config.Settings.Limits.ImageMaxHeight)
+		return fmt.Errorf("image height too large. Max: %dpx", config.Settings.Limits.ImageMaxHeight)
 	case img.Height < config.Settings.Limits.ImageMinHeight:
-		return fmt.Errorf("Image height too small. Min: %dpx", config.Settings.Limits.ImageMinHeight)
+		return fmt.Errorf("image height too small. Min: %dpx", config.Settings.Limits.ImageMinHeight)
 	case i.image.Len() > config.Settings.Limits.ImageMaxSize:
-		return fmt.Errorf("Image filesize too large. Max: %dMB", (config.Settings.Limits.ImageMaxSize/1024)/1024)
+		return fmt.Errorf("image filesize too large. Max: %dMB", (config.Settings.Limits.ImageMaxSize/1024)/1024)
 	}
 
 	return
@@ -475,13 +475,13 @@ func (i *ImageType) saveFile() (err error) {
 
 	image, err := os.Create(imagefile)
 	if err != nil {
-		return errors.New("Problem saving file")
+		return errors.New("problem saving file")
 	}
 	defer image.Close()
 
 	_, err = io.Copy(image, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
-		return errors.New("Problem saving file")
+		return errors.New("problem saving file")
 	}
 
 	return
@@ -559,18 +559,18 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 
 	_, err = exec.Command("convert", args...).Output()
 	if err != nil {
-		return errors.New("Problem making thumbnail")
+		return errors.New("problem making thumbnail")
 	}
 
 	thumb, err := os.Open(i.Thumbpath)
 	if err != nil {
-		return errors.New("Problem creating thumbnail file")
+		return errors.New("problem creating thumbnail file")
 	}
 	defer thumb.Close()
 
 	img, _, err := image.DecodeConfig(thumb)
 	if err != nil {
-		return errors.New("Problem decoding thumbnail")
+		return errors.New("problem decoding thumbnail")
 	}
 
 	i.ThumbWidth = img.Width

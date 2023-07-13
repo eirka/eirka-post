@@ -49,26 +49,26 @@ func (i *ImageType) checkWebM() (err error) {
 
 	cmd, err := exec.Command("ffprobe", ffprobeArgs...).Output()
 	if err != nil {
-		return errors.New("Problem decoding webm")
+		return errors.New("problem decoding webm")
 	}
 
 	ffprobe := ffprobe{}
 
 	err = json.Unmarshal(cmd, &ffprobe)
 	if err != nil {
-		return errors.New("Problem decoding webm")
+		return errors.New("problem decoding webm")
 	}
 
 	switch {
 	case ffprobe.Format.FormatName != "matroska,webm":
-		return errors.New("File is not a WebM")
+		return errors.New("file is not a webm")
 	case !codecs[strings.ToLower(ffprobe.Streams[0].CodecName)]:
-		return errors.New("File is not allowed WebM codec")
+		return errors.New("file is not allowed webm codec")
 	}
 
 	duration, err := strconv.ParseFloat(ffprobe.Format.Duration, 64)
 	if err != nil {
-		return errors.New("Problem decoding WebM")
+		return errors.New("problem decoding webm")
 	}
 
 	// set file duration
@@ -85,17 +85,17 @@ func (i *ImageType) checkWebM() (err error) {
 	// Check against maximum sizes
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
-		return errors.New("WebM width too large")
+		return errors.New("webm width too large")
 	case i.OrigWidth < config.Settings.Limits.ImageMinWidth:
-		return errors.New("WebM width too small")
+		return errors.New("webm width too small")
 	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
-		return errors.New("WebM height too large")
+		return errors.New("webm height too large")
 	case i.OrigHeight < config.Settings.Limits.ImageMinHeight:
-		return errors.New("WebM height too small")
+		return errors.New("webm height too small")
 	case int(originalSize) > config.Settings.Limits.ImageMaxSize:
-		return errors.New("WebM size too large")
+		return errors.New("webm size too large")
 	case i.duration > config.Settings.Limits.WebmMaxLength:
-		return errors.New("WebM too long")
+		return errors.New("webm too long")
 	}
 
 	return
@@ -132,7 +132,7 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	// Make an image of first frame with ffmpeg
 	_, err = exec.Command("ffmpeg", ffmpegArgs...).Output()
 	if err != nil {
-		return errors.New("Problem decoding WebM")
+		return errors.New("problem decoding webm")
 	}
 
 	return

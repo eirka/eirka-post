@@ -3,7 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -91,7 +91,7 @@ func CheckScamalytics(ip string) (err error) {
 	defer resp.Body.Close()
 
 	// read the response
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.New("error parsing scamalytics response")
 	}

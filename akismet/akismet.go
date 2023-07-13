@@ -3,7 +3,7 @@ package akismet
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -96,8 +96,8 @@ func (comment *Comment) MakePOST(config *Config, url string) (resp *http.Respons
 }
 
 var (
-	errSpam           = errors.New("Comment is spam")
-	errInvalidRequest = errors.New("Malformed request")
+	errSpam           = errors.New("comment is spam")
+	errInvalidRequest = errors.New("malformed request")
 )
 
 // CommentCheck submits the given comment to Akismet, and
@@ -111,7 +111,7 @@ func CommentCheck(config *Config, comment Comment) error {
 	}
 
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func CommentSubmitHam(config *Config, comment Comment) error {
 	}
 
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func CommentSubmitSpam(config *Config, comment Comment) error {
 	}
 
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -195,8 +195,8 @@ func (req request) Reader() *strings.Reader {
 }
 
 var (
-	errInvalidKey = errors.New("Key invalid")
-	errUnknown    = errors.New("Unknown response")
+	errInvalidKey = errors.New("key invalid")
+	errUnknown    = errors.New("unknown response")
 )
 
 // VerifyKey checks the configuration with Akismet. This should be performed
@@ -230,7 +230,7 @@ func VerifyKey(config *Config) error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}

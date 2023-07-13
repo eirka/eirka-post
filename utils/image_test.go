@@ -150,7 +150,7 @@ func TestCheckReqBadExt(t *testing.T) {
 
 	err := img.checkReqExt()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("Format not supported"), err, "Error should match")
+		assert.Equal(t, errors.New("format not supported"), err, "Error should match")
 	}
 
 }
@@ -179,7 +179,7 @@ func TestCheckReqBadExtExploit1(t *testing.T) {
 
 	err = img.checkMagic()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("Unknown file type"), err, "Error should match")
+		assert.Equal(t, errors.New("unknown file type"), err, "Error should match")
 	}
 
 }
@@ -194,7 +194,7 @@ func TestCheckReqBadExtExploit2(t *testing.T) {
 
 	err := img.checkReqExt()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("Format not supported"), err, "Error should match")
+		assert.Equal(t, errors.New("format not supported"), err, "Error should match")
 	}
 
 }
@@ -209,7 +209,7 @@ func TestCheckReqNoExt(t *testing.T) {
 
 	err := img.checkReqExt()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("No file extension"), err, "Error should match")
+		assert.Equal(t, errors.New("no file extension"), err, "Error should match")
 	}
 
 }
@@ -376,7 +376,7 @@ func TestCheckBanned(t *testing.T) {
 
 	err = img.checkBanned()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("File is banned"), err, "Error should match")
+		assert.Equal(t, errors.New("file is banned"), err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -407,7 +407,7 @@ func TestCheckDuplicate(t *testing.T) {
 
 	err = img.checkDuplicate()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("Image has already been posted. Thread: 2 Post: 10"), err, "Error should match")
+		assert.Equal(t, errors.New("image has already been posted. Thread: 2 Post: 10"), err, "Error should match")
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
@@ -461,7 +461,7 @@ func TestCheckMagicBad(t *testing.T) {
 
 	err = img.checkMagic()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("Unknown file type"), err, "Error should match")
+		assert.Equal(t, errors.New("unknown file type"), err, "Error should match")
 	}
 
 }
@@ -514,7 +514,7 @@ func TestGetStatsBadSize(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Contains(t, fmt.Sprintf("%s", err), "Image filesize too large", "Error should match")
+		assert.Contains(t, fmt.Sprintf("%s", err), "image filesize too large", "Error should match")
 	}
 
 }
@@ -533,7 +533,7 @@ func TestGetStatsBadMin(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Contains(t, fmt.Sprintf("%s", err), "Image width too small", "Error should match")
+		assert.Contains(t, fmt.Sprintf("%s", err), "image width too small", "Error should match")
 	}
 
 }
@@ -552,7 +552,7 @@ func TestGetStatsBadMax(t *testing.T) {
 
 	err := img.getStats()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Contains(t, fmt.Sprintf("%s", err), "Image width too large", "Error should match")
+		assert.Contains(t, fmt.Sprintf("%s", err), "image width too large", "Error should match")
 	}
 
 }
@@ -651,7 +651,7 @@ func TestSaveFileNoIb(t *testing.T) {
 
 	err = img.SaveImage()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("No imageboard set on duplicate check"), err, "Error should match")
+		assert.Equal(t, errors.New("no imageboard set on duplicate check"), err, "Error should match")
 	}
 
 }

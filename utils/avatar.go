@@ -43,7 +43,7 @@ func (i *ImageType) SaveAvatar() (err error) {
 
 	// videos cant be avatars
 	if i.video {
-		return errors.New("Format not supported")
+		return errors.New("format not supported")
 	}
 
 	// check image stats
@@ -78,7 +78,7 @@ func (i *ImageType) SaveAvatar() (err error) {
 func GenerateAvatar(uid uint) (err error) {
 
 	if uid == 0 || uid == 1 {
-		return errors.New("Invalid user id")
+		return errors.New("invalid user id")
 	}
 
 	img := ImageType{
