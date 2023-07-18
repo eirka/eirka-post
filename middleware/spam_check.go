@@ -29,7 +29,7 @@ var wordPatterns = []*regexp.Regexp{
 
 // urlPatterns has a regex for bad urls (shorteners)
 var urlPatterns = []*regexp.Regexp{
-	regexp.MustCompile(`(?i:(https?:\/\/)?(www\.)?([A-Za-z0-9\-]+\.)+[A-Za-z]{2,6}\/(.\/)?[\_\-A-Za-z0-9]+)$`),
+	regexp.MustCompile(`(?i:(https?:\/\/)?([A-Za-z0-9\-]+\.)+[A-Za-z]{2,6}\/(.\/)?[\_\-A-Za-z0-9]+)\s`),
 }
 
 // SpamFilter will check for banned words in the post
