@@ -29,7 +29,7 @@ func (r *RegisterModel) IsValid() bool {
 		return false
 	}
 
-	if r.Hashed == nil {
+	if r.Hashed == nil || len(r.Hashed) == 0 {
 		return false
 	}
 
@@ -104,6 +104,10 @@ func (r *RegisterModel) Register() (err error) {
 	}
 
 	r.UID = uint(uid)
+
+	if r.UID == 0 || r.UID == 1 {
+		return errors.New("user ID is invalid")
+	}
 
 	_, err = tx.Exec("INSERT into user_role_map VALUES (?,?)", r.UID, 2)
 	if err != nil {

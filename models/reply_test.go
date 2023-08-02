@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,162 +13,70 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
 func TestReplyIsValid(t *testing.T) {
 
-	reply := ReplyModel{
-		UID:     0,
-		Ib:      1,
-		Thread:  1,
-		IP:      "10.0.0.1",
-		Comment: "hehehe",
-		Image:   false,
+	badreplies := []ReplyModel{
+		{UID: 0, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "test", Image: false},
+		{UID: 1, Ib: 0, Thread: 1, IP: "127.0.0.1", Comment: "test", Image: false},
+		{UID: 1, Ib: 1, Thread: 0, IP: "127.0.0.1", Comment: "test", Image: false},
+		{UID: 1, Ib: 1, Thread: 1, IP: "", Comment: "test", Image: false},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: false},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: true, Filename: ""},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: true, Filename: "filename.png", Thumbnail: ""},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: true, Filename: "filename.png", Thumbnail: "thumb.png", MD5: ""},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: true, Filename: "filename.png", Thumbnail: "thumb.png", MD5: "hash", OrigWidth: 0},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: true, Filename: "filename.png", Thumbnail: "thumb.png", MD5: "hash", OrigWidth: 100, OrigHeight: 0},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: true, Filename: "filename.png", Thumbnail: "thumb.png", MD5: "hash", OrigWidth: 100, OrigHeight: 100, ThumbWidth: 0},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "", Image: true, Filename: "filename.png", Thumbnail: "thumb.png", MD5: "hash", OrigWidth: 100, OrigHeight: 100, ThumbWidth: 100, ThumbHeight: 0},
 	}
 
-	assert.False(t, reply.IsValid(), "Should be false")
+	for _, reply := range badreplies {
+		assert.False(t, reply.IsValid(), "Should be false")
+	}
+
+	goodreplies := []ReplyModel{
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "test", Image: false},
+		{UID: 1, Ib: 1, Thread: 1, IP: "127.0.0.1", Comment: "test", Image: true, Filename: "filename.png", Thumbnail: "thumb.png", MD5: "hash", OrigWidth: 100, OrigHeight: 100, ThumbWidth: 100, ThumbHeight: 100},
+	}
+
+	for _, reply := range goodreplies {
+		assert.True(t, reply.IsValid(), "Should be true")
+	}
 }
 
-func TestReplyIsValidNoImage(t *testing.T) {
+func TestReplyValidate(t *testing.T) {
 
-	reply := ReplyModel{
-		UID:     1,
-		Ib:      1,
-		Thread:  1,
-		IP:      "10.0.0.1",
-		Comment: "a cool comment",
-		Image:   false,
+	badreplies := []ReplyModel{
+		{Comment: "", Image: false},
+		{Comment: "d", Image: false},
+		{Comment: randSeq(2000), Image: false},
+		{Comment: "d", Image: true},
+		{Comment: randSeq(2000), Image: true},
 	}
 
-	assert.True(t, reply.IsValid(), "Should not be false")
-}
-
-func TestReplyIsValidNoCommentNoImage(t *testing.T) {
-
-	reply := ReplyModel{
-		UID:     1,
-		Ib:      1,
-		Thread:  1,
-		IP:      "10.0.0.1",
-		Comment: "",
-		Image:   false,
+	for _, reply := range badreplies {
+		assert.Error(t, reply.ValidateInput(), "Should return error")
 	}
 
-	assert.False(t, reply.IsValid(), "Should be false")
-}
-
-func TestReplyIsValidImage(t *testing.T) {
-
-	reply := ReplyModel{
-		UID:         1,
-		Ib:          1,
-		Thread:      1,
-		IP:          "10.0.0.1",
-		Comment:     "",
-		Image:       true,
-		Filename:    "test.jpg",
-		Thumbnail:   "tests.jpg",
-		MD5:         "test",
-		OrigWidth:   1000,
-		OrigHeight:  1000,
-		ThumbWidth:  100,
-		ThumbHeight: 100,
+	goodreplies := []ReplyModel{
+		{Comment: "hello there", Image: false},
+		{Comment: "hello there", Image: true},
+		{Comment: "", Image: true},
 	}
 
-	assert.True(t, reply.IsValid(), "Should not be false")
-}
-
-func TestReplyIsValidImageNoStats(t *testing.T) {
-
-	reply := ReplyModel{
-		UID:     1,
-		Ib:      1,
-		Thread:  1,
-		IP:      "10.0.0.1",
-		Comment: "",
-		Image:   true,
+	for _, reply := range goodreplies {
+		assert.NoError(t, reply.ValidateInput(), "Should not return error")
 	}
-
-	assert.False(t, reply.IsValid(), "Should be false")
-}
-
-func TestReplyIsValidImageBadStats(t *testing.T) {
-
-	reply := ReplyModel{
-		UID:         1,
-		Ib:          1,
-		Thread:      1,
-		IP:          "10.0.0.1",
-		Comment:     "",
-		Image:       true,
-		Filename:    "",
-		Thumbnail:   "",
-		MD5:         "",
-		OrigWidth:   0,
-		OrigHeight:  0,
-		ThumbWidth:  0,
-		ThumbHeight: 0,
-	}
-
-	assert.False(t, reply.IsValid(), "Should be false")
-}
-
-func TestReplyValidateInputCommentEmpty(t *testing.T) {
-
-	var err error
-
-	reply := ReplyModel{
-		UID:     1,
-		Ib:      1,
-		Thread:  1,
-		IP:      "10.0.0.1",
-		Comment: "",
-		Image:   false,
-	}
-
-	err = reply.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrNoComment, err, "Error should match")
-	}
-
-}
-
-func TestReplyValidateInputCommentShort(t *testing.T) {
-
-	var err error
-
-	reply := ReplyModel{
-		UID:     1,
-		Ib:      1,
-		Thread:  1,
-		IP:      "10.0.0.1",
-		Comment: "d",
-		Image:   false,
-	}
-
-	err = reply.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrCommentShort, err, "Error should match")
-	}
-
-}
-
-func TestReplyValidateInputShortCommentWithImage(t *testing.T) {
-
-	var err error
-
-	reply := ReplyModel{
-		UID:     1,
-		Ib:      1,
-		Thread:  1,
-		IP:      "10.0.0.1",
-		Comment: "d",
-		Image:   true,
-	}
-
-	err = reply.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrCommentShort, err, "Error should match")
-	}
-
 }
 
 func TestReplyStatus(t *testing.T) {

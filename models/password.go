@@ -37,7 +37,7 @@ func (m *PasswordModel) IsValid() bool {
 		return false
 	}
 
-	if m.NewHashed == nil {
+	if m.NewHashed == nil || len(m.NewHashed) == 0 {
 		return false
 	}
 

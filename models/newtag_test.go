@@ -15,62 +15,52 @@ func TestNewTagValidateInput(t *testing.T) {
 
 	var err error
 
-	tag := NewTagModel{
+	badtags := []NewTagModel{
+		{Ib: 0, Tag: "test", TagType: 1},
+		{Ib: 1, Tag: "", TagType: 1},
+		{Ib: 1, Tag: "test", TagType: 0},
+		{Ib: 1, Tag: "t", TagType: 1},
+		{Ib: 1, Tag: "t   ", TagType: 1},
+		{Ib: 1, Tag: "tt ", TagType: 1},
+		{Ib: 1, Tag: "       t", TagType: 1},
+		{Ib: 1, Tag: "ebgbmmvizycogyypifbnppywtvjdgkncaxmlhdnfibnmxwhmkvvxokfaaoexgdqnoaainnmuykfhymldalggtehdkhznbvddbztgzovshahgqykqxltmxwlfbagjkwlhpeajfdwfaguvtpalkochtlbpqezltaunhhgoaltoidbzfnrvpqgeyijorhzyqdzvonwscwaomkqlnqjyyljgrwtrcdquehdbqmqraayixjrssmfqojbpmitnwtfeavzieyqiltupeqklbqzrqmmhykhgcknvhwvvshgggxuxgnigaenfjwjmiosfxoeddaygkuonrowwkhoiyazcpuxmpdezjcpjecohagdiuqrkzjheepjrybcqpwpnehdhsdoxvhypxybodjksuekznotwpklkcobdohnzscilvttqjpzfseuvtuqfiyrpcnpxvdfenjifkqdrupmvdrtztbsvvkbgnvincfbmpgvufzghwcgoeggyhoxbwvficizqhutjizrgpqtmgabmhmxluqsetldpjhkmnbtxcxfqcwnezllvycvakgdozncjsnxeotiteuhxyctbflnzrrzlvqqndkictvkhcxjjdkgsheexzyxykidmkbnsdpndxlcpoeepbnywt", TagType: 1},
+	}
+
+	for _, input := range badtags {
+		err = input.ValidateInput()
+		assert.Error(t, err, "An error was expected")
+	}
+
+	goodtag := NewTagModel{
 		Ib:      1,
 		Tag:     "test",
-		TagType: 0,
-	}
-
-	err = tag.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrInvalidParam, err, "Error should match")
-	}
-
-}
-
-func TestNewTagValidateInputTagShort(t *testing.T) {
-
-	var err error
-
-	tag := NewTagModel{
-		Ib:      1,
-		Tag:     "t",
 		TagType: 1,
 	}
 
-	err = tag.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrTagShort, err, "Error should match")
-	}
-
-}
-
-func TestNewTagValidateInputTagEmpty(t *testing.T) {
-
-	var err error
-
-	tag := NewTagModel{
-		Ib:      1,
-		Tag:     "",
-		TagType: 1,
-	}
-
-	err = tag.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrNoTagName, err, "Error should match")
-	}
+	err = goodtag.ValidateInput()
+	assert.NoError(t, err, "An error was not expected")
 
 }
 
 func TestNewTagIsValid(t *testing.T) {
 
-	tag := NewTagModel{
+	badtags := []NewTagModel{
+		{Ib: 0, Tag: "test", TagType: 1},
+		{Ib: 1, Tag: "", TagType: 1},
+		{Ib: 1, Tag: "test", TagType: 0},
+	}
+
+	for _, input := range badtags {
+		assert.False(t, input.IsValid(), "Should be false")
+	}
+
+	goodtag := NewTagModel{
 		Ib:      1,
-		Tag:     "",
+		Tag:     "test",
 		TagType: 1,
 	}
 
-	assert.False(t, tag.IsValid(), "Should be false")
+	assert.True(t, goodtag.IsValid(), "Should be true")
 
 }
 

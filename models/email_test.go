@@ -14,13 +14,17 @@ import (
 
 func TestEmailIsValid(t *testing.T) {
 
-	email := EmailModel{
-		UID:   1,
-		Name:  "test",
-		Email: "cool@test.com",
+	bademails := []EmailModel{
+		{UID: 0, Name: "test", Email: "test@test.com"},
+		{UID: 1, Name: "test", Email: "test@test.com"},
+		{UID: 2, Name: "test", Email: ""},
+		{UID: 2, Name: "", Email: "notanemail"},
+		{UID: 2, Name: "", Email: ""},
 	}
 
-	assert.False(t, email.IsValid(), "Should be false")
+	for _, input := range bademails {
+		assert.False(t, input.IsValid(), "Should be false")
+	}
 
 }
 

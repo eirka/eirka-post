@@ -8,105 +8,34 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
 	"github.com/eirka/eirka-libs/db"
-	e "github.com/eirka/eirka-libs/errors"
 )
 
-func TestRegisterValidatePasswordEmpty(t *testing.T) {
+func TestRegisterValidate(t *testing.T) {
 
 	var err error
 
-	register := RegisterModel{
+	badregisters := []RegisterModel{
+		{Name: "", Email: "", Password: "password"},
+		{Name: "t", Email: "", Password: "password"},
+		{Name: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", Email: "", Password: "password"},
+		{Name: "test", Email: "", Password: ""},
+		{Name: "test", Email: "", Password: "pas"},
+		{Name: "test", Email: "", Password: "ebgbmmvizycogyypifbnppywtvjdgkncaxmlhdnfibnmxwhmkvvxokfaaoexgdqnoaainnmuykfhymldalggtehdkhznbvddbztgzovshahgqykqxltmxwlfbagjkwlhpeajfdwfaguvtpalkochtlbpqezltaunhhgoaltoidbzfnrvpqgeyijorhzyqdzvonwscwaomkqlnqjyyljgrwtrcdquehdbqmqraayixjrssmfqojbpmitnwtfeavzieyqiltupeqklbqzrqmmhykhgcknvhwvvshgggxuxgnigaenfjwjmiosfxoeddaygkuonrowwkhoiyazcpuxmpdezjcpjecohagdiuqrkzjheepjrybcqpwpnehdhsdoxvhypxybodjksuekznotwpklkcobdohnzscilvttqjpzfseuvtuqfiyrpcnpxvdfenjifkqdrupmvdrtztbsvvkbgnvincfbmpgvufzghwcgoeggyhoxbwvficizqhutjizrgpqtmgabmhmxluqsetldpjhkmnbtxcxfqcwnezllvycvakgdozncjsnxeotiteuhxyctbflnzrrzlvqqndkictvkhcxjjdkgsheexzyxykidmkbnsdpndxlcpoeepbnywt"},
+		{Name: "test", Email: "notanemail", Password: "password"},
+	}
+
+	for _, register := range badregisters {
+		err = register.Validate()
+		assert.Error(t, err, "An error was expected")
+	}
+
+	goodregister := RegisterModel{
 		Name:     "test",
-		Email:    "fart@blah.com",
-		Password: "",
-	}
-
-	err = register.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrPasswordEmpty, err, "Error should match")
-	}
-
-}
-
-func TestRegisterValidatePasswordShort(t *testing.T) {
-
-	var err error
-
-	register := RegisterModel{
-		Name:     "test",
-		Email:    "fart@blah.com",
-		Password: "blah",
-	}
-
-	err = register.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrPasswordShort, err, "Error should match")
-	}
-
-}
-
-func TestRegisterValidateNameEmpty(t *testing.T) {
-
-	var err error
-
-	register := RegisterModel{
-		Name:     "",
-		Email:    "fart@blah.com",
+		Email:    "test@test.com",
 		Password: "password",
 	}
 
-	err = register.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrNameEmpty, err, "Error should match")
-	}
-
-}
-
-func TestRegisterValidateNameShort(t *testing.T) {
-
-	var err error
-
-	register := RegisterModel{
-		Name:     "te",
-		Email:    "fart@blah.com",
-		Password: "password",
-	}
-
-	err = register.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrNameShort, err, "Error should match")
-	}
-
-}
-
-func TestRegisterValidateEmail(t *testing.T) {
-
-	var err error
-
-	register := RegisterModel{
-		Name:     "test",
-		Email:    "fart@blah",
-		Password: "password",
-	}
-
-	err = register.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrInvalidEmail, err, "Error should match")
-	}
-
-}
-
-func TestRegisterValidateEmailMissing(t *testing.T) {
-
-	var err error
-
-	register := RegisterModel{
-		Name:     "test",
-		Email:    "",
-		Password: "password",
-	}
-
-	err = register.Validate()
+	err = goodregister.Validate()
 	assert.NoError(t, err, "An error was not expected")
 
 }
@@ -153,6 +82,37 @@ func TestRegister(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 
 	assert.Equal(t, register.UID, uint(2), "Error should match")
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
+}
+
+func TestRegisterBadUID(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec("INSERT into users").
+		WithArgs("test", "test@blah.com", []byte("fake"), 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.ExpectRollback()
+
+	register := RegisterModel{
+		Name:   "test",
+		Email:  "test@blah.com",
+		Hashed: []byte("fake"),
+	}
+
+	err = register.Register()
+	assert.Error(t, err, "An error was expected")
+
+	assert.Equal(t, register.UID, uint(1), "Error should match")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 

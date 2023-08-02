@@ -15,26 +15,47 @@ func TestFavoritesValidateInput(t *testing.T) {
 
 	var err error
 
-	favorite := FavoritesModel{
-		UID:   1,
+	badfavorites := []FavoritesModel{
+		{UID: 0, Image: 1},
+		{UID: 1, Image: 1},
+		{UID: 2, Image: 0},
+	}
+
+	for _, input := range badfavorites {
+		err = input.ValidateInput()
+		if assert.Error(t, err, "An error was expected") {
+			assert.Equal(t, e.ErrInvalidParam, err, "Error should match")
+		}
+	}
+
+	goodfavorite := FavoritesModel{
+		UID:   2,
 		Image: 1,
 	}
 
-	err = favorite.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrInvalidParam, err, "Error should match")
-	}
+	err = goodfavorite.ValidateInput()
+	assert.NoError(t, err, "An error was not expected")
 
 }
 
 func TestFavoritesIsValid(t *testing.T) {
 
-	favorite := FavoritesModel{
-		UID:   1,
+	badfavorites := []FavoritesModel{
+		{UID: 0, Image: 1},
+		{UID: 1, Image: 1},
+		{UID: 2, Image: 0},
+	}
+
+	for _, input := range badfavorites {
+		assert.False(t, input.IsValid(), "Should be false")
+	}
+
+	goodfavorite := FavoritesModel{
+		UID:   2,
 		Image: 1,
 	}
 
-	assert.False(t, favorite.IsValid(), "Should be false")
+	assert.True(t, goodfavorite.IsValid(), "Should be true")
 
 }
 
@@ -124,6 +145,22 @@ func TestFavoritesPostInvalid(t *testing.T) {
 	}
 
 	err = favorite.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, errors.New("FavoritesModel is not valid"), err, "Error should match")
+	}
+
+}
+
+func TestFavoriteStatusInvalid(t *testing.T) {
+
+	var err error
+
+	favorite := FavoritesModel{
+		UID:   1,
+		Image: 1,
+	}
+
+	err = favorite.Status()
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, errors.New("FavoritesModel is not valid"), err, "Error should match")
 	}

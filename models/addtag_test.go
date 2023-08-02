@@ -15,28 +15,48 @@ func TestAddTagValidateInput(t *testing.T) {
 
 	var err error
 
-	tag := AddTagModel{
+	var badinputs = []AddTagModel{
+		{Ib: 0, Tag: 1, Image: 1},
+		{Ib: 1, Tag: 0, Image: 1},
+		{Ib: 1, Tag: 1, Image: 0},
+	}
+
+	for _, input := range badinputs {
+		err = input.ValidateInput()
+		if assert.Error(t, err, "An error was expected") {
+			assert.Equal(t, e.ErrInvalidParam, err, "Error should match")
+		}
+	}
+
+	goodinput := AddTagModel{
 		Ib:    1,
-		Tag:   0,
-		Image: 1,
-	}
-
-	err = tag.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrInvalidParam, err, "Error should match")
-	}
-
-}
-
-func TestAddTagIsValid(t *testing.T) {
-
-	tag := AddTagModel{
-		Ib:    0,
 		Tag:   1,
 		Image: 1,
 	}
 
-	assert.False(t, tag.IsValid(), "Should be false")
+	err = goodinput.ValidateInput()
+	assert.NoError(t, err, "No error was expected")
+}
+
+func TestAddTagIsValid(t *testing.T) {
+
+	var badinputs = []AddTagModel{
+		{Ib: 0, Tag: 1, Image: 1},
+		{Ib: 1, Tag: 0, Image: 1},
+		{Ib: 1, Tag: 1, Image: 0},
+	}
+
+	for _, input := range badinputs {
+		assert.False(t, input.IsValid(), "Should be false")
+	}
+
+	tag := AddTagModel{
+		Ib:    1,
+		Tag:   1,
+		Image: 1,
+	}
+
+	assert.True(t, tag.IsValid(), "Should be true")
 
 }
 

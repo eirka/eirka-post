@@ -8,91 +8,51 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
 	"github.com/eirka/eirka-libs/db"
-	e "github.com/eirka/eirka-libs/errors"
 )
 
-func TestPasswordValidateShortNewPw(t *testing.T) {
+func TestPasswordValidate(t *testing.T) {
 
 	var err error
 
-	password := PasswordModel{
-		UID:   1,
-		Name:  "test",
-		OldPw: "oldpassword",
-		NewPw: "short",
+	badpasswords := []PasswordModel{
+		{UID: 2, Name: "test", OldPw: "oldpassword", NewPw: "new", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "oldpassword", NewPw: "", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "oldpassword", NewPw: "ebgbmmvizycogyypifbnppywtvjdgkncaxmlhdnfibnmxwhmkvvxokfaaoexgdqnoaainnmuykfhymldalggtehdkhznbvddbztgzovshahgqykqxltmxwlfbagjkwlhpeajfdwfaguvtpalkochtlbpqezltaunhhgoaltoidbzfnrvpqgeyijorhzyqdzvonwscwaomkqlnqjyyljgrwtrcdquehdbqmqraayixjrssmfqojbpmitnwtfeavzieyqiltupeqklbqzrqmmhykhgcknvhwvvshgggxuxgnigaenfjwjmiosfxoeddaygkuonrowwkhoiyazcpuxmpdezjcpjecohagdiuqrkzjheepjrybcqpwpnehdhsdoxvhypxybodjksuekznotwpklkcobdohnzscilvttqjpzfseuvtuqfiyrpcnpxvdfenjifkqdrupmvdrtztbsvvkbgnvincfbmpgvufzghwcgoeggyhoxbwvficizqhutjizrgpqtmgabmhmxluqsetldpjhkmnbtxcxfqcwnezllvycvakgdozncjsnxeotiteuhxyctbflnzrrzlvqqndkictvkhcxjjdkgsheexzyxykidmkbnsdpndxlcpoeepbnywt", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "old", NewPw: "newpassword", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "", NewPw: "newpassword", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "ebgbmmvizycogyypifbnppywtvjdgkncaxmlhdnfibnmxwhmkvvxokfaaoexgdqnoaainnmuykfhymldalggtehdkhznbvddbztgzovshahgqykqxltmxwlfbagjkwlhpeajfdwfaguvtpalkochtlbpqezltaunhhgoaltoidbzfnrvpqgeyijorhzyqdzvonwscwaomkqlnqjyyljgrwtrcdquehdbqmqraayixjrssmfqojbpmitnwtfeavzieyqiltupeqklbqzrqmmhykhgcknvhwvvshgggxuxgnigaenfjwjmiosfxoeddaygkuonrowwkhoiyazcpuxmpdezjcpjecohagdiuqrkzjheepjrybcqpwpnehdhsdoxvhypxybodjksuekznotwpklkcobdohnzscilvttqjpzfseuvtuqfiyrpcnpxvdfenjifkqdrupmvdrtztbsvvkbgnvincfbmpgvufzghwcgoeggyhoxbwvficizqhutjizrgpqtmgabmhmxluqsetldpjhkmnbtxcxfqcwnezllvycvakgdozncjsnxeotiteuhxyctbflnzrrzlvqqndkictvkhcxjjdkgsheexzyxykidmkbnsdpndxlcpoeepbnywt", NewPw: "newpassword", NewHashed: []byte("fake")},
 	}
 
-	err = password.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrPasswordShort, err, "Error should match")
+	for _, input := range badpasswords {
+		err = input.Validate()
+		assert.Error(t, err, "An error was expected")
 	}
 
-}
-
-func TestPasswordValidateShortOldPw(t *testing.T) {
-
-	var err error
-
-	password := PasswordModel{
-		UID:   1,
-		Name:  "test",
-		OldPw: "short",
-		NewPw: "newpassword",
+	goodpasswords := []PasswordModel{
+		{UID: 2, Name: "test", OldPw: "oldpassword", NewPw: "newpassword", NewHashed: []byte("fake")},
 	}
 
-	err = password.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrPasswordShort, err, "Error should match")
+	for _, input := range goodpasswords {
+		err = input.Validate()
+		assert.NoError(t, err, "An error was not expected")
 	}
-
-}
-
-func TestPasswordValidateEmptyNewPw(t *testing.T) {
-
-	var err error
-
-	password := PasswordModel{
-		UID:   1,
-		Name:  "test",
-		OldPw: "oldpassword",
-		NewPw: "",
-	}
-
-	err = password.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrPasswordEmpty, err, "Error should match")
-	}
-
-}
-
-func TestPasswordValidateEmptyOldPw(t *testing.T) {
-
-	var err error
-
-	password := PasswordModel{
-		UID:   1,
-		Name:  "test",
-		OldPw: "",
-		NewPw: "newpassword",
-	}
-
-	err = password.Validate()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrPasswordEmpty, err, "Error should match")
-	}
-
 }
 
 func TestPasswordIsValid(t *testing.T) {
 
-	password := PasswordModel{
-		UID:   1,
-		Name:  "test",
-		OldPw: "blah",
-		NewPw: "newpassword",
+	badpasswords := []PasswordModel{
+		{UID: 0, Name: "test", OldPw: "oldpassword", NewPw: "newpassword", NewHashed: []byte("fake")},
+		{UID: 1, Name: "test", OldPw: "oldpassword", NewPw: "newpassword", NewHashed: []byte("fake")},
+		{UID: 2, Name: "", OldPw: "oldpassword", NewPw: "newpassword", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "", NewPw: "newpassword", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "oldpassword", NewPw: "", NewHashed: []byte("fake")},
+		{UID: 2, Name: "test", OldPw: "oldpassword", NewPw: "newpassword", NewHashed: nil},
+		{UID: 2, Name: "test", OldPw: "oldpassword", NewPw: "newpassword", NewHashed: []byte("")},
 	}
 
-	assert.False(t, password.IsValid(), "Should be false")
+	for _, password := range badpasswords {
+		assert.False(t, password.IsValid(), "Should be false")
+	}
 
 }
 
@@ -136,5 +96,4 @@ func TestPasswordUpdateInvalid(t *testing.T) {
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, errors.New("PasswordModel is not valid"), err, "Error should match")
 	}
-
 }

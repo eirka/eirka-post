@@ -8,149 +8,59 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
 	"github.com/eirka/eirka-libs/db"
-	e "github.com/eirka/eirka-libs/errors"
 )
 
 func TestThreadIsValid(t *testing.T) {
 
-	thread := ThreadModel{
-		UID:         1,
-		Ib:          0,
-		IP:          "10.0.0.1",
-		Title:       "a cool thread",
-		Comment:     "test",
-		Filename:    "test.jpg",
-		Thumbnail:   "tests.jpg",
-		MD5:         "test",
-		OrigWidth:   1000,
-		OrigHeight:  1000,
-		ThumbWidth:  100,
-		ThumbHeight: 100,
+	badthreads := []ThreadModel{
+		{UID: 0, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 0, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 0, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 0, ThumbWidth: 100, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 0, ThumbHeight: 100},
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 0},
 	}
 
-	assert.False(t, thread.IsValid(), "Should be false")
+	for _, v := range badthreads {
+		assert.False(t, v.IsValid(), "Should return false")
+	}
+
+	goodthreads := []ThreadModel{
+		{UID: 1, Ib: 1, IP: "127.0.0.1", Title: "test", Comment: "test", Filename: "test.jpg", Thumbnail: "test.jpg", MD5: "test", OrigWidth: 1000, OrigHeight: 1000, ThumbWidth: 100, ThumbHeight: 100},
+	}
+
+	for _, v := range goodthreads {
+		assert.True(t, v.IsValid(), "Should return true")
+	}
 }
 
-func TestThreadIsValidImageBadStats(t *testing.T) {
+func TestThreadValidateInput(t *testing.T) {
 
-	thread := ThreadModel{
-		UID:         1,
-		Ib:          1,
-		IP:          "10.0.0.1",
-		Title:       "a cool thread",
-		Comment:     "test",
-		Filename:    "test.jpg",
-		Thumbnail:   "tests.jpg",
-		MD5:         "test",
-		OrigWidth:   0,
-		OrigHeight:  0,
-		ThumbWidth:  0,
-		ThumbHeight: 0,
+	badthreads := []ThreadModel{
+		{Title: ""},
+		{Title: "d"},
+		{Title: randSeq(2000)},
+		{Title: "cool", Comment: ""},
+		{Title: "cool", Comment: "f"},
+		{Title: "cool", Comment: randSeq(2000)},
 	}
 
-	assert.False(t, thread.IsValid(), "Should be false")
-}
-
-func TestThreadValidateInputCommentEmpty(t *testing.T) {
-
-	var err error
-
-	thread := ThreadModel{
-		UID:         1,
-		Ib:          1,
-		IP:          "10.0.0.1",
-		Title:       "a cool thread",
-		Comment:     "",
-		Filename:    "test.jpg",
-		Thumbnail:   "tests.jpg",
-		MD5:         "test",
-		OrigWidth:   1000,
-		OrigHeight:  1000,
-		ThumbWidth:  100,
-		ThumbHeight: 100,
+	for _, thread := range badthreads {
+		assert.Error(t, thread.ValidateInput(), "Should return error")
 	}
 
-	err = thread.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrNoComment, err, "Error should match")
+	goodthreads := []ThreadModel{
+		{Title: "hello there", Comment: "general kenobi"},
 	}
 
-}
-
-func TestThreadValidateInputCommentShort(t *testing.T) {
-
-	var err error
-
-	thread := ThreadModel{
-		UID:         1,
-		Ib:          1,
-		IP:          "10.0.0.1",
-		Title:       "a cool thread",
-		Comment:     "t",
-		Filename:    "test.jpg",
-		Thumbnail:   "tests.jpg",
-		MD5:         "test",
-		OrigWidth:   1000,
-		OrigHeight:  1000,
-		ThumbWidth:  100,
-		ThumbHeight: 100,
-	}
-
-	err = thread.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrCommentShort, err, "Error should match")
-	}
-
-}
-
-func TestThreadValidateInputTitleEmpty(t *testing.T) {
-
-	var err error
-
-	thread := ThreadModel{
-		UID:         1,
-		Ib:          1,
-		IP:          "10.0.0.1",
-		Title:       "",
-		Comment:     "cool post bro",
-		Filename:    "test.jpg",
-		Thumbnail:   "tests.jpg",
-		MD5:         "test",
-		OrigWidth:   1000,
-		OrigHeight:  1000,
-		ThumbWidth:  100,
-		ThumbHeight: 100,
-	}
-
-	err = thread.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrNoTitle, err, "Error should match")
-	}
-
-}
-
-func TestThreadValidateInputTitleShort(t *testing.T) {
-
-	var err error
-
-	thread := ThreadModel{
-		UID:         1,
-		Ib:          1,
-		IP:          "10.0.0.1",
-		Title:       "a",
-		Comment:     "cool post bro",
-		Filename:    "test.jpg",
-		Thumbnail:   "tests.jpg",
-		MD5:         "test",
-		OrigWidth:   1000,
-		OrigHeight:  1000,
-		ThumbWidth:  100,
-		ThumbHeight: 100,
-	}
-
-	err = thread.ValidateInput()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrTitleShort, err, "Error should match")
+	for _, thread := range goodthreads {
+		assert.NoError(t, thread.ValidateInput(), "Should not return error")
 	}
 
 }
