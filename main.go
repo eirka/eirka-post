@@ -86,8 +86,8 @@ func main() {
 	public := r.Group("/")
 	public.Use(user.Auth(false))
 
-	public.POST("/thread/new", m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ThreadController)
-	public.POST("/thread/reply", m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ReplyController)
+	public.POST("/thread/new", m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ThreadController)
+	public.POST("/thread/reply", m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ReplyController)
 	public.POST("/register", m.StopSpam(), m.Scamalytics(), c.RegisterController)
 	public.POST("/login", c.LoginController)
 	public.POST("/logout", c.LogoutController)
