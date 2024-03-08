@@ -21,8 +21,9 @@ func Goodnight() gin.HandlerFunc {
 
 		start, _ := time.Parse(time.TimeOnly, "08:00:00")
 		end, _ := time.Parse(time.TimeOnly, "15:00:00")
+		now, _ := time.Parse(time.TimeOnly, timeNow().Format(time.TimeOnly))
 
-		if inTimeSpan(start, end, timeNow()) {
+		if inTimeSpan(start, end, now) {
 			c.JSON(e.ErrorMessage(&e.RequestError{ErrorString: errPostingDisabled, ErrorCode: http.StatusForbidden}))
 			c.Error(errors.New(errPostingDisabled)).SetMeta("Goodnight")
 			c.Abort()
