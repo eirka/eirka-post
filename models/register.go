@@ -29,7 +29,7 @@ func (r *RegisterModel) IsValid() bool {
 		return false
 	}
 
-	if r.Hashed == nil || len(r.Hashed) == 0 {
+	if len(r.Hashed) == 0 {
 		return false
 	}
 

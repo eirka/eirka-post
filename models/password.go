@@ -37,7 +37,7 @@ func (m *PasswordModel) IsValid() bool {
 		return false
 	}
 
-	if m.NewHashed == nil || len(m.NewHashed) == 0 {
+	if len(m.NewHashed) == 0 {
 		return false
 	}
 
@@ -81,7 +81,7 @@ func (m *PasswordModel) Update() (err error) {
 	}
 
 	// update user password
-	user.UpdatePassword(m.NewHashed, m.UID)
+	err = user.UpdatePassword(m.NewHashed, m.UID)
 	if err != nil {
 		return
 	}
