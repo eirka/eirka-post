@@ -12,12 +12,13 @@ import (
 	"github.com/eirka/eirka-post/models"
 )
 
-// Add a favorites
+// favoritesForm contains the user input for the favorites toggle
 type favoritesForm struct {
 	Image uint `json:"image" binding:"required"`
 }
 
-// FavoritesController handles adding an image to a users favorites
+// FavoritesController handles adding or removing an image from a user's favorites
+// Acts as a toggle: adds if not favorited, removes if already favorited
 func FavoritesController(c *gin.Context) {
 	var err error
 	var ff favoritesForm
@@ -46,25 +47,37 @@ func FavoritesController(c *gin.Context) {
 		return
 	}
 
-	// Check fav, if its there delete it because i dont want this to be too complicated
+	// Check if image is already favorited and handle accordingly
 	err = m.Status()
 	if err == e.ErrFavoriteRemoved {
+		// Favorite was removed successfully
 		c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditFavoriteRemoved})
 		return
+	} else if err == e.ErrNotFound {
+		// Image doesn't exist
+		c.JSON(e.ErrorMessage(e.ErrNotFound))
+		c.Error(err).SetMeta("FavoritesController.Status")
+		return
 	} else if err != nil {
+		// Other database error
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("FavoritesController.Status")
 		return
 	}
 
-	// Post data
+	// Post data (add favorite)
 	err = m.Post()
-	if err != nil {
+	if err == e.ErrNotFound {
+		// Image doesn't exist
+		c.JSON(e.ErrorMessage(e.ErrNotFound))
+		c.Error(err).SetMeta("FavoritesController.Post")
+		return
+	} else if err != nil {
+		// Other database error
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("FavoritesController.Post")
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditFavoriteAdded})
-
 }

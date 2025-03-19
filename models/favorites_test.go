@@ -68,11 +68,18 @@ func TestFavoritesStatus(t *testing.T) {
 	defer db.CloseDb()
 
 	mock.ExpectBegin()
-	rows := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	// Image exists
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
+		WithArgs(1).
+		WillReturnRows(rows)
+	
+	// No favorite exists
+	rows = sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \? FOR UPDATE`).
 		WithArgs(1, 2).
 		WillReturnRows(rows)
-	mock.ExpectCommit()
+	mock.ExpectRollback()
 
 	favorite := FavoritesModel{
 		UID:   2,
@@ -95,11 +102,19 @@ func TestFavoritesStatusRemove(t *testing.T) {
 	defer db.CloseDb()
 
 	mock.ExpectBegin()
+	// Image exists
 	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
+		WithArgs(1).
+		WillReturnRows(rows)
+	
+	// Favorite exists
+	rows = sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \? FOR UPDATE`).
 		WithArgs(1, 2).
 		WillReturnRows(rows)
 
+	// Delete the favorite
 	mock.ExpectExec("DELETE FROM favorites").
 		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
@@ -116,7 +131,6 @@ func TestFavoritesStatusRemove(t *testing.T) {
 	}
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
-
 }
 
 func TestFavoritesPost(t *testing.T) {
@@ -128,6 +142,19 @@ func TestFavoritesPost(t *testing.T) {
 	defer db.CloseDb()
 
 	mock.ExpectBegin()
+	// Image exists
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
+		WithArgs(1).
+		WillReturnRows(rows)
+	
+	// Favorite doesn't exist
+	rows = sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \?`).
+		WithArgs(1, 2).
+		WillReturnRows(rows)
+
+	// Insert the favorite
 	mock.ExpectExec("INSERT into favorites").
 		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
@@ -142,7 +169,6 @@ func TestFavoritesPost(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
-
 }
 
 func TestFavoritesPostTxError(t *testing.T) {
@@ -221,4 +247,92 @@ func TestFavoriteStatusInvalid(t *testing.T) {
 		assert.Equal(t, errors.New("FavoritesModel is not valid"), err, "Error should match")
 	}
 
+}
+
+func TestFavoritesStatusImageNotFound(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+	// Image does not exist
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
+		WithArgs(1).
+		WillReturnRows(rows)
+	mock.ExpectRollback()
+
+	favorite := FavoritesModel{
+		UID:   2,
+		Image: 1,
+	}
+
+	err = favorite.Status()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, e.ErrNotFound, err, "Error should match")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
+func TestFavoritesPostImageNotFound(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+	// Image does not exist
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
+		WithArgs(1).
+		WillReturnRows(rows)
+	mock.ExpectRollback()
+
+	favorite := FavoritesModel{
+		UID:   2,
+		Image: 1,
+	}
+
+	err = favorite.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, e.ErrNotFound, err, "Error should match")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
+func TestFavoritesPostAlreadyExists(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+	// Image exists
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
+		WithArgs(1).
+		WillReturnRows(rows)
+	
+	// Favorite already exists
+	rows = sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \?`).
+		WithArgs(1, 2).
+		WillReturnRows(rows)
+	mock.ExpectRollback()
+
+	favorite := FavoritesModel{
+		UID:   2,
+		Image: 1,
+	}
+
+	err = favorite.Post()
+	assert.NoError(t, err, "An error was not expected")
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }

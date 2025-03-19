@@ -43,7 +43,9 @@ func (m *FavoritesModel) ValidateInput() (err error) {
 
 }
 
-// Status will return info
+// Status checks if the image exists and if it's already favorited
+// Returns e.ErrFavoriteRemoved if the favorite was removed
+// Returns e.ErrNotFound if the image doesn't exist
 func (m *FavoritesModel) Status() (err error) {
 
 	// check model validity
@@ -58,6 +60,18 @@ func (m *FavoritesModel) Status() (err error) {
 	}
 	defer tx.Rollback()
 
+	// Check if image exists
+	var imageExists bool
+	err = tx.QueryRow("SELECT count(1) FROM images WHERE image_id = ?", m.Image).Scan(&imageExists)
+	if err != nil {
+		return
+	}
+
+	// Return error if image doesn't exist
+	if !imageExists {
+		return e.ErrNotFound
+	}
+
 	var check bool
 
 	// Check if favorite is already there with row locking to prevent race conditions
@@ -68,7 +82,6 @@ func (m *FavoritesModel) Status() (err error) {
 
 	// delete if it does
 	if check {
-
 		_, err = tx.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ?", m.Image, m.UID)
 		if err != nil {
 			return err
@@ -81,20 +94,16 @@ func (m *FavoritesModel) Status() (err error) {
 		}
 
 		return e.ErrFavoriteRemoved
-
 	}
 
-	// Commit transaction
-	err = tx.Commit()
-	if err != nil {
-		return
-	}
+	// Don't commit unless we made changes
+	tx.Rollback()
 
 	return
-
 }
 
-// Post will add the fav to the database
+// Post adds the favorite to the database
+// Verifies the image exists before adding
 func (m *FavoritesModel) Post() (err error) {
 
 	// check model validity
@@ -109,6 +118,31 @@ func (m *FavoritesModel) Post() (err error) {
 	}
 	defer tx.Rollback()
 
+	// Check if image exists
+	var imageExists bool
+	err = tx.QueryRow("SELECT count(1) FROM images WHERE image_id = ?", m.Image).Scan(&imageExists)
+	if err != nil {
+		return
+	}
+
+	// Return error if image doesn't exist
+	if !imageExists {
+		return e.ErrNotFound
+	}
+
+	// Check if favorite already exists (shouldn't happen with normal flow, but prevents duplicates)
+	var favExists bool
+	err = tx.QueryRow("SELECT count(1) FROM favorites WHERE image_id = ? AND user_id = ?", m.Image, m.UID).Scan(&favExists)
+	if err != nil {
+		return
+	}
+
+	// Skip if favorite already exists
+	if favExists {
+		return nil
+	}
+
+	// Insert the favorite
 	_, err = tx.Exec("INSERT into favorites (image_id, user_id) VALUES (?,?)", m.Image, m.UID)
 	if err != nil {
 		return
@@ -121,5 +155,4 @@ func (m *FavoritesModel) Post() (err error) {
 	}
 
 	return
-
 }
