@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -58,15 +59,21 @@ func TestAddTagController(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
 
 	duperows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`select count\(1\) from tagmap`).WillReturnRows(duperows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM tagmap WHERE tag_id = \? AND image_id = \? FOR UPDATE`).
+		WithArgs(1, 1).
+		WillReturnRows(duperows)
+	mock.ExpectCommit()
 
+	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tagmap").
 		WithArgs(1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
 	mock.ExpectExec(`INSERT INTO audit \(user_id,ib_id,audit_type,audit_ip,audit_time,audit_action,audit_info\)`).
 		WithArgs(1, 1, audit.BoardLog, "127.0.0.1", audit.AuditAddTag, "1").
@@ -78,6 +85,63 @@ func TestAddTagController(t *testing.T) {
 
 	first := performJSONRequest(router, "POST", "/tag/add", request)
 
+	assert.Equal(t, 200, first.Code, "HTTP request code should match")
+	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+
+}
+
+func TestAddTagControllerRedisError(t *testing.T) {
+
+	var err error
+
+	user.Secret = "secret"
+
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+	router.TrustedPlatform = "X-Real-IP"
+
+	router.Use(user.Auth(false))
+
+	router.POST("/tag/add", AddTagController)
+
+	// Set up fake Redis connection
+	redis.NewRedisMock()
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
+
+	duperows := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	mock.ExpectQuery(`SELECT count\(1\) FROM tagmap WHERE tag_id = \? AND image_id = \? FOR UPDATE`).
+		WithArgs(1, 1).
+		WillReturnRows(duperows)
+	mock.ExpectCommit()
+
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT into tagmap").
+		WithArgs(1, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	mock.ExpectExec(`INSERT INTO audit \(user_id,ib_id,audit_type,audit_ip,audit_time,audit_action,audit_info\)`).
+		WithArgs(1, 1, audit.BoardLog, "127.0.0.1", audit.AuditAddTag, "1").
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// Simulate Redis failure
+	redis.Cache.Mock.Command("DEL", "tags:1", "tag:1:1", "image:1").ExpectError(errors.New("redis error"))
+
+	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
+
+	first := performJSONRequest(router, "POST", "/tag/add", request)
+
+	// We should still get a success response despite Redis error
 	assert.Equal(t, 200, first.Code, "HTTP request code should match")
 	assert.JSONEq(t, first.Body.String(), successMessage(audit.AuditAddTag), "HTTP response should match")
 
@@ -136,8 +200,10 @@ func TestAddTagControllerImageNotFound(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
+	mock.ExpectRollback()
 
 	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
 
@@ -166,11 +232,15 @@ func TestAddTagControllerDuplicate(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
 
 	duperows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-	mock.ExpectQuery(`select count\(1\) from tagmap`).WillReturnRows(duperows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM tagmap WHERE tag_id = \? AND image_id = \? FOR UPDATE`).
+		WithArgs(1, 1).
+		WillReturnRows(duperows)
+	mock.ExpectCommit()
 
 	request := []byte(`{"ib": 1, "tag": 1, "image": 1}`)
 

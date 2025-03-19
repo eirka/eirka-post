@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"html"
 
@@ -128,34 +129,46 @@ func (m *ReplyModel) ValidateInput() (err error) {
 
 // Status will return info about the thread
 func (m *ReplyModel) Status() (err error) {
-
-	// Get Database handle
-	dbase, err := db.GetDb()
+	// Get transaction handle with proper isolation level
+	tx, err := db.GetTransaction()
 	if err != nil {
 		return
 	}
+	defer tx.Rollback()
 
 	var closed bool
 	var total uint
 
-	// Check if thread is closed and get the total amount of posts
-	err = dbase.QueryRow(`SELECT ib_id,thread_closed,count(post_num) FROM threads
+	// Lock the thread row for reading and potential update
+	// Using FOR UPDATE to prevent other transactions from modifying this thread
+	err = tx.QueryRow(`SELECT ib_id, thread_closed, count(post_num) FROM threads
     INNER JOIN posts on threads.thread_id = posts.thread_id
-    WHERE threads.thread_id = ? AND post_deleted != 1`, m.Thread).Scan(&m.Ib, &closed, &total)
+    WHERE threads.thread_id = ? AND post_deleted != 1
+    FOR UPDATE`, m.Thread).Scan(&m.Ib, &closed, &total)
 	if err != nil {
+		// Check specifically for no rows (thread doesn't exist)
+		if err == sql.ErrNoRows {
+			return e.ErrNotFound
+		}
 		return
 	}
 
 	// Error if thread is closed
 	if closed {
+		// No need to commit as we're just reading
 		return e.ErrThreadClosed
 	}
 
 	// Close thread if above max posts
-	if total > config.Settings.Limits.PostsMax {
-
-		_, err = dbase.Exec("UPDATE threads SET thread_closed=1 WHERE thread_id = ?",
+	if total >= config.Settings.Limits.PostsMax {
+		_, err = tx.Exec("UPDATE threads SET thread_closed=1 WHERE thread_id = ?",
 			m.Thread)
+		if err != nil {
+			return err
+		}
+
+		// Commit the transaction to persist the thread closed status
+		err = tx.Commit()
 		if err != nil {
 			return err
 		}
@@ -163,8 +176,13 @@ func (m *ReplyModel) Status() (err error) {
 		return e.ErrThreadClosed
 	}
 
-	return
+	// Commit the transaction to release the lock
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 
+	return
 }
 
 // Post will add the reply to the database with a transaction
@@ -182,16 +200,25 @@ func (m *ReplyModel) Post() (err error) {
 	}
 	defer tx.Rollback()
 
-	// insert new post
-	e1, err := tx.Exec(`INSERT INTO posts (thread_id,user_id,post_num,post_time,post_ip,post_text)
-    SELECT ?,?,max(post_num)+1,NOW(),?,?
-    FROM posts WHERE thread_id = ?`, m.Thread, m.UID, m.IP, m.Comment, m.Thread)
+	// First get next post_num with row locking to prevent race conditions
+	var nextPostNum uint
+	err = tx.QueryRow(`SELECT COALESCE(MAX(post_num), 0) + 1 
+                      FROM posts 
+                      WHERE thread_id = ? 
+                      FOR UPDATE`, m.Thread).Scan(&nextPostNum)
+	if err != nil {
+		return
+	}
+
+	// insert new post with the safely obtained post_num
+	e1, err := tx.Exec(`INSERT INTO posts (thread_id, user_id, post_num, post_time, post_ip, post_text)
+                      VALUES (?, ?, ?, NOW(), ?, ?)`,
+		m.Thread, m.UID, nextPostNum, m.IP, m.Comment)
 	if err != nil {
 		return
 	}
 
 	if m.Image {
-
 		var pID int64
 
 		pID, err = e1.LastInsertId()
@@ -205,7 +232,6 @@ func (m *ReplyModel) Post() (err error) {
 		if err != nil {
 			return err
 		}
-
 	}
 
 	// Commit transaction
@@ -215,5 +241,4 @@ func (m *ReplyModel) Post() (err error) {
 	}
 
 	return
-
 }

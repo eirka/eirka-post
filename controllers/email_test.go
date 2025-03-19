@@ -49,9 +49,15 @@ func TestEmailController(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"name", "email"}).AddRow("test", "old@test.com")
 	mock.ExpectQuery(`SELECT user_name,user_email FROM users WHERE user_id`).WillReturnRows(rows)
 
+	mock.ExpectBegin()
+	userRows := sqlmock.NewRows([]string{"1"}).AddRow(1)
+	mock.ExpectQuery(`SELECT 1 FROM users WHERE user_id = \? FOR UPDATE`).
+		WithArgs(2).
+		WillReturnRows(userRows)
 	mock.ExpectExec("UPDATE users SET user_email").
 		WithArgs("cool@test.com", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
 	request := []byte(`{"ib": 1, "email": "cool@test.com"}`)
 

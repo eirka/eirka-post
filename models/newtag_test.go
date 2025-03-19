@@ -72,8 +72,12 @@ func TestNewTagStatus(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`select count\(1\) from tags`).WillReturnRows(statusrows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM tags WHERE ib_id = \? AND tag_name = \? FOR UPDATE`).
+		WithArgs(1, "test").
+		WillReturnRows(statusrows)
+	mock.ExpectCommit()
 
 	tag := NewTagModel{
 		Ib:      1,
@@ -96,8 +100,12 @@ func TestNewTagStatusDuplicate(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-	mock.ExpectQuery(`select count\(1\) from tags`).WillReturnRows(statusrows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM tags WHERE ib_id = \? AND tag_name = \? FOR UPDATE`).
+		WithArgs(1, "test").
+		WillReturnRows(statusrows)
+	mock.ExpectCommit()
 
 	tag := NewTagModel{
 		Ib:      1,
@@ -114,6 +122,30 @@ func TestNewTagStatusDuplicate(t *testing.T) {
 
 }
 
+func TestNewTagStatusTxError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
+
+	tag := NewTagModel{
+		Ib:      1,
+		Tag:     "test",
+		TagType: 1,
+	}
+
+	err = tag.Status()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "transaction error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
 func TestNewTagPost(t *testing.T) {
 
 	var err error
@@ -122,9 +154,11 @@ func TestNewTagPost(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tags").
 		WithArgs("test", 1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
 	tag := NewTagModel{
 		Ib:      1,
@@ -137,6 +171,30 @@ func TestNewTagPost(t *testing.T) {
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
+}
+
+func TestNewTagPostTxError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
+
+	tag := NewTagModel{
+		Ib:      1,
+		Tag:     "test",
+		TagType: 1,
+	}
+
+	err = tag.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "transaction error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
 
 func TestNewTagPostInvalid(t *testing.T) {

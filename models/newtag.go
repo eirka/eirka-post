@@ -71,16 +71,23 @@ func (m *NewTagModel) ValidateInput() (err error) {
 // Status will return info about the thread
 func (m *NewTagModel) Status() (err error) {
 
-	// Get Database handle
-	dbase, err := db.GetDb()
+	// Get transaction handle
+	tx, err := db.GetTransaction()
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	var check bool
+
+	// Check if tag is already there with row locking
+	err = tx.QueryRow("SELECT count(1) FROM tags WHERE ib_id = ? AND tag_name = ? FOR UPDATE", m.Ib, m.Tag).Scan(&check)
 	if err != nil {
 		return
 	}
 
-	var check bool
-
-	// Check if tag is already there
-	err = dbase.QueryRow("select count(1) from tags where ib_id = ? AND tag_name = ?", m.Ib, m.Tag).Scan(&check)
+	// Commit transaction to release locks
+	err = tx.Commit()
 	if err != nil {
 		return
 	}
@@ -102,14 +109,21 @@ func (m *NewTagModel) Post() (err error) {
 		return errors.New("NewTagModel is not valid")
 	}
 
-	// Get Database handle
-	dbase, err := db.GetDb()
+	// Get transaction handle
+	tx, err := db.GetTransaction()
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)",
+		m.Tag, m.Ib, m.TagType)
 	if err != nil {
 		return
 	}
 
-	_, err = dbase.Exec("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)",
-		m.Tag, m.Ib, m.TagType)
+	// Commit transaction
+	err = tx.Commit()
 	if err != nil {
 		return
 	}

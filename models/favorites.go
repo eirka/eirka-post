@@ -51,16 +51,17 @@ func (m *FavoritesModel) Status() (err error) {
 		return errors.New("FavoritesModel is not valid")
 	}
 
-	// Get Database handle
-	dbase, err := db.GetDb()
+	// Get transaction handle
+	tx, err := db.GetTransaction()
 	if err != nil {
 		return
 	}
+	defer tx.Rollback()
 
 	var check bool
 
-	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT count(1) FROM favorites WHERE image_id = ? AND user_id = ?", m.Image, m.UID).Scan(&check)
+	// Check if favorite is already there with row locking to prevent race conditions
+	err = tx.QueryRow("SELECT count(1) FROM favorites WHERE image_id = ? AND user_id = ? FOR UPDATE", m.Image, m.UID).Scan(&check)
 	if err != nil {
 		return
 	}
@@ -68,13 +69,25 @@ func (m *FavoritesModel) Status() (err error) {
 	// delete if it does
 	if check {
 
-		_, err = dbase.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ?", m.Image, m.UID)
+		_, err = tx.Exec("DELETE FROM favorites WHERE image_id = ? AND user_id = ?", m.Image, m.UID)
 		if err != nil {
 			return err
 		}
 
+		// Commit transaction
+		err = tx.Commit()
+		if err != nil {
+			return
+		}
+
 		return e.ErrFavoriteRemoved
 
+	}
+
+	// Commit transaction
+	err = tx.Commit()
+	if err != nil {
+		return
 	}
 
 	return
@@ -89,13 +102,20 @@ func (m *FavoritesModel) Post() (err error) {
 		return errors.New("FavoritesModel is not valid")
 	}
 
-	// Get Database handle
-	dbase, err := db.GetDb()
+	// Get transaction handle
+	tx, err := db.GetTransaction()
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec("INSERT into favorites (image_id, user_id) VALUES (?,?)", m.Image, m.UID)
 	if err != nil {
 		return
 	}
 
-	_, err = dbase.Exec("INSERT into favorites (image_id, user_id) VALUES (?,?)", m.Image, m.UID)
+	// Commit transaction
+	err = tx.Commit()
 	if err != nil {
 		return
 	}

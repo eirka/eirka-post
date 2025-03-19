@@ -76,13 +76,31 @@ func (m *EmailModel) Update() (err error) {
 		return errors.New("EmailModel is not valid")
 	}
 
-	// Get Database handle
-	dbase, err := db.GetDb()
+	// Get transaction handle
+	tx, err := db.GetTransaction()
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	// Lock the user row for update
+	var check bool
+	err = tx.QueryRow("SELECT 1 FROM users WHERE user_id = ? FOR UPDATE", m.UID).Scan(&check)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return e.ErrUserNotExist
+		}
+		return
+	}
+
+	// Update the user's email
+	_, err = tx.Exec("UPDATE users SET user_email = ? WHERE user_id = ?", m.Email, m.UID)
 	if err != nil {
 		return
 	}
 
-	_, err = dbase.Exec("UPDATE users SET user_email = ? WHERE user_id = ?", m.Email, m.UID)
+	// Commit transaction
+	err = tx.Commit()
 	if err != nil {
 		return
 	}

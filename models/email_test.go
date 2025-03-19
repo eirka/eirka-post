@@ -135,9 +135,15 @@ func TestEmailUpdate(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
+	userRows := sqlmock.NewRows([]string{"1"}).AddRow(1)
+	mock.ExpectQuery(`SELECT 1 FROM users WHERE user_id = \? FOR UPDATE`).
+		WithArgs(2).
+		WillReturnRows(userRows)
 	mock.ExpectExec("UPDATE users SET user_email").
 		WithArgs("cool@test.com", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
 	email := EmailModel{
 		UID:   2,
@@ -150,6 +156,58 @@ func TestEmailUpdate(t *testing.T) {
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
+}
+
+func TestEmailUpdateTxError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
+
+	email := EmailModel{
+		UID:   2,
+		Name:  "test",
+		Email: "cool@test.com",
+	}
+
+	err = email.Update()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "transaction error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
+func TestEmailUpdateNoUser(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(`SELECT 1 FROM users WHERE user_id = \? FOR UPDATE`).
+		WithArgs(2).
+		WillReturnError(sql.ErrNoRows)
+	mock.ExpectRollback()
+
+	email := EmailModel{
+		UID:   2,
+		Name:  "test",
+		Email: "cool@test.com",
+	}
+
+	err = email.Update()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Equal(t, e.ErrUserNotExist, err, "Error should match")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
 
 func TestEmailUpdateIsValid(t *testing.T) {

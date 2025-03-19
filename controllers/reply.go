@@ -68,6 +68,11 @@ func ReplyController(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
 		c.Error(err).SetMeta("ReplyController.Status")
 		return
+	} else if err == e.ErrNotFound {
+		// Special case for thread not found
+		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
+		c.Error(err).SetMeta("ReplyController.Status.NotFound")
+		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ReplyController.Status")
@@ -127,30 +132,28 @@ func ReplyController(c *gin.Context) {
 	}
 
 	// needs a fake hash index
-	err = redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib), "0").Delete()
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ReplyController.redis.Cache.Delete")
-		return
+	// Continue even if redis fails since reply was already added successfully
+	redisErr := redis.NewKey("index").SetKey(fmt.Sprintf("%d", m.Ib), "0").Delete()
+	if redisErr != nil {
+		c.Error(redisErr).SetMeta("ReplyController.redis.Index.Delete")
 	}
 
 	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
 	threadKey := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
 	imageKey := fmt.Sprintf("%s:%d", "image", m.Ib)
 
-	err = redis.Cache.Delete(directoryKey, threadKey, imageKey)
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("ReplyController.redis.Cache.Delete")
-		return
+	// Continue even if redis fails since reply was already added successfully
+	redisErr = redis.Cache.Delete(directoryKey, threadKey, imageKey)
+	if redisErr != nil {
+		c.Error(redisErr).SetMeta("ReplyController.redis.Cache.Delete")
 	}
 
 	// get board domain and redirect to it
 	redirect, err := u.Link(m.Ib, req.Referer())
 	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		// Non-critical error, we can still redirect to the referer
 		c.Error(err).SetMeta("ReplyController.redirect")
-		return
+		redirect = req.Referer()
 	}
 
 	c.Redirect(303, redirect)

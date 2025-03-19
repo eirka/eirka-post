@@ -67,8 +67,12 @@ func TestFavoritesStatus(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	rows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`SELECT count\(1\) FROM favorites`).WillReturnRows(rows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \? FOR UPDATE`).
+		WithArgs(1, 2).
+		WillReturnRows(rows)
+	mock.ExpectCommit()
 
 	favorite := FavoritesModel{
 		UID:   2,
@@ -90,12 +94,16 @@ func TestFavoritesStatusRemove(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-	mock.ExpectQuery(`SELECT count\(1\) FROM favorites`).WillReturnRows(rows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \? FOR UPDATE`).
+		WithArgs(1, 2).
+		WillReturnRows(rows)
 
 	mock.ExpectExec("DELETE FROM favorites").
 		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
 	favorite := FavoritesModel{
 		UID:   2,
@@ -119,9 +127,11 @@ func TestFavoritesPost(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into favorites").
 		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
 	favorite := FavoritesModel{
 		UID:   2,
@@ -133,6 +143,52 @@ func TestFavoritesPost(t *testing.T) {
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 
+}
+
+func TestFavoritesPostTxError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
+
+	favorite := FavoritesModel{
+		UID:   2,
+		Image: 1,
+	}
+
+	err = favorite.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "transaction error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
+func TestFavoritesStatusTxError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
+
+	favorite := FavoritesModel{
+		UID:   2,
+		Image: 1,
+	}
+
+	err = favorite.Status()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "transaction error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
 
 func TestFavoritesPostInvalid(t *testing.T) {

@@ -68,11 +68,15 @@ func TestAddTagStatus(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
 
 	duperows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery(`select count\(1\) from tagmap`).WillReturnRows(duperows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM tagmap WHERE tag_id = \? AND image_id = \? FOR UPDATE`).
+		WithArgs(1, 1).
+		WillReturnRows(duperows)
+	mock.ExpectCommit()
 
 	tag := AddTagModel{
 		Ib:    1,
@@ -95,8 +99,10 @@ func TestAddTagStatusNotFound(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
+	mock.ExpectRollback()
 
 	tag := AddTagModel{
 		Ib:    1,
@@ -121,11 +127,15 @@ func TestAddTagStatusDuplicate(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	statusrows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM images`).WillReturnRows(statusrows)
 
 	duperows := sqlmock.NewRows([]string{"count"}).AddRow(1)
-	mock.ExpectQuery(`select count\(1\) from tagmap`).WillReturnRows(duperows)
+	mock.ExpectQuery(`SELECT count\(1\) FROM tagmap WHERE tag_id = \? AND image_id = \? FOR UPDATE`).
+		WithArgs(1, 1).
+		WillReturnRows(duperows)
+	mock.ExpectCommit()
 
 	tag := AddTagModel{
 		Ib:    1,
@@ -142,6 +152,30 @@ func TestAddTagStatusDuplicate(t *testing.T) {
 
 }
 
+func TestAddTagStatusTxError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
+
+	tag := AddTagModel{
+		Ib:    1,
+		Tag:   1,
+		Image: 1,
+	}
+
+	err = tag.Status()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "transaction error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
 func TestAddTagPost(t *testing.T) {
 
 	var err error
@@ -150,9 +184,11 @@ func TestAddTagPost(t *testing.T) {
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
+	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tagmap").
 		WithArgs(1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
 	tag := AddTagModel{
 		Ib:    1,
@@ -167,19 +203,82 @@ func TestAddTagPost(t *testing.T) {
 
 }
 
-func TestAddTagPostInvalid(t *testing.T) {
+func TestAddTagPostTxError(t *testing.T) {
 
 	var err error
 
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin().WillReturnError(errors.New("transaction error"))
+
 	tag := AddTagModel{
-		Ib:    0,
+		Ib:    1,
 		Tag:   1,
 		Image: 1,
 	}
 
 	err = tag.Post()
 	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, errors.New("AddTagModel is not valid"), err, "Error should match")
+		assert.Contains(t, err.Error(), "transaction error", "Error should contain the expected message")
 	}
 
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
+func TestAddTagPostExecError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT into tagmap").
+		WithArgs(1, 1).
+		WillReturnError(errors.New("exec error"))
+	mock.ExpectRollback()
+
+	tag := AddTagModel{
+		Ib:    1,
+		Tag:   1,
+		Image: 1,
+	}
+
+	err = tag.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "exec error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
+}
+
+func TestAddTagPostCommitError(t *testing.T) {
+
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT into tagmap").
+		WithArgs(1, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit().WillReturnError(errors.New("commit error"))
+
+	tag := AddTagModel{
+		Ib:    1,
+		Tag:   1,
+		Image: 1,
+	}
+
+	err = tag.Post()
+	if assert.Error(t, err, "An error was expected") {
+		assert.Contains(t, err.Error(), "commit error", "Error should contain the expected message")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
