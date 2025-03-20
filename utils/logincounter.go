@@ -13,7 +13,13 @@ var (
 )
 
 // LoginCounter will increment a counter in redis to limit login attempts
-func LoginCounter(userid uint, ip string) (err error) {
+// It returns an error if the maximum number of attempts has been reached
+// or if there is an issue with the redis operations
+func LoginCounter(userid uint, ip string) error {
+	// Validate inputs
+	if userid == 0 || ip == "" {
+		return e.ErrInternalError
+	}
 
 	// key is like login:10.0.0.1:21
 	key := fmt.Sprintf("login:%s:%d", ip, userid)
@@ -24,7 +30,7 @@ func LoginCounter(userid uint, ip string) (err error) {
 		return e.ErrInternalError
 	}
 
-	// set expire ib key
+	// set expire on key (commented typo: "set expire ib key")
 	err = redis.Cache.Expire(key, limitSeconds)
 	if err != nil {
 		return e.ErrInternalError
@@ -35,6 +41,5 @@ func LoginCounter(userid uint, ip string) (err error) {
 		return e.ErrMaxLogins
 	}
 
-	return
-
+	return nil
 }

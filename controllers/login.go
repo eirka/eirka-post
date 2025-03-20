@@ -51,7 +51,8 @@ func LoginController(c *gin.Context) {
 	// rate limit login
 	err = u.LoginCounter(usr.ID, c.ClientIP())
 	if err != nil {
-		c.JSON(429, gin.H{"error_message": err.Error()})
+		// Use standard HTTP status constant for consistency
+		c.JSON(http.StatusTooManyRequests, gin.H{"error_message": err.Error()})
 		c.Error(err).SetMeta("LoginController.LoginCounter")
 		return
 	}
@@ -75,5 +76,4 @@ func LoginController(c *gin.Context) {
 	http.SetCookie(c.Writer, user.CreateCookie(token))
 
 	c.JSON(http.StatusOK, gin.H{"success_message": "Login successful"})
-
 }
