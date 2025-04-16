@@ -26,7 +26,6 @@ import (
 
 	shortid "github.com/teris-io/shortid"
 
-	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 
@@ -72,7 +71,6 @@ type FileUploader interface {
 	saveFile() (err error)
 	makeFilenames()
 	createThumbnail(maxwidth, maxheight int) (err error)
-	copyToS3() (err error)
 
 	// webm specific functions
 	checkWebM() (err error)
@@ -80,7 +78,6 @@ type FileUploader interface {
 
 	// avatar functions
 	SaveAvatar() (err error)
-	avatarToS3() (err error)
 }
 
 // ImageType defines an image and its metadata for processing
@@ -240,12 +237,6 @@ func (i *ImageType) SaveImage() (err error) {
 
 	// create a thumbnail
 	err = i.createThumbnail(config.Settings.Limits.ThumbnailMaxWidth, config.Settings.Limits.ThumbnailMaxHeight)
-	if err != nil {
-		return
-	}
-
-	// copy the file to s3
-	err = i.copyToS3()
 	if err != nil {
 		return
 	}
@@ -578,26 +569,4 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 
 	return
 
-}
-
-func (i *ImageType) copyToS3() (err error) {
-
-	// noop if amazon is not configured
-	if !config.Settings.Amazon.Configured {
-		return
-	}
-
-	s3 := amazon.New()
-
-	err = s3.Save(i.Filepath, fmt.Sprintf("src/%s", i.Filename), i.mime, false)
-	if err != nil {
-		return
-	}
-
-	err = s3.Save(i.Thumbpath, fmt.Sprintf("thumb/%s", i.Thumbnail), "image/jpeg", false)
-	if err != nil {
-		return
-	}
-
-	return
 }
