@@ -462,9 +462,14 @@ func (i *ImageType) saveFile() (err error) {
 		return errors.New("ImageType is not valid")
 	}
 
-	imagefile := filepath.Join(local.Settings.Directories.ImageDir, i.Filename)
+	// open the image dir with traversal-resistant root
+	root, err := os.OpenRoot(local.Settings.Directories.ImageDir)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
 
-	image, err := os.Create(imagefile)
+	image, err := root.Create(i.Filename)
 	if err != nil {
 		return errors.New("problem saving file")
 	}
@@ -553,7 +558,13 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 		return errors.New("problem making thumbnail")
 	}
 
-	thumb, err := os.Open(i.Thumbpath)
+	thumbpath := local.Settings.Directories.ThumbnailDir
+
+	if i.avatar {
+		thumbpath = local.Settings.Directories.AvatarDir
+	}
+
+	thumb, err := os.OpenInRoot(thumbpath, i.Thumbnail)
 	if err != nil {
 		return errors.New("problem creating thumbnail file")
 	}
