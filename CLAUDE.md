@@ -26,3 +26,20 @@ go test -cover ./...
 - **Database**: Explicit transaction handling with Begin/Commit/Rollback pattern
 
 Remember to maintain the existing error handling approach using the custom error types from the eirka-libs package.
+
+## Security Guidelines
+
+### File Upload Security
+- **Filename Validation**: Always validate file extensions and reject filenames with suspicious patterns
+- **MIME Type Verification**: Check that the file's MIME type matches its extension
+- **File Signature Validation**: Validate file signature headers (magic bytes) of uploaded files
+- **Content Verification**: For images, validate dimensions, format, and file integrity
+- **Size Constraints**: Enforce strict size limits for uploads
+- **Extension Whitelist**: Only allow specific file extensions
+- **Avoid Multiple Extensions**: Reject files with multiple extensions to prevent extension-based attacks
+- **Suspect Files**: Check for suspiciously small files or incomplete file formats
+
+### Testing Security
+- Write tests for security validation failures
+- Create test cases for expected bypasses
+- Use table-driven tests for multiple security test cases

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"log"
 	"net"
 	"sync"
 	"time"
@@ -20,6 +21,23 @@ var (
 	cacheTTL          = 10 * time.Minute // Cache entries valid for 10 minutes
 )
 
+// isLocalhost checks if an IP is a localhost address
+func isLocalhost(ip string) bool {
+	// Check for common localhost string representations
+	if ip == "localhost" {
+		return true
+	}
+	
+	// Parse the IP address
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil {
+		return false
+	}
+	
+	// Check if it's a loopback address (127.0.0.0/8 or ::1)
+	return parsedIP.IsLoopback()
+}
+
 // Bans will check if the client IP is in the banned list
 func Bans() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -33,7 +51,28 @@ func Bans() gin.HandlerFunc {
 			return
 		}
 
-		// Check if IP is banned
+		// Special handling for localhost IPs
+		if isLocalhost(clientIP) {
+			// Check if localhost is in the ban list
+			isBanned, err := CheckBannedIP(clientIP)
+			if err != nil {
+				c.JSON(e.ErrorMessage(e.ErrInternalError))
+				c.Error(err).SetMeta("Bans.CheckBannedIP")
+				c.Abort()
+				return
+			}
+
+			// If localhost is banned, log a warning but allow the request
+			if isBanned {
+				log.Printf("WARNING: Localhost IP (%s) is in the ban list. This indicates a proxy misconfiguration. Request allowed anyway.", clientIP)
+			}
+			
+			// Continue with the request regardless of ban status for localhost
+			c.Next()
+			return
+		}
+
+		// For non-localhost IPs, proceed with normal ban checking
 		isBanned, err := CheckBannedIP(clientIP)
 		if err != nil {
 			c.JSON(e.ErrorMessage(e.ErrInternalError))

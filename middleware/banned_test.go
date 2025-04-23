@@ -137,3 +137,26 @@ func TestBansCaching(t *testing.T) {
 	// Database expectations should be met (only one query)
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
+
+func TestIsLocalhostFunction(t *testing.T) {
+	// Test various localhost IPv4 addresses
+	assert.True(t, isLocalhost("127.0.0.1"), "127.0.0.1 should be identified as localhost")
+	assert.True(t, isLocalhost("127.0.1.1"), "127.0.1.1 should be identified as localhost (loopback network)")
+	assert.True(t, isLocalhost("127.255.255.255"), "127.255.255.255 should be identified as localhost (loopback network)")
+	
+	// Test localhost IPv6
+	assert.True(t, isLocalhost("::1"), "::1 should be identified as localhost")
+	
+	// Test localhost hostname
+	assert.True(t, isLocalhost("localhost"), "localhost should be identified as localhost")
+	
+	// Test non-localhost IPs
+	assert.False(t, isLocalhost("192.168.1.1"), "192.168.1.1 should not be identified as localhost")
+	assert.False(t, isLocalhost("10.0.0.1"), "10.0.0.1 should not be identified as localhost")
+	assert.False(t, isLocalhost("8.8.8.8"), "8.8.8.8 should not be identified as localhost")
+	assert.False(t, isLocalhost("2001:db8::1"), "2001:db8::1 should not be identified as localhost")
+	
+	// Test invalid IP
+	assert.False(t, isLocalhost("not-an-ip"), "Invalid IP should not be identified as localhost")
+	assert.False(t, isLocalhost(""), "Empty string should not be identified as localhost")
+}

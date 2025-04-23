@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"crypto/md5"
 	"crypto/sha1"
 	"database/sql"
@@ -23,6 +24,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	shortid "github.com/teris-io/shortid"
 
@@ -31,6 +33,21 @@ import (
 
 	local "github.com/eirka/eirka-post/config"
 )
+
+// Timeout constants for external processes
+const (
+	initialCheckTimeout = 10 * time.Second // Timeout for initial version checks
+	processTimeout      = 60 * time.Second // Timeout for image processing operations
+)
+
+// valid file extensions with their corresponding MIME types
+var validExtAndMime = map[string][]string{
+	".jpg":  {"image/jpeg"},
+	".jpeg": {"image/jpeg"},
+	".png":  {"image/png"},
+	".gif":  {"image/gif"},
+	".webm": {"video/webm"},
+}
 
 // valid file extensions
 var validExt = map[string]bool{
@@ -42,15 +59,21 @@ var validExt = map[string]bool{
 }
 
 func init() {
-
 	var err error
 
-	// test for ImageMagick
-	_, err = exec.Command("convert", "--version").Output()
+	// Create context with timeout for testing ImageMagick
+	ctx, cancel := context.WithTimeout(context.Background(), initialCheckTimeout)
+	defer cancel()
+	
+	// Test for ImageMagick
+	cmd := exec.CommandContext(ctx, "convert", "--version")
+	_, err = cmd.Output()
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			panic(fmt.Sprintf("ImageMagick check timed out after %v", initialCheckTimeout))
+		}
 		panic("ImageMagick not found")
 	}
-
 }
 
 // FileUploader defines the file processing functions
@@ -71,6 +94,7 @@ type FileUploader interface {
 	saveFile() (err error)
 	makeFilenames()
 	createThumbnail(maxwidth, maxheight int) (err error)
+	cleanupFiles() // cleanup files on error
 
 	// webm specific functions
 	checkWebM() (err error)
@@ -170,6 +194,15 @@ func (i *ImageType) IsValidPost() bool {
 
 // SaveImage runs the entire file processing pipeline
 func (i *ImageType) SaveImage() (err error) {
+	// Successful completion flag
+	var success bool
+	// Defer cleanup on failure
+	defer func() {
+		// If we didn't complete successfully, clean up any created files
+		if !success {
+			i.cleanupFiles()
+		}
+	}()
 
 	// check given file ext
 	err = i.checkReqExt()
@@ -232,7 +265,6 @@ func (i *ImageType) SaveImage() (err error) {
 		if err != nil {
 			return
 		}
-
 	}
 
 	// create a thumbnail
@@ -243,21 +275,51 @@ func (i *ImageType) SaveImage() (err error) {
 
 	// check final state
 	if !i.IsValidPost() {
-		return errors.New("ImageType is not valid")
+		err = errors.New("ImageType is not valid")
+		return
 	}
 
+	// Mark as successful to prevent cleanup
+	success = true
 	return
-
 }
 
-// Get file extension from request header
+// Get file extension from request header and perform security checks
 func (i *ImageType) checkReqExt() (err error) {
 	// Get ext from request header
-	name := i.Header.Filename
-	ext := filepath.Ext(name)
+	if i.Header == nil {
+		return errors.New("no file header provided")
+	}
 
+	name := i.Header.Filename
+	if name == "" {
+		return errors.New("no filename provided")
+	}
+
+	// Extract the extension
+	ext := filepath.Ext(name)
 	if ext == "" {
 		return errors.New("no file extension")
+	}
+
+	// Convert to lowercase for consistent checking
+	ext = strings.ToLower(ext)
+
+	// Check if the filename contains multiple extensions
+	// This prevents attacks like example.php.jpg
+	if strings.Count(name, ".") > 1 {
+		// Additional check: only allow if the penultimate extension is safe
+		parts := strings.Split(name, ".")
+		if len(parts) > 2 {
+			for _, dangerousExt := range []string{"php", "exe", "js", "html", "htm", "bat", "sh", "cgi", "pl", "asp", "aspx", "py", "rb"} {
+				// Check if any suspicious extension appears before the final extension
+				for i := 0; i < len(parts)-1; i++ {
+					if strings.ToLower(parts[i]) == dangerousExt {
+						return errors.New("suspicious file extension pattern detected")
+					}
+				}
+			}
+		}
 	}
 
 	// Check to see if extension is allowed
@@ -265,13 +327,18 @@ func (i *ImageType) checkReqExt() (err error) {
 		return errors.New("format not supported")
 	}
 
+	i.Ext = ext
 	return
-
 }
 
 // Check if file ext allowed
 func isAllowedExt(ext string) bool {
-	return validExt[strings.ToLower(ext)]
+	ext = strings.ToLower(ext)
+	// Check for double extensions (e.g., .php.jpg)
+	if strings.Count(ext, ".") > 1 {
+		return false
+	}
+	return validExt[ext]
 }
 
 // Copy the multipart file into a bytes buffer
@@ -383,31 +450,99 @@ func (i *ImageType) checkDuplicate() (err error) {
 }
 
 func (i *ImageType) checkMagic() (err error) {
+	if i.image == nil || i.image.Len() == 0 {
+		return errors.New("no image data to analyze")
+	}
 
-	// detect the mime type
-	i.mime = http.DetectContentType(i.image.Bytes())
+	// Get the file's content for analysis
+	fileBytes := i.image.Bytes()
+
+	// Detect the MIME type from file content signatures
+	i.mime = http.DetectContentType(fileBytes)
+
+	// Set extension based on detected MIME type
+	var foundExt string
 
 	switch i.mime {
 	case "image/png":
-		i.Ext = ".png"
+		foundExt = ".png"
 	case "image/jpeg":
-		i.Ext = ".jpg"
+		foundExt = ".jpg"
 	case "image/gif":
-		i.Ext = ".gif"
+		foundExt = ".gif"
 	case "video/webm":
-		i.Ext = ".webm"
+		foundExt = ".webm"
 		i.video = true
 	default:
-		return errors.New("unknown file type")
+		return errors.New("unknown or unsupported file type")
 	}
 
-	// Check to see if extension is allowed
-	if !isAllowedExt(i.Ext) {
-		return errors.New("format not supported")
+	// If an extension was provided earlier, verify it matches the detected type
+	if i.Ext != "" && i.Ext != foundExt {
+		return errors.New("file extension doesn't match content type")
 	}
 
-	return
+	i.Ext = foundExt
 
+	// Perform additional validation based on file type
+	switch i.mime {
+	case "image/png":
+		// Validate PNG signature (first 8 bytes)
+		if len(fileBytes) < 8 || string(fileBytes[0:8]) != "\x89PNG\r\n\x1a\n" {
+			return errors.New("invalid PNG file signature")
+		}
+	case "image/jpeg":
+		// JPEG files start with FF D8 and end with FF D9
+		if len(fileBytes) < 2 || fileBytes[0] != 0xFF || fileBytes[1] != 0xD8 {
+			return errors.New("invalid JPEG file signature")
+		}
+		// Check for JPEG end marker (less reliable due to large files, but helpful)
+		if len(fileBytes) >= 2 && !(fileBytes[len(fileBytes)-2] == 0xFF && fileBytes[len(fileBytes)-1] == 0xD9) {
+			// This is just a warning, not a hard error, as some valid JPEGs might not have proper EOF markers
+			// Log here if needed
+		}
+	case "image/gif":
+		// Check GIF header (GIF87a or GIF89a)
+		if len(fileBytes) < 6 {
+			return errors.New("invalid GIF file (too small)")
+		}
+		header := string(fileBytes[0:6])
+		if header != "GIF87a" && header != "GIF89a" {
+			return errors.New("invalid GIF file signature")
+		}
+	case "video/webm":
+		// Basic WebM check - validate EBML header
+		// WebM files start with an EBML header (0x1A 0x45 0xDF 0xA3)
+		if len(fileBytes) < 4 || fileBytes[0] != 0x1A || fileBytes[1] != 0x45 || fileBytes[2] != 0xDF || fileBytes[3] != 0xA3 {
+			return errors.New("invalid WebM file signature")
+		}
+	}
+
+	// Check for suspiciously small files that might be trying to bypass checks
+	if !i.video && len(fileBytes) < 100 {
+		return errors.New("file is suspiciously small")
+	}
+
+	// Check for extension consistency with MIME type
+	validMimeTypes, exists := validExtAndMime[i.Ext]
+	if !exists {
+		return errors.New("unsupported file extension")
+	}
+
+	// Verify the detected MIME type is in the allowed list for this extension
+	mimeAllowed := false
+	for _, validMime := range validMimeTypes {
+		if validMime == i.mime {
+			mimeAllowed = true
+			break
+		}
+	}
+
+	if !mimeAllowed {
+		return errors.New("MIME type doesn't match allowed types for extension")
+	}
+
+	return nil
 }
 
 func (i *ImageType) getStats() (err error) {
@@ -447,9 +582,10 @@ func (i *ImageType) getStats() (err error) {
 }
 
 func (i *ImageType) saveFile() (err error) {
-
+	// Reset the image buffer when done regardless of success or failure
 	defer i.image.Reset()
 
+	// Generate filenames and paths
 	i.makeFilenames()
 
 	// avatar filename is the users id
@@ -458,30 +594,32 @@ func (i *ImageType) saveFile() (err error) {
 		i.Thumbpath = filepath.Join(local.Settings.Directories.AvatarDir, i.Thumbnail)
 	}
 
+	// Ensure we have valid data before attempting to save
 	if !i.IsValid() {
 		return errors.New("ImageType is not valid")
 	}
 
-	// open the image dir with traversal-resistant root
+	// Open the image dir with traversal-resistant root
 	root, err := os.OpenRoot(local.Settings.Directories.ImageDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open directory: %v", err)
 	}
 	defer root.Close()
 
+	// Create the file
 	image, err := root.Create(i.Filename)
 	if err != nil {
-		return errors.New("problem saving file")
+		return fmt.Errorf("problem creating file: %v", err)
 	}
 	defer image.Close()
 
+	// Write the image data to the file
 	_, err = io.Copy(image, bytes.NewReader(i.image.Bytes()))
 	if err != nil {
-		return errors.New("problem saving file")
+		return fmt.Errorf("problem writing to file: %v", err)
 	}
 
-	return
-
+	return nil
 }
 
 // Make a random unix time filename
@@ -553,8 +691,16 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 		}
 	}
 
-	_, err = exec.Command("convert", args...).Output()
+	// Create context with timeout for ImageMagick operations
+	ctx, cancel := context.WithTimeout(context.Background(), processTimeout)
+	defer cancel()
+	
+	cmd := exec.CommandContext(ctx, "convert", args...)
+	_, err = cmd.Output()
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Errorf("thumbnail creation timed out after %v", processTimeout)
+		}
 		return errors.New("problem making thumbnail")
 	}
 
@@ -579,5 +725,58 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	i.ThumbHeight = img.Height
 
 	return
+}
 
+// cleanupFiles removes any files that were created during the image processing
+// to ensure we don't leave orphaned files on disk after failed operations
+func (i *ImageType) cleanupFiles() {
+	// Clean up the main image file if it exists and has a valid path
+	if i.Filepath != "" && i.Filename != "" {
+		// Determine which root directory to use
+		rootDir := local.Settings.Directories.ImageDir
+		if i.avatar {
+			rootDir = local.Settings.Directories.AvatarDir
+		}
+		
+		// Open the root directory
+		root, err := os.OpenRoot(rootDir)
+		if err == nil {
+			defer root.Close()
+			
+			// Extra validation to ensure we're only dealing with files
+			fileInfo, err := root.Stat(i.Filename)
+			if err == nil && !fileInfo.IsDir() {
+				// Validate that the path ends with the filename
+				if strings.HasSuffix(i.Filepath, i.Filename) {
+					// Safe to remove using the root-based approach
+					_ = root.Remove(i.Filename)
+				}
+			}
+		}
+	}
+
+	// Clean up the thumbnail if it exists and has a valid path
+	if i.Thumbpath != "" && i.Thumbnail != "" {
+		// Determine which root directory to use
+		thumbRootDir := local.Settings.Directories.ThumbnailDir
+		if i.avatar {
+			thumbRootDir = local.Settings.Directories.AvatarDir
+		}
+		
+		// Open the root directory
+		thumbRoot, err := os.OpenRoot(thumbRootDir)
+		if err == nil {
+			defer thumbRoot.Close()
+			
+			// Extra validation to ensure we're only dealing with files
+			fileInfo, err := thumbRoot.Stat(i.Thumbnail)
+			if err == nil && !fileInfo.IsDir() {
+				// Validate that the path ends with the thumbnail name
+				if strings.HasSuffix(i.Thumbpath, i.Thumbnail) {
+					// Safe to remove using the root-based approach
+					_ = thumbRoot.Remove(i.Thumbnail)
+				}
+			}
+		}
+	}
 }

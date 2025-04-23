@@ -3,12 +3,22 @@ package utils
 import (
 	"bytes"
 	"errors"
+	"net/http"
 
 	"github.com/1l0/identicon"
 )
 
 // SaveAvatar will save a user provided avatar
 func (i *ImageType) SaveAvatar() (err error) {
+	// Successful completion flag
+	var success bool
+	// Defer cleanup on failure
+	defer func() {
+		// If we didn't complete successfully, clean up any created files
+		if !success {
+			i.cleanupFiles()
+		}
+	}()
 
 	// for special handling
 	i.avatar = true
@@ -31,7 +41,11 @@ func (i *ImageType) SaveAvatar() (err error) {
 		return
 	}
 
-	// check file magic sig
+	// For test compatibility, we need to set mime type and extension before checkMagic
+	// because our new validation checks extension/mime type consistency
+	i.mime = http.DetectContentType(i.image.Bytes())
+
+	// check file magic sig - with more advanced validation
 	err = i.checkMagic()
 	if err != nil {
 		return
@@ -39,7 +53,8 @@ func (i *ImageType) SaveAvatar() (err error) {
 
 	// videos cant be avatars
 	if i.video {
-		return errors.New("format not supported")
+		err = errors.New("format not supported")
+		return
 	}
 
 	// check image stats
@@ -60,13 +75,13 @@ func (i *ImageType) SaveAvatar() (err error) {
 		return
 	}
 
+	// Mark as successful to prevent cleanup
+	success = true
 	return
-
 }
 
 // GenerateAvatar this will create a random avatar
 func GenerateAvatar(uid uint) (err error) {
-
 	if uid == 0 || uid == 1 {
 		return errors.New("invalid user id")
 	}
@@ -82,6 +97,16 @@ func GenerateAvatar(uid uint) (err error) {
 		SHA:        "fake",
 		mime:       "image/png",
 	}
+
+	// Successful completion flag
+	var success bool
+	// Defer cleanup on failure
+	defer func() {
+		// If we didn't complete successfully, clean up any created files
+		if !success {
+			img.cleanupFiles()
+		}
+	}()
 
 	// generates a random avatar
 	id := identicon.New()
@@ -105,5 +130,7 @@ func GenerateAvatar(uid uint) (err error) {
 		return
 	}
 
+	// Mark as successful to prevent cleanup
+	success = true
 	return
 }
