@@ -48,7 +48,6 @@ type Config struct {
 	CORS        CORS
 	Database    Database
 	Redis       Redis
-	Session     Session
 }
 
 // Post sets what the daemon listens on
@@ -86,9 +85,4 @@ type Directories struct {
 // CORS is a list of allowed remote addresses
 type CORS struct {
 	Sites []string
-}
-
-// Session holds secret for JWT key
-type Session struct {
-	Secret string
 }

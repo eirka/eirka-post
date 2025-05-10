@@ -14,11 +14,17 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eirka/eirka-libs/audit"
+	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 )
+
+func init() {
+	// Enable test mode for secret validation
+	user.SetTestMode(true)
+}
 
 func performJSONRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
@@ -41,7 +47,7 @@ func TestAddTagController(t *testing.T) {
 
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	gin.SetMode(gin.ReleaseMode)
 
@@ -96,7 +102,7 @@ func TestAddTagControllerRedisError(t *testing.T) {
 
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	gin.SetMode(gin.ReleaseMode)
 

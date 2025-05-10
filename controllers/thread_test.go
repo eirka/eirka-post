@@ -7,13 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/eirka/eirka-libs/config"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/user"
 )
 
 // TestThreadControllerNoImage tests validation error when no image is provided
 func TestThreadControllerNoImage(t *testing.T) {
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -39,7 +41,8 @@ func TestThreadControllerNoImage(t *testing.T) {
 
 // TestThreadControllerInvalidParams tests validation errors for missing or invalid parameters
 func TestThreadControllerInvalidParams(t *testing.T) {
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -76,7 +79,8 @@ func TestThreadControllerInvalidParams(t *testing.T) {
 
 // TestThreadControllerValidationErrors tests validation errors for invalid title or comment
 func TestThreadControllerValidationErrors(t *testing.T) {
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()

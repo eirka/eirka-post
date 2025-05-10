@@ -14,6 +14,7 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
 	"github.com/eirka/eirka-libs/audit"
+	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
@@ -25,19 +26,19 @@ func TestNewTagController(t *testing.T) {
 
 	// Set up testing environment
 	gin.SetMode(gin.ReleaseMode)
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	// Create router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	router.POST("/newtag", NewTagController)
 
 	// Set up fake Redis connection
@@ -77,7 +78,7 @@ func TestNewTagController(t *testing.T) {
 		"name": "example tag",
 		"type": 1,
 	}
-	
+
 	jsonBytes, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
@@ -104,19 +105,19 @@ func TestNewTagControllerDuplicate(t *testing.T) {
 
 	// Set up testing environment
 	gin.SetMode(gin.ReleaseMode)
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	// Create router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	router.POST("/newtag", NewTagController)
 
 	// Set up mock database
@@ -138,7 +139,7 @@ func TestNewTagControllerDuplicate(t *testing.T) {
 		"name": "duplicate tag",
 		"type": 1,
 	}
-	
+
 	jsonBytes, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
@@ -165,19 +166,19 @@ func TestNewTagControllerRedisError(t *testing.T) {
 
 	// Set up testing environment
 	gin.SetMode(gin.ReleaseMode)
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	// Create router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	router.POST("/newtag", NewTagController)
 
 	// Set up fake Redis connection
@@ -213,7 +214,7 @@ func TestNewTagControllerRedisError(t *testing.T) {
 		"name": "example tag",
 		"type": 1,
 	}
-	
+
 	jsonBytes, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
@@ -238,45 +239,45 @@ func TestNewTagControllerRedisError(t *testing.T) {
 func TestNewTagControllerInvalidParams(t *testing.T) {
 	// Set up testing environment
 	gin.SetMode(gin.ReleaseMode)
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	// Create router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	router.POST("/newtag", NewTagController)
 
 	// Test cases for invalid parameters
 	testCases := []struct {
-		name  string
-		body  map[string]interface{}
-		code  int
+		name string
+		body map[string]interface{}
+		code int
 	}{
 		{
-			"missing_name", 
+			"missing_name",
 			map[string]interface{}{
-				"ib": 1,
+				"ib":   1,
 				"type": 1,
 			},
 			http.StatusBadRequest,
 		},
 		{
-			"missing_type", 
+			"missing_type",
 			map[string]interface{}{
-				"ib": 1,
+				"ib":   1,
 				"name": "example tag",
 			},
 			http.StatusBadRequest,
 		},
 		{
-			"missing_ib", 
+			"missing_ib",
 			map[string]interface{}{
 				"name": "example tag",
 				"type": 1,
@@ -284,34 +285,34 @@ func TestNewTagControllerInvalidParams(t *testing.T) {
 			http.StatusBadRequest,
 		},
 		{
-			"tag_too_short", 
+			"tag_too_short",
 			map[string]interface{}{
-				"ib": 1,
-				"name": "a",  // Assuming min length is more than 1
+				"ib":   1,
+				"name": "a", // Assuming min length is more than 1
 				"type": 1,
 			},
 			http.StatusBadRequest,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create JSON request body
 			jsonBytes, err := json.Marshal(tc.body)
 			assert.NoError(t, err)
-			
+
 			// Create HTTP request
 			req, err := http.NewRequest("POST", "/newtag", bytes.NewBuffer(jsonBytes))
 			assert.NoError(t, err)
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-Real-IP", "127.0.0.1")
-			
+
 			// Create response recorder
 			w := httptest.NewRecorder()
-			
+
 			// Perform the request
 			router.ServeHTTP(w, req)
-			
+
 			// Check response code
 			assert.Equal(t, tc.code, w.Code)
 			// Verify error response contains error_message

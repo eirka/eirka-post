@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eirka/eirka-libs/audit"
+	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
@@ -55,7 +56,8 @@ func performRequestWithFileAndParams(r http.Handler, method, path, paramName, fi
 func TestReplyController(t *testing.T) {
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -117,7 +119,8 @@ func TestReplyController(t *testing.T) {
 func TestReplyControllerWithImage(t *testing.T) {
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -162,7 +165,8 @@ func TestReplyControllerWithImage(t *testing.T) {
 func TestReplyControllerThreadClosed(t *testing.T) {
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -204,7 +208,8 @@ func TestReplyControllerThreadClosed(t *testing.T) {
 func TestReplyControllerThreadMaxPosts(t *testing.T) {
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -253,7 +258,8 @@ func TestReplyControllerThreadMaxPosts(t *testing.T) {
 func TestReplyControllerRedisError(t *testing.T) {
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -313,7 +319,8 @@ func TestReplyControllerRedisError(t *testing.T) {
 }
 
 func TestReplyControllerInvalidParams(t *testing.T) {
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -347,7 +354,8 @@ func TestReplyControllerInvalidParams(t *testing.T) {
 func TestReplyControllerNonExistentThread(t *testing.T) {
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()

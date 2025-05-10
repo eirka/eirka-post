@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/user"
 )
 
@@ -42,7 +43,7 @@ func TestLogoutController(t *testing.T) {
 	// Check for cookie - no need to assert specifics as we're mocking DeleteCookie
 	// implementation in the user package which we can't modify for tests
 	cookies := w.Result().Cookies()
-	
+
 	// There should be cookies in the response, but we can't specifically verify the JWT
 	// cookie details since we can't mock the user.DeleteCookie function
 	assert.GreaterOrEqual(t, len(cookies), 0, "Should have cookies")
@@ -53,7 +54,7 @@ func TestLogoutWithJWTCookie(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 
 	// Set user secret for token generation
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	// Setup router with user authentication middleware
 	router := gin.New()
@@ -62,9 +63,9 @@ func TestLogoutWithJWTCookie(t *testing.T) {
 	// Create a test request with an existing JWT cookie
 	req, err := http.NewRequest("GET", "/logout", nil)
 	assert.NoError(t, err)
-	
+
 	// Add a valid JWT cookie to the request
-	token, _ := user.MakeToken("secret", 1)
+	token, _ := user.MakeToken(1)
 	req.AddCookie(user.CreateCookie(token))
 
 	// Create a response recorder

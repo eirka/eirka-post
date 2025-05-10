@@ -12,9 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/eirka/eirka-libs/audit"
+	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
-
-	//e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/user"
 )
 
@@ -32,7 +31,7 @@ func TestEmailController(t *testing.T) {
 
 	var err error
 
-	user.Secret = "secret"
+	config.Settings.Session.NewSecret = "secret"
 
 	gin.SetMode(gin.ReleaseMode)
 
@@ -61,7 +60,7 @@ func TestEmailController(t *testing.T) {
 
 	request := []byte(`{"ib": 1, "email": "cool@test.com"}`)
 
-	token, err := user.MakeToken("secret", 2)
+	token, err := user.MakeToken(2)
 	assert.NoError(t, err, "An error was not expected")
 
 	first := performJWTRequest(router, "POST", "/email", token, request)
