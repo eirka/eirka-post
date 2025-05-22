@@ -89,13 +89,13 @@ func main() {
 	public.POST("/register", m.StopSpam(), m.Scamalytics(), c.RegisterController)
 	public.POST("/login", c.LoginController)
 	public.POST("/logout", c.LogoutController)
-	public.POST("/tag/new", c.NewTagController)
-	public.POST("/tag/add", c.AddTagController)
 
 	// requires user perms
 	users := r.Group("/user")
 	users.Use(user.Auth(true))
 
+	users.POST("/tag/new", c.NewTagController)
+	users.POST("/tag/add", c.AddTagController)
 	users.POST("/avatar", c.AvatarController)
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
