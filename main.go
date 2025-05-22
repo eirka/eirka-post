@@ -91,10 +91,10 @@ func main() {
 	public.POST("/logout", c.LogoutController)
 
 	// new tags group to enforce login
-	tags := r.Group("/")
+	tags := r.Group("/tag")
 	tags.Use(user.Auth(true))
-	tags.POST("/tag/new", c.NewTagController)
-	tags.POST("/tag/add", c.AddTagController)
+	tags.POST("/new", c.NewTagController)
+	tags.POST("/add", c.AddTagController)
 
 	// requires user perms
 	users := r.Group("/user")
