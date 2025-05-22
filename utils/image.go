@@ -460,29 +460,40 @@ func (i *ImageType) checkMagic() (err error) {
 	// Detect the MIME type from file content signatures
 	i.mime = http.DetectContentType(fileBytes)
 
-	// Set extension based on detected MIME type
-	var foundExt string
-
-	switch i.mime {
-	case "image/png":
-		foundExt = ".png"
-	case "image/jpeg":
-		foundExt = ".jpg"
-	case "image/gif":
-		foundExt = ".gif"
-	case "video/webm":
-		foundExt = ".webm"
-		i.video = true
-	default:
-		return errors.New("unknown or unsupported file type")
-	}
-
 	// If an extension was provided earlier, verify it matches the detected type
-	if i.Ext != "" && i.Ext != foundExt {
-		return errors.New("file extension doesn't match content type")
-	}
+	if i.Ext != "" {
+		validMimeTypes, exists := validExtAndMime[i.Ext]
+		if !exists {
+			return errors.New("unsupported file extension")
+		}
 
-	i.Ext = foundExt
+		validMime := false
+		for _, mimeType := range validMimeTypes {
+			if i.mime == mimeType {
+				validMime = true
+				break
+			}
+		}
+
+		if !validMime {
+			return errors.New("file extension doesn't match content type")
+		}
+	} else {
+		// Set extension based on detected MIME type if not provided
+		switch i.mime {
+		case "image/png":
+			i.Ext = ".png"
+		case "image/jpeg":
+			i.Ext = ".jpg"
+		case "image/gif":
+			i.Ext = ".gif"
+		case "video/webm":
+			i.Ext = ".webm"
+			i.video = true
+		default:
+			return errors.New("unknown or unsupported file type")
+		}
+	}
 
 	// Perform additional validation based on file type
 	switch i.mime {
@@ -521,25 +532,6 @@ func (i *ImageType) checkMagic() (err error) {
 	// Check for suspiciously small files that might be trying to bypass checks
 	if !i.video && len(fileBytes) < 100 {
 		return errors.New("file is suspiciously small")
-	}
-
-	// Check for extension consistency with MIME type
-	validMimeTypes, exists := validExtAndMime[i.Ext]
-	if !exists {
-		return errors.New("unsupported file extension")
-	}
-
-	// Verify the detected MIME type is in the allowed list for this extension
-	mimeAllowed := false
-	for _, validMime := range validMimeTypes {
-		if validMime == i.mime {
-			mimeAllowed = true
-			break
-		}
-	}
-
-	if !mimeAllowed {
-		return errors.New("MIME type doesn't match allowed types for extension")
 	}
 
 	return nil

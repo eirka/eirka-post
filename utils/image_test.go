@@ -439,29 +439,45 @@ func TestCheckDuplicate(t *testing.T) {
 }
 
 func TestCheckMagicGood(t *testing.T) {
-
-	req := formJpegRequest(300, "test.jpeg")
-
-	img := ImageType{}
-
-	img.File, img.Header, _ = req.FormFile("file")
-
-	err := img.copyBytes()
-	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, img.image, "File bytes should be returned")
+	testCases := []struct {
+		filename string
+		expected string
+	}{
+		{"test.jpeg", ".jpeg"},
+		{"test.jpg", ".jpg"},
 	}
 
-	err = img.getHash()
-	if assert.NoError(t, err, "An error was not expected") {
-		assert.NotEmpty(t, img.MD5, "MD5 should be returned")
-		assert.NotEmpty(t, img.SHA, "SHA should be returned")
-	}
+	for _, tc := range testCases {
+		t.Run(tc.filename, func(t *testing.T) {
+			req := formJpegRequest(300, tc.filename)
 
-	err = img.checkMagic()
-	if assert.NoError(t, err, "An error was not expected") {
-		assert.Equal(t, "image/jpeg", img.mime, "Mime type should be the same")
-	}
+			img := ImageType{}
 
+			img.File, img.Header, _ = req.FormFile("file")
+
+			err := img.copyBytes()
+			if assert.NoError(t, err, "An error was not expected") {
+				assert.NotEmpty(t, img.image, "File bytes should be returned")
+			}
+
+			err = img.getHash()
+			if assert.NoError(t, err, "An error was not expected") {
+				assert.NotEmpty(t, img.MD5, "MD5 should be returned")
+				assert.NotEmpty(t, img.SHA, "SHA should be returned")
+			}
+
+			err = img.checkReqExt()
+			if assert.NoError(t, err, "An error was not expected") {
+				assert.Equal(t, tc.expected, img.Ext, "Extension should be set correctly")
+			}
+
+			err = img.checkMagic()
+			if assert.NoError(t, err, "An error was not expected") {
+				assert.Equal(t, "image/jpeg", img.mime, "Mime type should be the same")
+				assert.Equal(t, tc.expected, img.Ext, "Extension should remain correct after magic check")
+			}
+		})
+	}
 }
 
 func TestCheckMagicBad(t *testing.T) {
