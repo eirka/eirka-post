@@ -64,7 +64,7 @@ func init() {
 	// Create context with timeout for testing ImageMagick
 	ctx, cancel := context.WithTimeout(context.Background(), initialCheckTimeout)
 	defer cancel()
-	
+
 	// Test for ImageMagick
 	cmd := exec.CommandContext(ctx, "convert", "--version")
 	_, err = cmd.Output()
@@ -694,7 +694,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	// Create context with timeout for ImageMagick operations
 	ctx, cancel := context.WithTimeout(context.Background(), processTimeout)
 	defer cancel()
-	
+
 	cmd := exec.CommandContext(ctx, "convert", args...)
 	_, err = cmd.Output()
 	if err != nil {
@@ -737,12 +737,12 @@ func (i *ImageType) cleanupFiles() {
 		if i.avatar {
 			rootDir = local.Settings.Directories.AvatarDir
 		}
-		
+
 		// Open the root directory
 		root, err := os.OpenRoot(rootDir)
 		if err == nil {
 			defer root.Close()
-			
+
 			// Extra validation to ensure we're only dealing with files
 			fileInfo, err := root.Stat(i.Filename)
 			if err == nil && !fileInfo.IsDir() {
@@ -762,12 +762,12 @@ func (i *ImageType) cleanupFiles() {
 		if i.avatar {
 			thumbRootDir = local.Settings.Directories.AvatarDir
 		}
-		
+
 		// Open the root directory
 		thumbRoot, err := os.OpenRoot(thumbRootDir)
 		if err == nil {
 			defer thumbRoot.Close()
-			
+
 			// Extra validation to ensure we're only dealing with files
 			fileInfo, err := thumbRoot.Stat(i.Thumbnail)
 			if err == nil && !fileInfo.IsDir() {

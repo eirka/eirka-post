@@ -25,69 +25,69 @@ func TestRegisterControllerValidation(t *testing.T) {
 	// Create a router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	router.POST("/register", RegisterController)
 
 	// Test cases for invalid parameters
 	testCases := []struct {
-		name  string
-		body  map[string]interface{}
-		code  int
+		name string
+		body map[string]interface{}
+		code int
 	}{
 		{
-			"missing_name", 
+			"missing_name",
 			map[string]interface{}{
-				"ib": 1,
-				"email": "test@example.com",
+				"ib":       1,
+				"email":    "test@example.com",
 				"password": "password123",
 			},
 			http.StatusBadRequest,
 		},
 		{
-			"missing_password", 
+			"missing_password",
 			map[string]interface{}{
-				"ib": 1,
-				"name": "testuser",
+				"ib":    1,
+				"name":  "testuser",
 				"email": "test@example.com",
 			},
 			http.StatusBadRequest,
 		},
 		{
-			"missing_ib", 
+			"missing_ib",
 			map[string]interface{}{
-				"name": "testuser",
-				"email": "test@example.com",
+				"name":     "testuser",
+				"email":    "test@example.com",
 				"password": "password123",
 			},
 			http.StatusBadRequest,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create JSON request body
 			jsonBytes, err := json.Marshal(tc.body)
 			assert.NoError(t, err)
-			
+
 			// Create HTTP request
 			req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(jsonBytes))
 			assert.NoError(t, err)
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-Real-IP", "127.0.0.1")
-			
+
 			// Create response recorder
 			w := httptest.NewRecorder()
-			
+
 			// Perform the request
 			router.ServeHTTP(w, req)
-			
+
 			// Check response code
 			assert.Equal(t, tc.code, w.Code)
 			// Verify error response contains error_message
@@ -104,14 +104,14 @@ func TestRegisterControllerSuccess(t *testing.T) {
 	// Create a router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	// Register a mock handler
 	router.POST("/register-mock", func(c *gin.Context) {
 		// Return success message for registration
@@ -125,7 +125,7 @@ func TestRegisterControllerSuccess(t *testing.T) {
 		"email":    "test@example.com",
 		"password": "password123",
 	}
-	
+
 	jsonBytes, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
@@ -160,17 +160,17 @@ func TestRegisterControllerDatabase(t *testing.T) {
 
 	// Database expectations for user registration
 	mock.ExpectBegin()
-	
+
 	// User insert with return ID
 	mock.ExpectExec("INSERT into users").
 		WithArgs("testuser", "test@example.com", []byte("hashedpassword"), 1).
 		WillReturnResult(sqlmock.NewResult(2, 1))
-	
+
 	// Role insert
 	mock.ExpectExec("INSERT into user_role_map").
 		WithArgs(2, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
-	
+
 	// Commit transaction
 	mock.ExpectCommit()
 

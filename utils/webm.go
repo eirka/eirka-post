@@ -23,12 +23,12 @@ const (
 
 // WebM validation constants
 const (
-	minVideoBitrate   = 100000   // Minimum video bitrate (100kbps)
-	maxVideoBitrate   = 8000000  // Maximum video bitrate (8Mbps)
-	minVideoFramerate = 1        // Minimum framerate (1fps)
-	maxVideoFramerate = 60       // Maximum framerate (60fps)
-	minStreamCount    = 1        // At least one stream required
-	maxStreamCount    = 2        // Only allow video and optionally audio
+	minVideoBitrate   = 100000  // Minimum video bitrate (100kbps)
+	maxVideoBitrate   = 8000000 // Maximum video bitrate (8Mbps)
+	minVideoFramerate = 1       // Minimum framerate (1fps)
+	maxVideoFramerate = 60      // Maximum framerate (60fps)
+	minStreamCount    = 1       // At least one stream required
+	maxStreamCount    = 2       // Only allow video and optionally audio
 )
 
 // allowed codecs
@@ -49,7 +49,7 @@ func init() {
 	// Create context with timeout for testing ffprobe
 	ctx1, cancel1 := context.WithTimeout(context.Background(), ffmpegCheckTimeout)
 	defer cancel1()
-	
+
 	// Test for ffprobe with timeout
 	cmd1 := exec.CommandContext(ctx1, "ffprobe", "-version")
 	_, err = cmd1.Output()
@@ -63,7 +63,7 @@ func init() {
 	// Create context with timeout for testing ffmpeg
 	ctx2, cancel2 := context.WithTimeout(context.Background(), ffmpegCheckTimeout)
 	defer cancel2()
-	
+
 	// Test for ffmpeg with timeout
 	cmd2 := exec.CommandContext(ctx2, "ffmpeg", "-version")
 	_, err = cmd2.Output()
@@ -91,7 +91,7 @@ func (i *ImageType) checkWebM() (err error) {
 	// Create context with timeout for ffprobe operations
 	ctx, cancel := context.WithTimeout(context.Background(), ffmpegOpTimeout)
 	defer cancel()
-	
+
 	cmd := exec.CommandContext(ctx, "ffprobe", ffprobeArgs...)
 	output, err := cmd.Output()
 	if err != nil {
@@ -112,20 +112,20 @@ func (i *ImageType) checkWebM() (err error) {
 	if ffprobe.Format.FormatName != "matroska,webm" {
 		return errors.New("file is not a webm")
 	}
-	
+
 	// 2. Validate stream count
 	if len(ffprobe.Streams) < minStreamCount {
 		return errors.New("webm contains no streams")
 	}
-	
+
 	if len(ffprobe.Streams) > maxStreamCount {
 		return errors.New("webm contains too many streams")
 	}
-	
+
 	// 3. Find video stream
 	var videoStream *ffprobeStream
 	var audioStream *ffprobeStream
-	
+
 	for i, stream := range ffprobe.Streams {
 		if stream.CodecType == "video" && videoStream == nil {
 			videoStream = &ffprobe.Streams[i]
@@ -133,89 +133,89 @@ func (i *ImageType) checkWebM() (err error) {
 			audioStream = &ffprobe.Streams[i]
 		}
 	}
-	
+
 	// 4. Ensure we have a video stream
 	if videoStream == nil {
 		return errors.New("webm contains no video stream")
 	}
-	
+
 	// 5. Validate video codec
 	codecName := strings.ToLower(videoStream.CodecName)
 	if !allowedCodecs[codecName] {
 		return fmt.Errorf("video codec '%s' is not allowed, must be VP8 or VP9", videoStream.CodecName)
 	}
-	
+
 	// 6. Check audio stream if present
 	if audioStream != nil {
 		if !allowedAudioCodecs[strings.ToLower(audioStream.CodecName)] {
 			return fmt.Errorf("audio codec '%s' is not allowed, must be Vorbis or Opus", audioStream.CodecName)
 		}
 	}
-	
+
 	// 7. Parse and validate file duration
 	duration, err := strconv.ParseFloat(ffprobe.Format.Duration, 64)
 	if err != nil {
 		return errors.New("problem decoding webm duration")
 	}
-	
+
 	if duration <= 0 {
 		return errors.New("webm has invalid duration")
 	}
-	
+
 	// set file duration
 	i.duration = int(duration)
-	
+
 	// 8. Check file size
 	originalSize, err := strconv.ParseFloat(ffprobe.Format.Size, 64)
 	if err != nil {
 		return errors.New("problem decoding webm size")
 	}
-	
+
 	if originalSize <= 0 {
 		return errors.New("webm has invalid size")
 	}
-	
+
 	// 9. Set and validate dimensions
 	i.OrigWidth = videoStream.Width
 	i.OrigHeight = videoStream.Height
-	
+
 	if i.OrigWidth <= 0 || i.OrigHeight <= 0 {
 		return errors.New("webm has invalid dimensions")
 	}
-	
+
 	// 10. Parse and validate framerate
 	framerate, err := parseFramerate(videoStream.AvgFrameRate)
 	if err != nil {
 		return fmt.Errorf("webm has invalid framerate: %v", err)
 	}
-	
+
 	if framerate < minVideoFramerate || framerate > maxVideoFramerate {
-		return fmt.Errorf("webm framerate %.2f fps is outside allowed range (%d-%d fps)", 
+		return fmt.Errorf("webm framerate %.2f fps is outside allowed range (%d-%d fps)",
 			framerate, minVideoFramerate, maxVideoFramerate)
 	}
-	
+
 	// 11. Check bitrate
 	if ffprobe.Format.BitRate != "" {
 		bitrate, err := strconv.ParseInt(ffprobe.Format.BitRate, 10, 64)
 		if err == nil && bitrate > 0 {
 			if bitrate < minVideoBitrate {
-				return fmt.Errorf("webm bitrate %d bps is too low (min: %d bps)", 
+				return fmt.Errorf("webm bitrate %d bps is too low (min: %d bps)",
 					bitrate, minVideoBitrate)
 			}
 			if bitrate > maxVideoBitrate {
-				return fmt.Errorf("webm bitrate %d bps is too high (max: %d bps)", 
+				return fmt.Errorf("webm bitrate %d bps is too high (max: %d bps)",
 					bitrate, maxVideoBitrate)
 			}
 		}
 	}
-	
+
 	// 12. Final size checks against config limits
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
-		return fmt.Errorf("webm width %d px is too large (max: %d px)", 
+		return fmt.Errorf("webm width %d px is too large (max: %d px)",
 			i.OrigWidth, config.Settings.Limits.ImageMaxWidth)
 	case i.OrigWidth < config.Settings.Limits.ImageMinWidth:
-		return fmt.Errorf("webm width %d px is too small (min: %d px)", 
+		return fmt.Errorf("webm width %d px is too small (min: %d px)",
 			i.OrigWidth, config.Settings.Limits.ImageMinWidth)
 	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
 		return fmt.Errorf("webm height %d px is too large (max: %d px)",
@@ -251,10 +251,10 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	// Get thumbpath directory and filename for safer filesystem operations
 	thumbDir := filepath.Dir(i.Thumbpath)
 	thumbFilename := filepath.Base(i.Thumbpath)
-	
+
 	// This temporary path is just for passing to ffmpeg
 	tempThumbPath := i.Thumbpath
-	
+
 	// Note: We're still using direct file paths for ffmpeg operations
 	// since ffmpeg handles files directly and doesn't work through file handles
 	ffmpegArgs := []string{
@@ -275,7 +275,7 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 	// Create context with timeout for ffmpeg operations
 	ctx, cancel := context.WithTimeout(context.Background(), ffmpegOpTimeout)
 	defer cancel()
-	
+
 	// Make an image of first frame with ffmpeg
 	cmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
 	_, err = cmd.Output()
@@ -285,7 +285,7 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 		}
 		return errors.New("problem creating thumbnail from webm")
 	}
-	
+
 	// Verify the thumbnail was created successfully using os.OpenInRoot
 	// This is a double check to ensure the file exists and is valid after ffmpeg creates it
 	_, err = os.OpenInRoot(thumbDir, thumbFilename)
@@ -303,21 +303,21 @@ func parseFramerate(fpsStr string) (float64, error) {
 	if len(parts) != 2 {
 		return 0, fmt.Errorf("invalid framerate format: %s", fpsStr)
 	}
-	
+
 	num, err := strconv.ParseFloat(parts[0], 64)
 	if err != nil {
 		return 0, fmt.Errorf("invalid framerate numerator: %v", err)
 	}
-	
+
 	denom, err := strconv.ParseFloat(parts[1], 64)
 	if err != nil {
 		return 0, fmt.Errorf("invalid framerate denominator: %v", err)
 	}
-	
+
 	if denom == 0 {
 		return 0, errors.New("framerate denominator cannot be zero")
 	}
-	
+
 	return num / denom, nil
 }
 
@@ -326,19 +326,19 @@ type ffprobeStream struct {
 	Index              int    `json:"index"`
 	CodecName          string `json:"codec_name"`
 	CodecLongName      string `json:"codec_long_name"`
-	CodecType          string `json:"codec_type"`  // "video" or "audio"
+	CodecType          string `json:"codec_type"` // "video" or "audio"
 	CodecTimeBase      string `json:"codec_time_base"`
 	CodecTagString     string `json:"codec_tag_string"`
 	CodecTag           string `json:"codec_tag"`
-	Width              int    `json:"width"`       // video width in pixels
-	Height             int    `json:"height"`      // video height in pixels
+	Width              int    `json:"width"`  // video width in pixels
+	Height             int    `json:"height"` // video height in pixels
 	HasBFrames         int    `json:"has_b_frames"`
 	SampleAspectRatio  string `json:"sample_aspect_ratio"`
 	DisplayAspectRatio string `json:"display_aspect_ratio"`
 	PixFmt             string `json:"pix_fmt"`
 	Level              int    `json:"level"`
-	RFrameRate         string `json:"r_frame_rate"`      // real base framerate
-	AvgFrameRate       string `json:"avg_frame_rate"`    // average framerate
+	RFrameRate         string `json:"r_frame_rate"`   // real base framerate
+	AvgFrameRate       string `json:"avg_frame_rate"` // average framerate
 	TimeBase           string `json:"time_base"`
 	StartPts           int    `json:"start_pts"`
 	StartTime          string `json:"start_time"`

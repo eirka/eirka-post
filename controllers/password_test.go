@@ -25,40 +25,40 @@ func TestPasswordControllerValidation(t *testing.T) {
 	// Create a router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	router.POST("/password", PasswordController)
 
 	// Test cases for invalid parameters
 	testCases := []struct {
-		name  string
-		body  map[string]interface{}
-		code  int
+		name string
+		body map[string]interface{}
+		code int
 	}{
 		{
-			"missing_old_password", 
+			"missing_old_password",
 			map[string]interface{}{
-				"ib": 1,
+				"ib":    1,
 				"newpw": "newpassword123",
 			},
 			http.StatusBadRequest,
 		},
 		{
-			"missing_new_password", 
+			"missing_new_password",
 			map[string]interface{}{
-				"ib": 1,
+				"ib":    1,
 				"oldpw": "oldpassword123",
 			},
 			http.StatusBadRequest,
 		},
 		{
-			"missing_ib", 
+			"missing_ib",
 			map[string]interface{}{
 				"oldpw": "oldpassword123",
 				"newpw": "newpassword123",
@@ -66,25 +66,25 @@ func TestPasswordControllerValidation(t *testing.T) {
 			http.StatusBadRequest,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create JSON request body
 			jsonBytes, err := json.Marshal(tc.body)
 			assert.NoError(t, err)
-			
+
 			// Create HTTP request
 			req, err := http.NewRequest("POST", "/password", bytes.NewBuffer(jsonBytes))
 			assert.NoError(t, err)
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-Real-IP", "127.0.0.1")
-			
+
 			// Create response recorder
 			w := httptest.NewRecorder()
-			
+
 			// Perform the request
 			router.ServeHTTP(w, req)
-			
+
 			// Check response code
 			assert.Equal(t, tc.code, w.Code)
 			// Verify error response contains error_message
@@ -101,19 +101,19 @@ func TestPasswordControllerSuccess(t *testing.T) {
 	// Create a router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Use a mock handler for successful password change
 	router.POST("/password-mock", func(c *gin.Context) {
 		// Add mock user to context
 		c.Set("userdata", user.User{ID: 2, Name: "test"})
-		
+
 		// Parse JSON body
 		var pf passwordForm
 		if err := c.BindJSON(&pf); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": "invalid parameters"})
 			return
 		}
-		
+
 		// Return success for valid request
 		c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditChangePassword})
 	})
@@ -124,7 +124,7 @@ func TestPasswordControllerSuccess(t *testing.T) {
 		"oldpw": "oldpassword",
 		"newpw": "newpassword",
 	}
-	
+
 	jsonBytes, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
@@ -159,12 +159,12 @@ func TestPasswordControllerDatabaseUpdate(t *testing.T) {
 
 	// Database expectations for password update
 	mock.ExpectBegin()
-	
+
 	// Password update query
 	mock.ExpectExec("UPDATE users SET user_password").
 		WithArgs([]byte("newhashed"), 2).
 		WillReturnResult(sqlmock.NewResult(0, 1))
-	
+
 	// Commit transaction
 	mock.ExpectCommit()
 

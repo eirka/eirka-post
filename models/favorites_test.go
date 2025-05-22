@@ -73,7 +73,7 @@ func TestFavoritesStatus(t *testing.T) {
 	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
 		WithArgs(1).
 		WillReturnRows(rows)
-	
+
 	// No favorite exists
 	rows = sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \? FOR UPDATE`).
@@ -107,7 +107,7 @@ func TestFavoritesStatusRemove(t *testing.T) {
 	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
 		WithArgs(1).
 		WillReturnRows(rows)
-	
+
 	// Favorite exists
 	rows = sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \? FOR UPDATE`).
@@ -147,7 +147,7 @@ func TestFavoritesPost(t *testing.T) {
 	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
 		WithArgs(1).
 		WillReturnRows(rows)
-	
+
 	// Favorite doesn't exist
 	rows = sqlmock.NewRows([]string{"count"}).AddRow(0)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \?`).
@@ -318,7 +318,7 @@ func TestFavoritesPostAlreadyExists(t *testing.T) {
 	mock.ExpectQuery(`SELECT count\(1\) FROM images WHERE image_id = \?`).
 		WithArgs(1).
 		WillReturnRows(rows)
-	
+
 	// Favorite already exists
 	rows = sqlmock.NewRows([]string{"count"}).AddRow(1)
 	mock.ExpectQuery(`SELECT count\(1\) FROM favorites WHERE image_id = \? AND user_id = \?`).

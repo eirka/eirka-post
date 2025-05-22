@@ -27,29 +27,29 @@ func TestLoginControllerValidation(t *testing.T) {
 
 	// Test cases for invalid parameters
 	testCases := []struct {
-		name  string
-		body  string
-		code  int
+		name string
+		body string
+		code int
 	}{
 		{"missing_name", `{"ib":1,"password":"test"}`, http.StatusBadRequest},
 		{"missing_password", `{"ib":1,"name":"test"}`, http.StatusBadRequest},
 		{"missing_ib", `{"name":"test","password":"test"}`, http.StatusBadRequest},
 		{"invalid_json", `{invalid_json}`, http.StatusBadRequest},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a test request
 			req, _ := http.NewRequest("POST", "/login", strings.NewReader(tc.body))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-Real-IP", "127.0.0.1")
-			
+
 			// Create a response recorder
 			w := httptest.NewRecorder()
-			
+
 			// Perform the request
 			router.ServeHTTP(w, req)
-			
+
 			// Check response
 			assert.Equal(t, tc.code, w.Code)
 			assert.Contains(t, w.Body.String(), "error_message")

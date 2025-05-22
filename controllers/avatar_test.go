@@ -37,14 +37,14 @@ func TestAvatarControllerNoImage(t *testing.T) {
 	// Setup router
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Add user authentication middleware with mock user
 	router.Use(func(c *gin.Context) {
 		// Set mock user data in context
 		c.Set("userdata", user.User{ID: 2})
 		c.Next()
 	})
-	
+
 	router.POST("/avatar", AvatarController)
 
 	// Create a request without an image
@@ -71,14 +71,14 @@ func TestAvatarControllerWithImage(t *testing.T) {
 	// Create a mock upload handler to isolate AvatarController test from file operations
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Mock image upload
-	
+
 	// Use a mock handler for successful avatar upload
 	router.POST("/avatar-mock", func(c *gin.Context) {
 		// Get the file from the form
 		_, _, _ = c.Request.FormFile("file")
-		
+
 		// Just redirect without actual processing
 		c.Redirect(303, c.Request.Referer())
 	})
@@ -101,7 +101,7 @@ func TestAvatarControllerWithImage(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("X-Real-IP", "127.0.0.1")
 	req.Header.Set("Referer", "/profile")
-	
+
 	// Create response recorder
 	w := httptest.NewRecorder()
 
@@ -118,19 +118,19 @@ func TestAvatarControllerSaveError(t *testing.T) {
 	// Create a mock upload handler to isolate AvatarController test from file operations
 	router := gin.New()
 	router.TrustedPlatform = "X-Real-IP"
-	
+
 	// Use a mock handler for avatar upload with error
 	router.POST("/avatar-error", func(c *gin.Context) {
 		// Get userdata from middleware
 		c.Set("userdata", user.User{ID: 2})
-		
+
 		// Get the file from the form
 		_, _, err := c.Request.FormFile("file")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrNoImage.Error()})
 			return
 		}
-		
+
 		// Simulate an error during save
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": "image processing error"})
 	})
@@ -153,7 +153,7 @@ func TestAvatarControllerSaveError(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("X-Real-IP", "127.0.0.1")
 	req.Header.Set("Referer", "/profile")
-	
+
 	// Create response recorder
 	w := httptest.NewRecorder()
 

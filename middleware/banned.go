@@ -27,13 +27,13 @@ func isLocalhost(ip string) bool {
 	if ip == "localhost" {
 		return true
 	}
-	
+
 	// Parse the IP address
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
 		return false
 	}
-	
+
 	// Check if it's a loopback address (127.0.0.0/8 or ::1)
 	return parsedIP.IsLoopback()
 }
@@ -66,7 +66,7 @@ func Bans() gin.HandlerFunc {
 			if isBanned {
 				log.Printf("WARNING: Localhost IP (%s) is in the ban list. This indicates a proxy misconfiguration. Request allowed anyway.", clientIP)
 			}
-			
+
 			// Continue with the request regardless of ban status for localhost
 			c.Next()
 			return

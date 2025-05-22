@@ -90,12 +90,16 @@ func main() {
 	public.POST("/login", c.LoginController)
 	public.POST("/logout", c.LogoutController)
 
+	// new tags group to enforce login
+	tags := r.Group("/")
+	tags.Use(user.Auth(true))
+	tags.POST("/tag/new", c.NewTagController)
+	tags.POST("/tag/add", c.AddTagController)
+
 	// requires user perms
 	users := r.Group("/user")
 	users.Use(user.Auth(true))
 
-	users.POST("/tag/new", c.NewTagController)
-	users.POST("/tag/add", c.AddTagController)
 	users.POST("/avatar", c.AvatarController)
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)

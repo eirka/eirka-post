@@ -38,12 +38,12 @@ func mockGoodFFProbeData() ffprobe {
 			Size           string `json:"size"`
 			BitRate        string `json:"bit_rate"`
 		}{
-			Filename:  "test.webm",
-			NbStreams: 2,
+			Filename:   "test.webm",
+			NbStreams:  2,
 			FormatName: "matroska,webm",
-			Duration:  "10.5",
-			Size:      "1000000",
-			BitRate:   "1000000",
+			Duration:   "10.5",
+			Size:       "1000000",
+			BitRate:    "1000000",
 		},
 	}
 }
@@ -103,7 +103,7 @@ func TestParseFramerate(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := parseFramerate(tc.input)
-			
+
 			if tc.isError {
 				assert.Error(t, err)
 			} else {
@@ -126,7 +126,7 @@ func TestWebMValidationCodecs(t *testing.T) {
 
 	// Create a base image type for testing
 	baseImg := ImageType{
-		Filepath: "/tmp/test.webm",  // Just for testing
+		Filepath: "/tmp/test.webm", // Just for testing
 	}
 
 	tests := []struct {
@@ -320,13 +320,13 @@ func TestWebMValidationCodecs(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a copy of the base image for this test
 			img := baseImg
-			
+
 			// Create a test ffprobe result
 			ffprobeData := tc.modifyFFProbe(mockGoodFFProbeData())
-			
+
 			// Set up a function to test only the validation logic, not the ffprobe execution
 			result := validateWebMData(&img, ffprobeData)
-			
+
 			if tc.expectedErrStr == "" {
 				assert.NoError(t, result)
 			} else {
@@ -345,20 +345,20 @@ func validateWebMData(i *ImageType, ffprobeData ffprobe) error {
 	if ffprobeData.Format.FormatName != "matroska,webm" {
 		return errors.New("file is not a webm")
 	}
-	
+
 	// 2. Validate stream count
 	if len(ffprobeData.Streams) < minStreamCount {
 		return errors.New("webm contains no streams")
 	}
-	
+
 	if len(ffprobeData.Streams) > maxStreamCount {
 		return errors.New("webm contains too many streams")
 	}
-	
+
 	// 3. Find video stream
 	var videoStream *ffprobeStream
 	var audioStream *ffprobeStream
-	
+
 	for idx, stream := range ffprobeData.Streams {
 		if stream.CodecType == "video" && videoStream == nil {
 			videoStream = &ffprobeData.Streams[idx]
@@ -366,66 +366,66 @@ func validateWebMData(i *ImageType, ffprobeData ffprobe) error {
 			audioStream = &ffprobeData.Streams[idx]
 		}
 	}
-	
+
 	// 4. Ensure we have a video stream
 	if videoStream == nil {
 		return errors.New("webm contains no video stream")
 	}
-	
+
 	// 5. Validate video codec
 	codecName := strings.ToLower(videoStream.CodecName)
 	if !allowedCodecs[codecName] {
 		return errors.New("video codec '" + videoStream.CodecName + "' is not allowed, must be VP8 or VP9")
 	}
-	
+
 	// 6. Check audio stream if present
 	if audioStream != nil {
 		if !allowedAudioCodecs[strings.ToLower(audioStream.CodecName)] {
 			return errors.New("audio codec '" + audioStream.CodecName + "' is not allowed, must be Vorbis or Opus")
 		}
 	}
-	
+
 	// 7. Parse and validate file duration
 	duration, err := strconv.ParseFloat(ffprobeData.Format.Duration, 64)
 	if err != nil {
 		return errors.New("problem decoding webm duration")
 	}
-	
+
 	if duration <= 0 {
 		return errors.New("webm has invalid duration")
 	}
-	
+
 	// set file duration
 	i.duration = int(duration)
-	
+
 	// 8. Check file size
 	originalSize, err := strconv.ParseFloat(ffprobeData.Format.Size, 64)
 	if err != nil {
 		return errors.New("problem decoding webm size")
 	}
-	
+
 	if originalSize <= 0 {
 		return errors.New("webm has invalid size")
 	}
-	
+
 	// 9. Set and validate dimensions
 	i.OrigWidth = videoStream.Width
 	i.OrigHeight = videoStream.Height
-	
+
 	if i.OrigWidth <= 0 || i.OrigHeight <= 0 {
 		return errors.New("webm has invalid dimensions")
 	}
-	
+
 	// 10. Parse and validate framerate
 	framerate, err := parseFramerate(videoStream.AvgFrameRate)
 	if err != nil {
 		return errors.New("webm has invalid framerate: " + err.Error())
 	}
-	
+
 	if framerate < minVideoFramerate || framerate > maxVideoFramerate {
 		return errors.New("webm framerate " + strconv.FormatFloat(framerate, 'f', 2, 64) + " fps is outside allowed range")
 	}
-	
+
 	// 11. Check bitrate
 	if ffprobeData.Format.BitRate != "" {
 		bitrate, err := strconv.ParseInt(ffprobeData.Format.BitRate, 10, 64)
@@ -438,7 +438,7 @@ func validateWebMData(i *ImageType, ffprobeData ffprobe) error {
 			}
 		}
 	}
-	
+
 	// 12. Final size checks against config limits
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
@@ -454,25 +454,25 @@ func validateWebMData(i *ImageType, ffprobeData ffprobe) error {
 	case i.duration > config.Settings.Limits.WebmMaxLength:
 		return errors.New("webm duration " + strconv.Itoa(i.duration) + " sec is too long")
 	}
-	
+
 	return nil
 }
 
 // TestWebMTimepointSelection tests the logic for choosing timepoints in WebM processing
 func TestWebMTimepointSelection(t *testing.T) {
 	tests := []struct {
-		name             string
-		duration         int
+		name              string
+		duration          int
 		expectedTimepoint string
 	}{
 		{
-			name:             "Short video timepoint",
-			duration:         3,
+			name:              "Short video timepoint",
+			duration:          3,
 			expectedTimepoint: "00:00:00",
 		},
 		{
-			name:             "Normal video timepoint",
-			duration:         10,
+			name:              "Normal video timepoint",
+			duration:          10,
 			expectedTimepoint: "00:00:05",
 		},
 	}
@@ -486,8 +486,8 @@ func TestWebMTimepointSelection(t *testing.T) {
 			} else {
 				timepoint = "00:00:00"
 			}
-			
-			assert.Equal(t, tc.expectedTimepoint, timepoint, 
+
+			assert.Equal(t, tc.expectedTimepoint, timepoint,
 				"Timepoint selection should work according to video duration")
 		})
 	}
