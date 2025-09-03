@@ -76,6 +76,8 @@ func main() {
 	r.Use(csrf.Verify())
 	// check the ban list for the ip
 	r.Use(m.Bans())
+	// log user agent for successful POST requests
+	r.Use(m.RequestLogger())
 
 	r.GET("/status", status.StatusController)
 	r.NoRoute(c.ErrorController)
