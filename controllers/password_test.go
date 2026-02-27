@@ -38,12 +38,12 @@ func TestPasswordControllerValidation(t *testing.T) {
 	// Test cases for invalid parameters
 	testCases := []struct {
 		name string
-		body map[string]interface{}
+		body map[string]any
 		code int
 	}{
 		{
 			"missing_old_password",
-			map[string]interface{}{
+			map[string]any{
 				"ib":    1,
 				"newpw": "newpassword123",
 			},
@@ -51,7 +51,7 @@ func TestPasswordControllerValidation(t *testing.T) {
 		},
 		{
 			"missing_new_password",
-			map[string]interface{}{
+			map[string]any{
 				"ib":    1,
 				"oldpw": "oldpassword123",
 			},
@@ -59,7 +59,7 @@ func TestPasswordControllerValidation(t *testing.T) {
 		},
 		{
 			"missing_ib",
-			map[string]interface{}{
+			map[string]any{
 				"oldpw": "oldpassword123",
 				"newpw": "newpassword123",
 			},
@@ -119,7 +119,7 @@ func TestPasswordControllerSuccess(t *testing.T) {
 	})
 
 	// Create valid password change request
-	reqBody := map[string]interface{}{
+	reqBody := map[string]any{
 		"ib":    1,
 		"oldpw": "oldpassword",
 		"newpw": "newpassword",

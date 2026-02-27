@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"slices"
 
 	// gif support
 	_ "image/gif"
@@ -467,13 +468,7 @@ func (i *ImageType) checkMagic() (err error) {
 			return errors.New("unsupported file extension")
 		}
 
-		validMime := false
-		for _, mimeType := range validMimeTypes {
-			if i.mime == mimeType {
-				validMime = true
-				break
-			}
-		}
+		validMime := slices.Contains(validMimeTypes, i.mime)
 
 		if !validMime {
 			return errors.New("file extension doesn't match content type")

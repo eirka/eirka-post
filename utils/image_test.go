@@ -35,8 +35,8 @@ func testPng(size int) *bytes.Buffer {
 	myimage := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{size, size}})
 
 	// This loop just fills the image with random data
-	for x := 0; x < size; x++ {
-		for y := 0; y < size; y++ {
+	for x := range size {
+		for y := range size {
 			c := color.RGBA{uint8(rand.Intn(255)), uint8(rand.Intn(255)), uint8(rand.Intn(255)), 255}
 			myimage.Set(x, y, c)
 		}
@@ -54,8 +54,8 @@ func testJpeg(size int) *bytes.Buffer {
 	myimage := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{size, size}})
 
 	// This loop just fills the image with random data
-	for x := 0; x < size; x++ {
-		for y := 0; y < size; y++ {
+	for x := range size {
+		for y := range size {
 			c := color.RGBA{uint8(rand.Intn(255)), uint8(rand.Intn(255)), uint8(rand.Intn(255)), 255}
 			myimage.Set(x, y, c)
 		}

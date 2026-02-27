@@ -38,12 +38,12 @@ func TestRegisterControllerValidation(t *testing.T) {
 	// Test cases for invalid parameters
 	testCases := []struct {
 		name string
-		body map[string]interface{}
+		body map[string]any
 		code int
 	}{
 		{
 			"missing_name",
-			map[string]interface{}{
+			map[string]any{
 				"ib":       1,
 				"email":    "test@example.com",
 				"password": "password123",
@@ -52,7 +52,7 @@ func TestRegisterControllerValidation(t *testing.T) {
 		},
 		{
 			"missing_password",
-			map[string]interface{}{
+			map[string]any{
 				"ib":    1,
 				"name":  "testuser",
 				"email": "test@example.com",
@@ -61,7 +61,7 @@ func TestRegisterControllerValidation(t *testing.T) {
 		},
 		{
 			"missing_ib",
-			map[string]interface{}{
+			map[string]any{
 				"name":     "testuser",
 				"email":    "test@example.com",
 				"password": "password123",
@@ -119,7 +119,7 @@ func TestRegisterControllerSuccess(t *testing.T) {
 	})
 
 	// Create register request with valid data
-	reqBody := map[string]interface{}{
+	reqBody := map[string]any{
 		"ib":       1,
 		"name":     "testuser",
 		"email":    "test@example.com",

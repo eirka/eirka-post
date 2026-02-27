@@ -73,7 +73,7 @@ func TestNewTagController(t *testing.T) {
 	redis.Cache.Mock.Command("DEL", "tags:1")
 
 	// Create new tag request with valid data
-	reqBody := map[string]interface{}{
+	reqBody := map[string]any{
 		"ib":   1,
 		"name": "example tag",
 		"type": 1,
@@ -134,7 +134,7 @@ func TestNewTagControllerDuplicate(t *testing.T) {
 	mock.ExpectCommit()
 
 	// Create new tag request with duplicate tag name
-	reqBody := map[string]interface{}{
+	reqBody := map[string]any{
 		"ib":   1,
 		"name": "duplicate tag",
 		"type": 1,
@@ -209,7 +209,7 @@ func TestNewTagControllerRedisError(t *testing.T) {
 	redis.Cache.Mock.Command("DEL", redisKey).ExpectError(errors.New("redis error"))
 
 	// Create new tag request with valid data
-	reqBody := map[string]interface{}{
+	reqBody := map[string]any{
 		"ib":   1,
 		"name": "example tag",
 		"type": 1,
@@ -257,12 +257,12 @@ func TestNewTagControllerInvalidParams(t *testing.T) {
 	// Test cases for invalid parameters
 	testCases := []struct {
 		name string
-		body map[string]interface{}
+		body map[string]any
 		code int
 	}{
 		{
 			"missing_name",
-			map[string]interface{}{
+			map[string]any{
 				"ib":   1,
 				"type": 1,
 			},
@@ -270,7 +270,7 @@ func TestNewTagControllerInvalidParams(t *testing.T) {
 		},
 		{
 			"missing_type",
-			map[string]interface{}{
+			map[string]any{
 				"ib":   1,
 				"name": "example tag",
 			},
@@ -278,7 +278,7 @@ func TestNewTagControllerInvalidParams(t *testing.T) {
 		},
 		{
 			"missing_ib",
-			map[string]interface{}{
+			map[string]any{
 				"name": "example tag",
 				"type": 1,
 			},
@@ -286,7 +286,7 @@ func TestNewTagControllerInvalidParams(t *testing.T) {
 		},
 		{
 			"tag_too_short",
-			map[string]interface{}{
+			map[string]any{
 				"ib":   1,
 				"name": "a", // Assuming min length is more than 1
 				"type": 1,
