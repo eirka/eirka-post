@@ -17,6 +17,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -999,4 +1000,158 @@ func TestTimeouts(t *testing.T) {
 	// We don't actually expect this to succeed as we don't have a real file,
 	// but it will try to use the timeout code path
 	_ = img.createThumbnail(100, 100)
+}
+
+// TestMakeFilenamesUnique is the regression test for the filename-collision bug:
+// the old code built a fresh shortid generator per call, which reset the
+// in-millisecond counter and produced duplicate names under load. With a single
+// shared generator, a large concurrent burst must yield zero collisions.
+func TestMakeFilenamesUnique(t *testing.T) {
+	const goroutines = 8
+	const perG = 2000
+
+	var mu sync.Mutex
+	seen := make(map[string]struct{}, goroutines*perG)
+	dupes := 0
+
+	var wg sync.WaitGroup
+	for range goroutines {
+		wg.Go(func() {
+			for range perG {
+				img := ImageType{Ext: ".jpg"}
+				if err := img.makeFilenames(); err != nil {
+					return
+				}
+				mu.Lock()
+				if _, ok := seen[img.Filename]; ok {
+					dupes++
+				}
+				seen[img.Filename] = struct{}{}
+				mu.Unlock()
+			}
+		})
+	}
+	wg.Wait()
+
+	assert.Equal(t, 0, dupes, "shared shortid generator must not produce duplicate filenames under concurrency")
+	assert.Len(t, seen, goroutines*perG, "all generated filenames should be unique")
+}
+
+// TestSaveFileNoOverwrite verifies that many rapid saves each land on a distinct
+// on-disk file and none is silently clobbered. With the old O_TRUNC + per-call
+// generator, same-millisecond saves would collide and overwrite each other.
+func TestSaveFileNoOverwrite(t *testing.T) {
+	assert.NoError(t, os.MkdirAll(local.Settings.Directories.ImageDir, 0755))
+
+	const n = 100
+	seen := make(map[string]bool, n)
+	var created []string
+	defer func() {
+		root, err := os.OpenRoot(local.Settings.Directories.ImageDir)
+		if err == nil {
+			defer root.Close()
+			for _, name := range created {
+				_ = root.Remove(name)
+			}
+		}
+	}()
+
+	for range n {
+		img := ImageType{
+			Ib:    1,
+			Ext:   ".jpg",
+			MD5:   "hash",
+			SHA:   "hash",
+			mime:  "image/jpeg",
+			image: bytes.NewBufferString("payload"),
+		}
+
+		err := img.saveFile()
+		if !assert.NoError(t, err, "saveFile should succeed") {
+			continue
+		}
+
+		created = append(created, img.Filename)
+		assert.Falsef(t, seen[img.Filename], "filename %q was reused (collision/overwrite)", img.Filename)
+		seen[img.Filename] = true
+
+		_, statErr := os.Stat(img.Filepath)
+		assert.NoError(t, statErr, "saved file should exist on disk")
+	}
+
+	assert.Len(t, seen, n, "all saves should produce distinct filenames")
+}
+
+// TestCopyBytesTooLarge verifies copyBytes rejects an upload exceeding
+// ImageMaxSize without buffering the whole payload into memory.
+func TestCopyBytesTooLarge(t *testing.T) {
+	orig := config.Settings.Limits.ImageMaxSize
+	defer func() { config.Settings.Limits.ImageMaxSize = orig }()
+	config.Settings.Limits.ImageMaxSize = 1000 // bytes; the test jpeg is far larger
+
+	req := formJpegRequest(300, "big.jpg")
+
+	img := ImageType{}
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.copyBytes()
+	if assert.Error(t, err, "oversized upload should be rejected") {
+		assert.Equal(t, "image size is too large", err.Error(), "error should match")
+	}
+	assert.LessOrEqual(t, img.image.Len(), 1001, "should not buffer the whole oversized file")
+}
+
+// TestCheckReqExtSizeGate verifies the cheap pre-read size gate in checkReqExt.
+func TestCheckReqExtSizeGate(t *testing.T) {
+	orig := config.Settings.Limits.ImageMaxSize
+	defer func() { config.Settings.Limits.ImageMaxSize = orig }()
+	config.Settings.Limits.ImageMaxSize = 1000
+
+	req := formJpegRequest(300, "big.jpg")
+
+	img := ImageType{}
+	img.File, img.Header, _ = req.FormFile("file")
+
+	err := img.checkReqExt()
+	if assert.Error(t, err, "checkReqExt should reject an oversized declared size") {
+		assert.Equal(t, "image size is too large", err.Error(), "error should match")
+	}
+}
+
+// TestCheckMagicJpegTrailingData is the regression test for the no-op JPEG EOI
+// check: a jpeg with a payload appended after the end-of-image marker must be
+// rejected, while a clean jpeg still passes.
+func TestCheckMagicJpegTrailingData(t *testing.T) {
+	jpegBytes := testJpeg(300).Bytes()
+
+	clean := ImageType{image: bytes.NewBuffer(append([]byte{}, jpegBytes...)), Ext: ".jpg"}
+	assert.NoError(t, clean.checkMagic(), "a well-formed jpeg should pass checkMagic")
+
+	poly := append(append([]byte{}, jpegBytes...), []byte("<?php echo 'pwned'; ?>")...)
+	img := ImageType{image: bytes.NewBuffer(poly), Ext: ".jpg"}
+
+	err := img.checkMagic()
+	if assert.Error(t, err, "jpeg with trailing data should be rejected") {
+		assert.Contains(t, err.Error(), "end-of-image", "error should be about the EOI marker")
+	}
+}
+
+// TestGetStatsAreaTooLarge verifies the decompression-bomb pixel-area ceiling.
+func TestGetStatsAreaTooLarge(t *testing.T) {
+	orig := maxImagePixels
+	defer func() { maxImagePixels = orig }()
+	maxImagePixels = 100 // tiny ceiling so a normal test image exceeds it
+
+	config.Settings.Limits.ImageMaxWidth = 1000
+	config.Settings.Limits.ImageMinWidth = 1
+	config.Settings.Limits.ImageMaxHeight = 1000
+	config.Settings.Limits.ImageMinHeight = 1
+	config.Settings.Limits.ImageMaxSize = 3000000
+
+	img := ImageType{image: testPng(40)} // 40x40 = 1600 px > ceiling
+
+	err := img.getStats()
+	if assert.Error(t, err, "image exceeding the pixel-area ceiling should be rejected") {
+		assert.Contains(t, err.Error(), "area too large", "error should be about pixel area")
+	}
 }

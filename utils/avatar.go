@@ -75,6 +75,10 @@ func (i *ImageType) SaveAvatar() (err error) {
 		return
 	}
 
+	// the avatar pipeline serves only AvatarDir/<id>.png; drop the full-size
+	// original saveFile wrote to ImageDir so it is not orphaned
+	i.removeOriginal()
+
 	// Mark as successful to prevent cleanup
 	success = true
 	return
@@ -129,6 +133,10 @@ func GenerateAvatar(uid uint) (err error) {
 	if err != nil {
 		return
 	}
+
+	// the avatar pipeline serves only AvatarDir/<id>.png; drop the full-size
+	// original saveFile wrote to ImageDir so it is not orphaned
+	img.removeOriginal()
 
 	// Mark as successful to prevent cleanup
 	success = true

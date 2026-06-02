@@ -41,6 +41,37 @@ const (
 	processTimeout      = 60 * time.Second // Timeout for image processing operations
 )
 
+// maxImagePixels caps the total decoded pixel area (width*height) of an image,
+// independent of the per-dimension limits, to bound ImageMagick memory use and
+// reject decompression bombs (a tiny, highly-compressed file declaring enormous
+// dimensions). It is a var (not const) so tests can lower it without having to
+// synthesize a real 100-megapixel image.
+var maxImagePixels int64 = 100 * 1000 * 1000 // 100 megapixels
+
+// magickLimits caps ImageMagick resource consumption per invocation. The
+// context timeout only bounds wall-clock, not memory, so these protect against
+// memory/disk exhaustion from a crafted or oversized image.
+var magickLimits = []string{
+	"-limit", "memory", "256MiB",
+	"-limit", "map", "512MiB",
+	"-limit", "area", "256MB",
+	"-limit", "disk", "1GiB",
+}
+
+// magickCoder maps a validated file extension to an explicit ImageMagick coder
+// so convert decodes the input as its verified type and cannot be coerced into a
+// different (e.g. delegate-backed) coder by crafted file content.
+func magickCoder(ext string) string {
+	switch ext {
+	case ".png":
+		return "png"
+	case ".gif":
+		return "gif"
+	default: // .jpg / .jpeg
+		return "jpg"
+	}
+}
+
 // valid file extensions with their corresponding MIME types
 var validExtAndMime = map[string][]string{
 	".jpg":  {"image/jpeg"},
@@ -93,7 +124,7 @@ type FileUploader interface {
 	checkMagic() (err error)
 	getStats() (err error)
 	saveFile() (err error)
-	makeFilenames()
+	makeFilenames() (err error)
 	createThumbnail(maxwidth, maxheight int) (err error)
 	cleanupFiles() // cleanup files on error
 
@@ -292,6 +323,14 @@ func (i *ImageType) checkReqExt() (err error) {
 		return errors.New("no file header provided")
 	}
 
+	// Cheap pre-read gate: reject an upload whose declared size already exceeds
+	// the configured maximum, before it is buffered/hashed/written. Header.Size
+	// is set by the multipart parser but is client-influenced, so copyBytes
+	// still enforces the real bound while reading.
+	if max := config.Settings.Limits.ImageMaxSize; max > 0 && i.Header.Size > int64(max) {
+		return errors.New("image size is too large")
+	}
+
 	name := i.Header.Filename
 	if name == "" {
 		return errors.New("no filename provided")
@@ -348,13 +387,30 @@ func (i *ImageType) copyBytes() (err error) {
 
 	i.image = new(bytes.Buffer)
 
-	// Save file and also read into hasher for md5
-	_, err = io.Copy(i.image, i.File)
-	if err != nil {
-		return errors.New("problem copying file to buffer")
+	// Bound the copy by the configured maximum image size so a malicious or
+	// malformed upload cannot be buffered into memory without limit. We read at
+	// most ImageMaxSize+1 bytes: if we actually get that many the file is over
+	// the limit and is rejected here, before it is hashed, written to disk, or
+	// (for webm) handed to ffprobe. A zero/negative limit is treated as "no
+	// configured limit" to preserve availability on a misconfiguration (the
+	// LimitBody middleware is the request-level backstop).
+	max := int64(config.Settings.Limits.ImageMaxSize)
+	if max <= 0 {
+		if _, err = io.Copy(i.image, i.File); err != nil {
+			return errors.New("problem copying file to buffer")
+		}
+		return nil
 	}
 
-	return
+	n, err := io.CopyN(i.image, i.File, max+1)
+	if err != nil && err != io.EOF {
+		return errors.New("problem copying file to buffer")
+	}
+	if n > max {
+		return errors.New("image size is too large")
+	}
+
+	return nil
 }
 
 // Get image MD5 and write file into buffer
@@ -502,10 +558,15 @@ func (i *ImageType) checkMagic() (err error) {
 		if len(fileBytes) < 2 || fileBytes[0] != 0xFF || fileBytes[1] != 0xD8 {
 			return errors.New("invalid JPEG file signature")
 		}
-		// Check for JPEG end marker (less reliable due to large files, but helpful)
-		if len(fileBytes) >= 2 && !(fileBytes[len(fileBytes)-2] == 0xFF && fileBytes[len(fileBytes)-1] == 0xD9) {
-			// This is just a warning, not a hard error, as some valid JPEGs might not have proper EOF markers
-			// Log here if needed
+		// Require the EOI (end-of-image) marker as the final two bytes. We store
+		// the original bytes verbatim, so rejecting files with data appended
+		// after the JPEG stream closes a common way to smuggle a payload past a
+		// magic-byte-only check. NOTE: this only catches *trailing* data; it does
+		// not detect a payload embedded before EOI or between JPEG segments.
+		// Fully neutralizing embedded payloads would require re-encoding the
+		// image, which we intentionally do not do here.
+		if !(fileBytes[len(fileBytes)-2] == 0xFF && fileBytes[len(fileBytes)-1] == 0xD9) {
+			return errors.New("invalid JPEG: data after end-of-image marker")
 		}
 	case "image/gif":
 		// Check GIF header (GIF87a or GIF89a)
@@ -554,6 +615,14 @@ func (i *ImageType) getStats() (err error) {
 	// set original height
 	i.OrigHeight = img.Height
 
+	// Guard against decompression bombs: a small, highly-compressed file can
+	// declare a pixel area within the per-dimension limits that still forces a
+	// huge allocation when ImageMagick decodes it. Reject on total pixel area
+	// before any convert invocation.
+	if int64(i.OrigWidth)*int64(i.OrigHeight) > maxImagePixels {
+		return fmt.Errorf("image area too large. Max: %d megapixels", maxImagePixels/(1000*1000))
+	}
+
 	// Check against maximum sizes
 	switch {
 	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
@@ -572,17 +641,30 @@ func (i *ImageType) getStats() (err error) {
 
 }
 
-func (i *ImageType) saveFile() (err error) {
-	// Reset the image buffer when done regardless of success or failure
-	defer i.image.Reset()
-
+// setFilenames generates the on-disk filenames and applies the avatar-specific
+// thumbnail override. Split out so saveFile can regenerate names on a collision.
+func (i *ImageType) setFilenames() (err error) {
 	// Generate filenames and paths
-	i.makeFilenames()
+	if err = i.makeFilenames(); err != nil {
+		return err
+	}
 
 	// avatar filename is the users id
 	if i.avatar {
 		i.Thumbnail = fmt.Sprintf("%d.png", i.Ib)
 		i.Thumbpath = filepath.Join(local.Settings.Directories.AvatarDir, i.Thumbnail)
+	}
+
+	return nil
+}
+
+func (i *ImageType) saveFile() (err error) {
+	// Reset the image buffer when done regardless of success or failure
+	defer i.image.Reset()
+
+	// Generate filenames and paths
+	if err = i.setFilenames(); err != nil {
+		return err
 	}
 
 	// Ensure we have valid data before attempting to save
@@ -597,10 +679,25 @@ func (i *ImageType) saveFile() (err error) {
 	}
 	defer root.Close()
 
-	// Create the file
-	image, err := root.Create(i.Filename)
+	// Create the file with O_EXCL so a filename collision can never silently
+	// truncate/overwrite another post's image. On the (now very rare) collision,
+	// regenerate the name and retry instead of clobbering existing data.
+	var image *os.File
+	for range 5 {
+		image, err = root.OpenFile(i.Filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
+		if err == nil {
+			break
+		}
+		if !errors.Is(err, os.ErrExist) {
+			return fmt.Errorf("problem creating file: %v", err)
+		}
+		// collision: regenerate the filename (and dependent paths) and retry
+		if err = i.setFilenames(); err != nil {
+			return err
+		}
+	}
 	if err != nil {
-		return fmt.Errorf("problem creating file: %v", err)
+		return fmt.Errorf("problem creating unique file: %v", err)
 	}
 	defer image.Close()
 
@@ -613,14 +710,27 @@ func (i *ImageType) saveFile() (err error) {
 	return nil
 }
 
+// nameGen is the single, process-wide shortid generator used for on-disk
+// filenames. shortid's zero-collision guarantee depends on reusing ONE
+// generator: it keeps mutex-protected last-millisecond and in-millisecond
+// counter state and only appends the disambiguating counter when two ids are
+// requested within the same millisecond. The previous code constructed a fresh
+// generator on every upload, which reset that state each call, so two uploads
+// landing in the same millisecond could produce identical filenames (and then
+// silently overwrite each other on disk). Constructing it once here restores the
+// guarantee. MustNew is safe at init: it only errors on an invalid worker or
+// alphabet, both compile-time constants here.
+var nameGen = shortid.MustNew(1, shortid.DefaultABC, 9001)
+
 // Make a random unix time filename
-func (i *ImageType) makeFilenames() {
+func (i *ImageType) makeFilenames() (err error) {
 
-	// get new short id generator
-	sid := shortid.MustNew(1, shortid.DefaultABC, 9001)
-
-	// generate filename
-	filename := sid.MustGenerate()
+	// generate filename from the shared generator (error-returning, so a
+	// generation failure surfaces as a normal upload error instead of a panic)
+	filename, err := nameGen.Generate()
+	if err != nil {
+		return fmt.Errorf("problem generating filename: %v", err)
+	}
 
 	// Append ext to filename
 	i.Filename = fmt.Sprintf("%s%s", filename, i.Ext)
@@ -634,6 +744,7 @@ func (i *ImageType) makeFilenames() {
 	// set the full thumbnail path
 	i.Thumbpath = filepath.Join(local.Settings.Directories.ThumbnailDir, i.Thumbnail)
 
+	return nil
 }
 
 func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
@@ -641,18 +752,22 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	var imagef string
 
 	if i.video {
-		imagef = fmt.Sprintf("%s[0]", i.Thumbpath)
+		// the webm thumbnail source is the mjpeg frame ffmpeg already extracted
+		imagef = fmt.Sprintf("jpg:%s[0]", i.Thumbpath)
 	} else {
-		imagef = fmt.Sprintf("%s[0]", i.Filepath)
+		// pin the coder to the validated type so convert cannot be coerced into
+		// a different coder by crafted content
+		imagef = fmt.Sprintf("%s:%s[0]", magickCoder(i.Ext), i.Filepath)
 	}
 
 	originalDimensions := fmt.Sprintf("%dx%d", i.OrigWidth, i.OrigHeight)
 
-	var args []string
+	// start every invocation with resource limits
+	args := append([]string{}, magickLimits...)
 
 	// different options for avatars
 	if i.avatar {
-		args = []string{
+		args = append(args,
 			"-size",
 			originalDimensions,
 			imagef,
@@ -665,9 +780,9 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 			"-extent",
 			fmt.Sprintf("%dx%d", maxwidth, maxheight),
 			i.Thumbpath,
-		}
+		)
 	} else {
-		args = []string{
+		args = append(args,
 			"-background",
 			"white",
 			"-flatten",
@@ -679,7 +794,7 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 			"90",
 			imagef,
 			i.Thumbpath,
-		}
+		)
 	}
 
 	// Create context with timeout for ImageMagick operations
@@ -716,6 +831,30 @@ func (i *ImageType) createThumbnail(maxwidth, maxheight int) (err error) {
 	i.ThumbHeight = img.Height
 
 	return
+}
+
+// removeOriginal deletes the full-size source file that saveFile wrote to the
+// image directory. The avatar pipeline serves only the generated
+// AvatarDir/<id>.png thumbnail, so the ImageDir original would otherwise be
+// orphaned (and accumulate unbounded) on every avatar upload/generation. Must
+// be called AFTER createThumbnail, since that step reads its source from
+// i.Filepath (the ImageDir original).
+func (i *ImageType) removeOriginal() {
+	if i.Filename == "" {
+		return
+	}
+
+	// Open the image dir with traversal-resistant root
+	root, err := os.OpenRoot(local.Settings.Directories.ImageDir)
+	if err != nil {
+		return
+	}
+	defer root.Close()
+
+	// Only remove an actual file at the expected name
+	if info, err := root.Stat(i.Filename); err == nil && !info.IsDir() {
+		_ = root.Remove(i.Filename)
+	}
 }
 
 // cleanupFiles removes any files that were created during the image processing

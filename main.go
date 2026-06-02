@@ -71,6 +71,10 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	// Limit how much of a multipart upload is buffered in memory; the remainder
+	// streams to a temp file, and LimitBody caps the total request body size.
+	r.MaxMultipartMemory = 2 << 20 // 2 MiB
+
 	r.Use(cors.CORS())
 	// verified the csrf token from the request
 	r.Use(csrf.Verify())
@@ -86,8 +90,8 @@ func main() {
 	public := r.Group("/")
 	public.Use(user.Auth(false))
 
-	public.POST("/thread/new", m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ThreadController)
-	public.POST("/thread/reply", m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ReplyController)
+	public.POST("/thread/new", m.LimitBody(), m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ThreadController)
+	public.POST("/thread/reply", m.LimitBody(), m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ReplyController)
 	public.POST("/register", m.StopSpam(), m.Scamalytics(), c.RegisterController)
 	public.POST("/login", c.LoginController)
 	public.POST("/logout", c.LogoutController)
@@ -102,7 +106,7 @@ func main() {
 	users := r.Group("/user")
 	users.Use(user.Auth(true))
 
-	users.POST("/avatar", c.AvatarController)
+	users.POST("/avatar", m.LimitBody(), c.AvatarController)
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
 	users.POST("/email", c.EmailController)
@@ -110,7 +114,14 @@ func main() {
 	s := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", local.Settings.Post.Host, local.Settings.Post.Port),
 		ReadHeaderTimeout: 2 * time.Second,
-		Handler:           r,
+		// Bound a slow request body (slowloris-on-body); combined with LimitBody
+		// this caps both the size and the duration of an upload. WriteTimeout is
+		// generous because webm processing chains several ffmpeg/convert steps
+		// (each bounded separately by their own context timeouts).
+		ReadTimeout:  120 * time.Second,
+		WriteTimeout: 300 * time.Second,
+		IdleTimeout:  120 * time.Second,
+		Handler:      r,
 	}
 
 	err := gracehttp.Serve(s)

@@ -1,10 +1,14 @@
 package utils
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -324,4 +328,86 @@ func TestGenerateAvatarIdempotent(t *testing.T) {
 	// The avatar should be completely replaced, with different size and modification time
 	assert.NotEqual(t, firstStats.ModTime(), secondStats.ModTime(),
 		"Avatar should be regenerated with different modification time")
+}
+
+// imageDirCount returns the number of entries in the image directory.
+func imageDirCount(t *testing.T) int {
+	t.Helper()
+	entries, err := os.ReadDir(local.Settings.Directories.ImageDir)
+	if err != nil {
+		return 0
+	}
+	return len(entries)
+}
+
+// TestGenerateAvatarNoOrphan verifies GenerateAvatar does not leave the
+// full-size original behind in the image directory (saveFile writes it there,
+// but the avatar pipeline only serves AvatarDir/<id>.png).
+func TestGenerateAvatarNoOrphan(t *testing.T) {
+	assert.NoError(t, os.MkdirAll(local.Settings.Directories.ImageDir, 0755))
+	assert.NoError(t, os.MkdirAll(local.Settings.Directories.AvatarDir, 0755))
+
+	before := imageDirCount(t)
+
+	userID := uint(77)
+	avatarPath := filepath.Join(local.Settings.Directories.AvatarDir, fmt.Sprintf("%d.png", userID))
+	defer os.Remove(avatarPath)
+
+	err := GenerateAvatar(userID)
+	assert.NoError(t, err, "Avatar generation should not fail")
+
+	_, statErr := os.Stat(avatarPath)
+	assert.NoError(t, statErr, "avatar <id>.png should exist in AvatarDir")
+
+	after := imageDirCount(t)
+	assert.Equal(t, before, after, "GenerateAvatar must not leave an orphaned original in ImageDir")
+}
+
+// TestSaveAvatarNoOrphan drives the user-upload avatar path end-to-end with a
+// real PNG and asserts both that the avatar thumbnail is written and that the
+// full-size original is not orphaned in the image directory.
+func TestSaveAvatarNoOrphan(t *testing.T) {
+	_, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	config.Settings.Limits.ImageMaxWidth = 1000
+	config.Settings.Limits.ImageMinWidth = 100
+	config.Settings.Limits.ImageMaxHeight = 1000
+	config.Settings.Limits.ImageMinHeight = 100
+	config.Settings.Limits.ImageMaxSize = 3000000
+	config.Settings.Limits.ThumbnailMaxWidth = 200
+	config.Settings.Limits.ThumbnailMaxHeight = 300
+
+	assert.NoError(t, os.MkdirAll(local.Settings.Directories.ImageDir, 0755))
+	assert.NoError(t, os.MkdirAll(local.Settings.Directories.AvatarDir, 0755))
+
+	// build a multipart upload carrying a valid png
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	fw, _ := w.CreateFormFile("file", "avatar.png")
+	io.Copy(fw, testPng(300))
+	w.Close()
+
+	req, _ := http.NewRequest("POST", "/avatar", &b)
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	img := ImageType{Ib: 42}
+	img.File, img.Header, err = req.FormFile("file")
+	assert.NoError(t, err, "FormFile should not fail")
+
+	avatarPath := filepath.Join(local.Settings.Directories.AvatarDir, "42.png")
+	defer os.Remove(avatarPath)
+
+	err = img.SaveAvatar()
+	if assert.NoError(t, err, "SaveAvatar should succeed for a valid png") {
+		// the avatar thumbnail must exist
+		_, statErr := os.Stat(avatarPath)
+		assert.NoError(t, statErr, "avatar 42.png should exist in AvatarDir")
+
+		// the full-size original must not be orphaned in ImageDir
+		assert.NotEmpty(t, img.Filename, "Filename should have been set")
+		_, statErr = os.Stat(filepath.Join(local.Settings.Directories.ImageDir, img.Filename))
+		assert.True(t, os.IsNotExist(statErr), "no orphaned original should remain in ImageDir")
+	}
 }
