@@ -25,7 +25,13 @@ func AvatarController(c *gin.Context) {
 	image.File, image.Header, err = req.FormFile("file")
 	if err == http.ErrMissingFile {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrNoImage.Error()})
-		c.Error(e.ErrNoImage).SetMeta("ThreadController.FormFile")
+		c.Error(e.ErrNoImage).SetMeta("AvatarController.FormFile")
+		return
+	} else if err != nil {
+		// any other FormFile error (e.g. a malformed multipart body) is a hard
+		// failure; surface it instead of continuing with a nil file
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err).SetMeta("AvatarController.FormFile")
 		return
 	}
 

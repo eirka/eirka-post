@@ -589,8 +589,11 @@ func (i *ImageType) checkMagic() (err error) {
 		i.video = true
 	}
 
-	// Check for suspiciously small files that might be trying to bypass checks
-	if !i.video && len(fileBytes) < 100 {
+	// Check for suspiciously small files that might be trying to bypass checks.
+	// This applies to video too: a few-byte EBML stub would otherwise be written
+	// to disk before ffprobe rejects it, and no real webm is anywhere near this
+	// small.
+	if len(fileBytes) < 100 {
 		return errors.New("file is suspiciously small")
 	}
 

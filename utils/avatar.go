@@ -3,7 +3,6 @@ package utils
 import (
 	"bytes"
 	"errors"
-	"net/http"
 
 	"github.com/1l0/identicon"
 )
@@ -41,11 +40,8 @@ func (i *ImageType) SaveAvatar() (err error) {
 		return
 	}
 
-	// For test compatibility, we need to set mime type and extension before checkMagic
-	// because our new validation checks extension/mime type consistency
-	i.mime = http.DetectContentType(i.image.Bytes())
-
 	// check file magic sig - with more advanced validation
+	// (checkMagic sets i.mime itself via http.DetectContentType)
 	err = i.checkMagic()
 	if err != nil {
 		return

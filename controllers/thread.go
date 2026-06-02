@@ -55,6 +55,12 @@ func ThreadController(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrNoImage.Error()})
 		c.Error(e.ErrNoImage).SetMeta("ThreadController.FormFile")
 		return
+	} else if err != nil {
+		// any other FormFile error (e.g. a malformed multipart body) is a hard
+		// failure; surface it instead of continuing with a nil file
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err).SetMeta("ThreadController.FormFile")
+		return
 	}
 
 	// Validate input parameters

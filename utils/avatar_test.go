@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -90,30 +89,32 @@ func TestGenerateAvatar(t *testing.T) {
 	defer avatarFile.Close()
 }
 
-// TestAvatarVideoRejection tests that video files are rejected for avatars
+// TestAvatarVideoRejection drives the real SaveAvatar with a webm and asserts it
+// is rejected with "format not supported" (videos cannot be avatars).
 func TestAvatarVideoRejection(t *testing.T) {
-	// Create a proper test with directly testing video rejection logic
-	// rather than going through the full flow
+	config.Settings.Limits.ImageMaxWidth = 1920
+	config.Settings.Limits.ImageMinWidth = 100
+	config.Settings.Limits.ImageMaxHeight = 1080
+	config.Settings.Limits.ImageMinHeight = 100
+	config.Settings.Limits.ImageMaxSize = 10000000
 
-	// This is the exact logic from avatar.go:
-	// if i.video {
-	//     err = errors.New("format not supported")
-	//     return
-	// }
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	fw, _ := w.CreateFormFile("file", "avatar.webm")
+	io.Copy(fw, bytes.NewReader(generateTestWebM(t)))
+	w.Close()
 
-	// Create our test scenario
-	img := &ImageType{
-		avatar: true,
-		video:  true,
-	}
+	req, _ := http.NewRequest("POST", "/avatar", &b)
+	req.Header.Set("Content-Type", w.FormDataContentType())
 
-	// Directly test the condition and error
-	if img.video {
-		err := errors.New("format not supported")
-		assert.Equal(t, "format not supported", err.Error(),
-			"Avatars should reject videos with 'format not supported' error")
-	} else {
-		t.Error("Video flag was not recognized")
+	img := ImageType{Ib: 9}
+	var err error
+	img.File, img.Header, err = req.FormFile("file")
+	assert.NoError(t, err, "FormFile should not fail")
+
+	err = img.SaveAvatar()
+	if assert.Error(t, err, "SaveAvatar should reject a webm") {
+		assert.Equal(t, "format not supported", err.Error(), "error should match")
 	}
 }
 
@@ -132,66 +133,40 @@ func TestNoFileHeaderAvatar(t *testing.T) {
 	}
 }
 
-// TestAvatarDimensions tests dimension constraints for avatars
+// TestAvatarDimensions drives the real getStats with images of various
+// dimensions and asserts the actual dimension-limit errors (rather than
+// re-implementing the bounds check in the test).
 func TestAvatarDimensions(t *testing.T) {
-	// Set up dimension constraints
 	config.Settings.Limits.ImageMaxWidth = 500
 	config.Settings.Limits.ImageMinWidth = 100
 	config.Settings.Limits.ImageMaxHeight = 500
 	config.Settings.Limits.ImageMinHeight = 100
+	config.Settings.Limits.ImageMaxSize = 3000000
 
-	// Test cases for dimensions
 	testCases := []struct {
 		name      string
 		width     int
 		height    int
-		expectErr bool
+		expectErr string
 	}{
-		{
-			name:      "Valid dimensions",
-			width:     300,
-			height:    300,
-			expectErr: false,
-		},
-		{
-			name:      "Width too small",
-			width:     50,
-			height:    300,
-			expectErr: true,
-		},
-		{
-			name:      "Width too large",
-			width:     600,
-			height:    300,
-			expectErr: true,
-		},
-		{
-			name:      "Height too small",
-			width:     300,
-			height:    50,
-			expectErr: true,
-		},
-		{
-			name:      "Height too large",
-			width:     300,
-			height:    600,
-			expectErr: true,
-		},
+		{"Valid dimensions", 300, 300, ""},
+		{"Width too small", 50, 300, "image width too small"},
+		{"Width too large", 600, 300, "image width too large"},
+		{"Height too small", 300, 50, "image height too small"},
+		{"Height too large", 300, 600, "image height too large"},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// Test the actual constraint checks directly
-			if tc.width < config.Settings.Limits.ImageMinWidth {
-				assert.True(t, tc.expectErr, "Width too small should fail")
-			} else if tc.width > config.Settings.Limits.ImageMaxWidth {
-				assert.True(t, tc.expectErr, "Width too large should fail")
-			} else if tc.height < config.Settings.Limits.ImageMinHeight {
-				assert.True(t, tc.expectErr, "Height too small should fail")
-			} else if tc.height > config.Settings.Limits.ImageMaxHeight {
-				assert.True(t, tc.expectErr, "Height too large should fail")
-			} else {
-				assert.False(t, tc.expectErr, "Valid dimensions should pass")
+			img := ImageType{avatar: true, image: testRectImage(tc.width, tc.height)}
+
+			err := img.getStats()
+			if tc.expectErr == "" {
+				assert.NoError(t, err, "valid dimensions should pass getStats")
+				assert.Equal(t, tc.width, img.OrigWidth, "width should be parsed")
+				assert.Equal(t, tc.height, img.OrigHeight, "height should be parsed")
+			} else if assert.Error(t, err, "invalid dimensions should fail getStats") {
+				assert.Contains(t, err.Error(), tc.expectErr, "error should match")
 			}
 		})
 	}

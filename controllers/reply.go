@@ -51,7 +51,14 @@ func ReplyController(c *gin.Context) {
 	// Check if theres a file
 	image.File, image.Header, err = req.FormFile("file")
 	if err == http.ErrMissingFile {
+		// no image is fine for a reply; a comment-only post is allowed
 		m.Image = false
+	} else if err != nil {
+		// any other FormFile error (e.g. a malformed multipart body) is a hard
+		// failure; surface it instead of continuing with a nil file
+		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
+		c.Error(err).SetMeta("ReplyController.FormFile")
+		return
 	}
 
 	// Validate input parameters

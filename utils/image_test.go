@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"io"
@@ -17,6 +18,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 
@@ -75,6 +78,40 @@ func testRandom() []byte {
 	}
 
 	return bytes
+}
+
+// testGif builds a small GIF whose varied content keeps it comfortably above
+// the suspiciously-small floor.
+func testGif(size int) *bytes.Buffer {
+	output := new(bytes.Buffer)
+
+	pal := color.Palette{
+		color.Black,
+		color.White,
+		color.RGBA{255, 0, 0, 255},
+		color.RGBA{0, 255, 0, 255},
+	}
+
+	myimage := image.NewPaletted(image.Rectangle{image.Point{0, 0}, image.Point{size, size}}, pal)
+
+	for x := range size {
+		for y := range size {
+			myimage.SetColorIndex(x, y, uint8(rand.Intn(len(pal))))
+		}
+	}
+
+	gif.Encode(output, myimage, nil)
+
+	return output
+}
+
+// testRectImage builds a blank PNG of arbitrary width and height (DecodeConfig
+// only reads the dimensions, so the pixel content is irrelevant).
+func testRectImage(w, h int) *bytes.Buffer {
+	output := new(bytes.Buffer)
+	myimage := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{w, h}})
+	png.Encode(output, myimage)
+	return output
 }
 
 func formJpegRequest(size int, filename string) *http.Request {
@@ -752,6 +789,10 @@ func TestSaveFile(t *testing.T) {
 	// Verify the thumbnail exists
 	_, err = os.Stat(i.Thumbpath)
 	assert.NoError(t, err, "Thumbnail should exist")
+
+	// Verify the thumbnail dimensions were populated (these gate IsValidPost)
+	assert.Positive(t, i.ThumbWidth, "thumbnail width should be set")
+	assert.Positive(t, i.ThumbHeight, "thumbnail height should be set")
 }
 
 func TestSaveFileNoIb(t *testing.T) {
@@ -1153,5 +1194,171 @@ func TestGetStatsAreaTooLarge(t *testing.T) {
 	err := img.getStats()
 	if assert.Error(t, err, "image exceeding the pixel-area ceiling should be rejected") {
 		assert.Contains(t, err.Error(), "area too large", "error should be about pixel area")
+	}
+}
+
+// TestSaveImageStillImage exercises the full SaveImage pipeline end-to-end for
+// plain images (jpeg and png) — the most common upload type, which previously
+// had no whole-pipeline success test (only webm did).
+func TestSaveImageStillImage(t *testing.T) {
+	cases := []struct {
+		name     string
+		filename string
+		ext      string
+		buf      func() *bytes.Buffer
+	}{
+		{"jpeg", "upload.jpg", ".jpg", func() *bytes.Buffer { return testJpeg(500) }},
+		{"png", "upload.png", ".png", func() *bytes.Buffer { return testPng(500) }},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			mock, err := db.NewTestDb()
+			assert.NoError(t, err, "An error was not expected")
+			defer db.CloseDb()
+
+			noban := sqlmock.NewRows([]string{"count"}).AddRow(0)
+			nodupe := sqlmock.NewRows([]string{"count", "post", "thread"}).AddRow(0, 0, 0)
+			mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).WillReturnRows(noban)
+			mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).WillReturnRows(nodupe)
+
+			config.Settings.Limits.ImageMaxWidth = 1000
+			config.Settings.Limits.ImageMinWidth = 100
+			config.Settings.Limits.ImageMaxHeight = 1000
+			config.Settings.Limits.ImageMinHeight = 100
+			config.Settings.Limits.ImageMaxSize = 3000000
+			config.Settings.Limits.ThumbnailMaxWidth = 200
+			config.Settings.Limits.ThumbnailMaxHeight = 300
+
+			assert.NoError(t, os.MkdirAll(local.Settings.Directories.ImageDir, 0755))
+			assert.NoError(t, os.MkdirAll(local.Settings.Directories.ThumbnailDir, 0755))
+
+			var b bytes.Buffer
+			w := multipart.NewWriter(&b)
+			fw, _ := w.CreateFormFile("file", tc.filename)
+			io.Copy(fw, tc.buf())
+			w.Close()
+
+			req, _ := http.NewRequest("POST", "/reply", &b)
+			req.Header.Set("Content-Type", w.FormDataContentType())
+
+			img := ImageType{Ib: 1}
+			img.File, img.Header, err = req.FormFile("file")
+			assert.NoError(t, err, "FormFile should not fail")
+
+			defer func() {
+				os.Remove(img.Filepath)
+				os.Remove(img.Thumbpath)
+			}()
+
+			err = img.SaveImage()
+			if assert.NoError(t, err, "SaveImage should succeed for a valid still image") {
+				assert.False(t, img.video, "still image should not be flagged as video")
+				assert.True(t, strings.HasSuffix(img.Filename, tc.ext), "saved file should keep its extension")
+				assert.True(t, strings.HasSuffix(img.Thumbnail, "s.jpg"), "thumbnail should be a jpg")
+				assert.Equal(t, 500, img.OrigWidth, "original width should be set")
+				assert.Equal(t, 500, img.OrigHeight, "original height should be set")
+				assert.Positive(t, img.ThumbWidth, "thumbnail width should be set")
+				assert.Positive(t, img.ThumbHeight, "thumbnail height should be set")
+
+				_, statErr := os.Stat(img.Filepath)
+				assert.NoError(t, statErr, "saved image should exist on disk")
+				_, statErr = os.Stat(img.Thumbpath)
+				assert.NoError(t, statErr, "thumbnail should exist on disk")
+			}
+
+			assert.NoError(t, mock.ExpectationsWereMet(), "all expected db queries should run")
+		})
+	}
+}
+
+// TestCheckMagicGoodGif covers the previously-untested valid-GIF accept path.
+func TestCheckMagicGoodGif(t *testing.T) {
+	img := ImageType{image: testGif(128), Ext: ".gif"}
+
+	err := img.checkMagic()
+	if assert.NoError(t, err, "a valid gif should pass checkMagic") {
+		assert.Equal(t, "image/gif", img.mime, "mime should be detected as gif")
+		assert.Equal(t, ".gif", img.Ext, "extension should remain .gif")
+	}
+}
+
+// TestCheckMagicTinyWebM is the regression test for dropping the !i.video
+// exemption from the suspiciously-small guard: a few-byte EBML stub must be
+// rejected (after still being recognized as a webm) instead of slipping through
+// to be written to disk.
+func TestCheckMagicTinyWebM(t *testing.T) {
+	stub := append([]byte{0x1A, 0x45, 0xDF, 0xA3}, make([]byte, 46)...) // 50 bytes
+
+	img := ImageType{image: bytes.NewBuffer(stub), Ext: ".webm"}
+
+	err := img.checkMagic()
+	if assert.Error(t, err, "a tiny webm stub should be rejected") {
+		assert.Equal(t, "file is suspiciously small", err.Error(), "error should match")
+	}
+	assert.True(t, img.video, "webm signature should still be recognized before the size check")
+}
+
+// TestCheckBannedDBError covers the query-error and empty-hash guard branches.
+func TestCheckBannedDBError(t *testing.T) {
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).
+		WillReturnError(errors.New("db boom"))
+
+	img := ImageType{MD5: "abc"}
+	err = img.checkBanned()
+	assert.Error(t, err, "a query error should propagate")
+
+	noHash := ImageType{}
+	err = noHash.checkBanned()
+	if assert.Error(t, err, "empty MD5 should be rejected") {
+		assert.Equal(t, "no hash set on file banned check", err.Error(), "error should match")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "the error query should have run")
+}
+
+// TestCheckDuplicateDBError covers the query-error and guard-clause branches.
+func TestCheckDuplicateDBError(t *testing.T) {
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).
+		WillReturnError(errors.New("db boom"))
+
+	img := ImageType{Ib: 1, MD5: "abc"}
+	err = img.checkDuplicate()
+	assert.Error(t, err, "a query error should propagate")
+
+	noIb := ImageType{MD5: "abc"}
+	err = noIb.checkDuplicate()
+	if assert.Error(t, err, "missing imageboard id should be rejected") {
+		assert.Equal(t, "no imageboard set on duplicate check", err.Error(), "error should match")
+	}
+
+	assert.NoError(t, mock.ExpectationsWereMet(), "the error query should have run")
+}
+
+// TestCreateThumbnailConvertFailure asserts createThumbnail surfaces an error
+// when ImageMagick fails (here, a nonexistent source file).
+func TestCreateThumbnailConvertFailure(t *testing.T) {
+	assert.NoError(t, os.MkdirAll(local.Settings.Directories.ThumbnailDir, 0755))
+
+	img := ImageType{
+		Ext:        ".jpg",
+		Filepath:   filepath.Join(local.Settings.Directories.ImageDir, "does-not-exist-zzz.jpg"),
+		Thumbnail:  "does-not-exist-zzzs.jpg",
+		Thumbpath:  filepath.Join(local.Settings.Directories.ThumbnailDir, "does-not-exist-zzzs.jpg"),
+		OrigWidth:  100,
+		OrigHeight: 100,
+	}
+
+	err := img.createThumbnail(200, 300)
+	if assert.Error(t, err, "createThumbnail should fail when the source is missing") {
+		assert.Contains(t, err.Error(), "problem making thumbnail", "error should match")
 	}
 }

@@ -116,52 +116,6 @@ func TestReplyController(t *testing.T) {
 	assert.NoError(t, mock.ExpectationsWereMet(), "All database expectations should be met")
 }
 
-func TestReplyControllerWithImage(t *testing.T) {
-	var err error
-
-	config.Settings.Session.NewSecret = "secret"
-
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-	router.TrustedPlatform = "X-Real-IP"
-
-	router.Use(user.Auth(false))
-	router.POST("/reply", ReplyController)
-
-	// Set up fake Redis connection
-	redis.NewRedisMock()
-
-	mock, err := db.NewTestDb()
-	assert.NoError(t, err, "An error was not expected")
-	defer db.CloseDb()
-
-	// Thread status check
-	threadRows := sqlmock.NewRows([]string{"ib_id", "thread_closed", "count"}).AddRow(1, 0, 5)
-	mock.ExpectQuery(`SELECT ib_id,thread_closed,count\(post_num\) FROM threads`).
-		WithArgs(1).
-		WillReturnRows(threadRows)
-
-	// Post transaction - this test can't effectively test the image saves directly
-	// due to the complexity of mocking file operations
-	mock.ExpectBegin()
-	mock.ExpectExec(`INSERT INTO posts`).
-		WillReturnResult(sqlmock.NewResult(2, 1))
-	mock.ExpectExec(`INSERT INTO images`).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectCommit()
-
-	// Audit log
-	mock.ExpectExec(`INSERT INTO audit`).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-
-	// Setup Redis mock for key deletion
-	redis.Cache.Mock.Command("DEL", "directory:1", "thread:1:1", "image:1")
-
-	// Skip actual test as it's difficult to mock file uploads and image processing
-	t.Skip("Image upload test skipped as it requires mocking complex file operations")
-}
-
 func TestReplyControllerThreadClosed(t *testing.T) {
 	var err error
 
