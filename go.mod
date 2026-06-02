@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/1l0/identicon v0.0.0-20230418120932-ab19b589d009
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/eirka/eirka-libs v1.10.1
+	github.com/eirka/eirka-libs v1.10.2
 	github.com/facebookgo/grace v0.0.0-20180706040059-75cf19382434
 	github.com/facebookgo/pidfile v0.0.0-20150612191647-f242e2999868
 	github.com/gin-gonic/gin v1.12.0
