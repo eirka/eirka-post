@@ -77,7 +77,7 @@ func TestAddTagController(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tagmap").
-		WithArgs(1, 1).
+		WithArgs(1, 1, 1, "127.0.0.1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -132,7 +132,7 @@ func TestAddTagControllerRedisError(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tagmap").
-		WithArgs(1, 1).
+		WithArgs(1, 1, 1, "127.0.0.1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 

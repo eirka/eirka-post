@@ -60,7 +60,7 @@ func TestNewTagController(t *testing.T) {
 	// Tag insert transaction
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tags").
-		WithArgs("example tag", 1, 1).
+		WithArgs("example tag", 1, 1, 2, "127.0.0.1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -200,7 +200,7 @@ func TestNewTagControllerRedisError(t *testing.T) {
 	// Tag insert transaction
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tags").
-		WithArgs("example tag", 1, 1).
+		WithArgs("example tag", 1, 1, 2, "127.0.0.1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
