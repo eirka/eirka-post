@@ -484,7 +484,7 @@ func (i *ImageType) checkMagic() (err error) {
 			i.Ext = ".gif"
 		case "video/webm":
 			i.Ext = ".webm"
-			i.video = true
+			// i.video is set in the signature-validation switch below
 		default:
 			return errors.New("unknown or unsupported file type")
 		}
@@ -522,6 +522,10 @@ func (i *ImageType) checkMagic() (err error) {
 		if len(fileBytes) < 4 || fileBytes[0] != 0x1A || fileBytes[1] != 0x45 || fileBytes[2] != 0xDF || fileBytes[3] != 0xA3 {
 			return errors.New("invalid WebM file signature")
 		}
+		// Flag as a video so the pipeline runs the webm-specific path. This must
+		// happen here (not only in the extension-detection branch above) because
+		// the upload pipeline always sets the extension first via checkReqExt.
+		i.video = true
 	}
 
 	// Check for suspiciously small files that might be trying to bypass checks

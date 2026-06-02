@@ -101,24 +101,33 @@ func (i *ImageType) checkWebM() (err error) {
 		return errors.New("problem decoding webm")
 	}
 
-	ffprobe := ffprobe{}
+	probe := ffprobe{}
 
-	err = json.Unmarshal(output, &ffprobe)
+	err = json.Unmarshal(output, &probe)
 	if err != nil {
 		return errors.New("problem decoding webm")
 	}
 
+	return i.validateWebM(probe)
+
+}
+
+// validateWebM applies all metadata/size/codec checks against a parsed ffprobe
+// result. It is split out from checkWebM so the validation rules can be tested
+// directly without invoking ffprobe.
+func (i *ImageType) validateWebM(probe ffprobe) (err error) {
+
 	// 1. Check file format
-	if ffprobe.Format.FormatName != "matroska,webm" {
+	if probe.Format.FormatName != "matroska,webm" {
 		return errors.New("file is not a webm")
 	}
 
 	// 2. Validate stream count
-	if len(ffprobe.Streams) < minStreamCount {
+	if len(probe.Streams) < minStreamCount {
 		return errors.New("webm contains no streams")
 	}
 
-	if len(ffprobe.Streams) > maxStreamCount {
+	if len(probe.Streams) > maxStreamCount {
 		return errors.New("webm contains too many streams")
 	}
 
@@ -126,11 +135,11 @@ func (i *ImageType) checkWebM() (err error) {
 	var videoStream *ffprobeStream
 	var audioStream *ffprobeStream
 
-	for i, stream := range ffprobe.Streams {
+	for idx, stream := range probe.Streams {
 		if stream.CodecType == "video" && videoStream == nil {
-			videoStream = &ffprobe.Streams[i]
+			videoStream = &probe.Streams[idx]
 		} else if stream.CodecType == "audio" && audioStream == nil {
-			audioStream = &ffprobe.Streams[i]
+			audioStream = &probe.Streams[idx]
 		}
 	}
 
@@ -153,7 +162,7 @@ func (i *ImageType) checkWebM() (err error) {
 	}
 
 	// 7. Parse and validate file duration
-	duration, err := strconv.ParseFloat(ffprobe.Format.Duration, 64)
+	duration, err := strconv.ParseFloat(probe.Format.Duration, 64)
 	if err != nil {
 		return errors.New("problem decoding webm duration")
 	}
@@ -166,7 +175,7 @@ func (i *ImageType) checkWebM() (err error) {
 	i.duration = int(duration)
 
 	// 8. Check file size
-	originalSize, err := strconv.ParseFloat(ffprobe.Format.Size, 64)
+	originalSize, err := strconv.ParseFloat(probe.Format.Size, 64)
 	if err != nil {
 		return errors.New("problem decoding webm size")
 	}
@@ -195,8 +204,8 @@ func (i *ImageType) checkWebM() (err error) {
 	}
 
 	// 11. Check bitrate
-	if ffprobe.Format.BitRate != "" {
-		bitrate, err := strconv.ParseInt(ffprobe.Format.BitRate, 10, 64)
+	if probe.Format.BitRate != "" {
+		bitrate, err := strconv.ParseInt(probe.Format.BitRate, 10, 64)
 		if err == nil && bitrate > 0 {
 			if bitrate < minVideoBitrate {
 				return fmt.Errorf("webm bitrate %d bps is too low (min: %d bps)",
@@ -288,10 +297,11 @@ func (i *ImageType) createWebMThumbnail() (err error) {
 
 	// Verify the thumbnail was created successfully using os.OpenInRoot
 	// This is a double check to ensure the file exists and is valid after ffmpeg creates it
-	_, err = os.OpenInRoot(thumbDir, thumbFilename)
+	thumb, err := os.OpenInRoot(thumbDir, thumbFilename)
 	if err != nil {
 		return fmt.Errorf("failed to verify thumbnail creation: %v", err)
 	}
+	thumb.Close()
 
 	return
 

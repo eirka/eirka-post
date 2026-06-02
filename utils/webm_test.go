@@ -1,13 +1,24 @@
 package utils
 
 import (
-	"errors"
-	"strconv"
+	"bytes"
+	"image"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/eirka/eirka-libs/config"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+
+	"github.com/eirka/eirka-libs/config"
+	"github.com/eirka/eirka-libs/db"
+
+	local "github.com/eirka/eirka-post/config"
 )
 
 // Mock data for ffprobe tests
@@ -324,8 +335,8 @@ func TestWebMValidationCodecs(t *testing.T) {
 			// Create a test ffprobe result
 			ffprobeData := tc.modifyFFProbe(mockGoodFFProbeData())
 
-			// Set up a function to test only the validation logic, not the ffprobe execution
-			result := validateWebMData(&img, ffprobeData)
+			// Exercise the real production validation logic (sans ffprobe execution)
+			result := img.validateWebM(ffprobeData)
 
 			if tc.expectedErrStr == "" {
 				assert.NoError(t, result)
@@ -339,123 +350,202 @@ func TestWebMValidationCodecs(t *testing.T) {
 	}
 }
 
-// Helper function to validate WebM data without running ffprobe
-func validateWebMData(i *ImageType, ffprobeData ffprobe) error {
-	// 1. Check file format
-	if ffprobeData.Format.FormatName != "matroska,webm" {
-		return errors.New("file is not a webm")
+// setWebMConfigLimits sets config limits that accept the small 640x480 ~2s test
+// webm produced by generateTestWebM.
+func setWebMConfigLimits() {
+	config.Settings.Limits.ImageMaxWidth = 1920
+	config.Settings.Limits.ImageMinWidth = 100
+	config.Settings.Limits.ImageMaxHeight = 1080
+	config.Settings.Limits.ImageMinHeight = 100
+	config.Settings.Limits.ImageMaxSize = 10000000
+	config.Settings.Limits.WebmMaxLength = 30
+}
+
+// generateTestWebM produces a small, valid VP9+Opus webm using ffmpeg and
+// returns its bytes. ffmpeg/ffprobe are already hard dependencies of this
+// package (init() panics without them), so a failure here is fatal rather than
+// skipped.
+func generateTestWebM(t *testing.T) []byte {
+	t.Helper()
+
+	path := filepath.Join(t.TempDir(), "generated.webm")
+
+	args := []string{
+		"-hide_banner", "-loglevel", "error",
+		"-f", "lavfi", "-i", "testsrc=size=640x480:rate=30:duration=2",
+		"-f", "lavfi", "-i", "sine=frequency=440:duration=2",
+		"-c:v", "libvpx-vp9", "-b:v", "1M",
+		"-c:a", "libopus", "-b:a", "64k",
+		"-y", path,
 	}
 
-	// 2. Validate stream count
-	if len(ffprobeData.Streams) < minStreamCount {
-		return errors.New("webm contains no streams")
+	if out, err := exec.Command("ffmpeg", args...).CombinedOutput(); err != nil {
+		t.Fatalf("failed to generate test webm with ffmpeg: %v\n%s", err, out)
 	}
 
-	if len(ffprobeData.Streams) > maxStreamCount {
-		return errors.New("webm contains too many streams")
-	}
-
-	// 3. Find video stream
-	var videoStream *ffprobeStream
-	var audioStream *ffprobeStream
-
-	for idx, stream := range ffprobeData.Streams {
-		if stream.CodecType == "video" && videoStream == nil {
-			videoStream = &ffprobeData.Streams[idx]
-		} else if stream.CodecType == "audio" && audioStream == nil {
-			audioStream = &ffprobeData.Streams[idx]
-		}
-	}
-
-	// 4. Ensure we have a video stream
-	if videoStream == nil {
-		return errors.New("webm contains no video stream")
-	}
-
-	// 5. Validate video codec
-	codecName := strings.ToLower(videoStream.CodecName)
-	if !allowedCodecs[codecName] {
-		return errors.New("video codec '" + videoStream.CodecName + "' is not allowed, must be VP8 or VP9")
-	}
-
-	// 6. Check audio stream if present
-	if audioStream != nil {
-		if !allowedAudioCodecs[strings.ToLower(audioStream.CodecName)] {
-			return errors.New("audio codec '" + audioStream.CodecName + "' is not allowed, must be Vorbis or Opus")
-		}
-	}
-
-	// 7. Parse and validate file duration
-	duration, err := strconv.ParseFloat(ffprobeData.Format.Duration, 64)
+	data, err := os.ReadFile(path)
 	if err != nil {
-		return errors.New("problem decoding webm duration")
+		t.Fatalf("failed to read generated test webm: %v", err)
 	}
 
-	if duration <= 0 {
-		return errors.New("webm has invalid duration")
+	return data
+}
+
+// formWebMRequest builds a multipart upload request carrying the given webm
+// bytes, mirroring formJpegRequest in image_test.go.
+func formWebMRequest(data []byte, filename string) *http.Request {
+	var b bytes.Buffer
+
+	w := multipart.NewWriter(&b)
+
+	fw, _ := w.CreateFormFile("file", filename)
+
+	io.Copy(fw, bytes.NewReader(data))
+
+	w.Close()
+
+	req, _ := http.NewRequest("POST", "/reply", &b)
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	return req
+}
+
+// TestCheckMagicWebM is a regression test for the bug where a webm upload never
+// had i.video set, because checkMagic only set it when no extension was provided
+// (and the real pipeline always sets the extension first via checkReqExt).
+func TestCheckMagicWebM(t *testing.T) {
+	webmData := generateTestWebM(t)
+
+	img := ImageType{
+		image: bytes.NewBuffer(webmData),
+		Ext:   ".webm", // checkReqExt sets the extension before checkMagic runs
 	}
 
-	// set file duration
-	i.duration = int(duration)
+	err := img.checkMagic()
+	if assert.NoError(t, err, "checkMagic should accept a valid webm") {
+		assert.Equal(t, "video/webm", img.mime, "mime should be detected as video/webm")
+		assert.True(t, img.video, "video flag must be set so the webm pipeline runs")
+	}
+}
 
-	// 8. Check file size
-	originalSize, err := strconv.ParseFloat(ffprobeData.Format.Size, 64)
-	if err != nil {
-		return errors.New("problem decoding webm size")
+// TestCheckWebMRealFile runs the real checkWebM (ffprobe + JSON parse +
+// validation) against an actual webm file on disk.
+func TestCheckWebMRealFile(t *testing.T) {
+	setWebMConfigLimits()
+
+	webmData := generateTestWebM(t)
+
+	path := filepath.Join(t.TempDir(), "real.webm")
+	if err := os.WriteFile(path, webmData, 0644); err != nil {
+		t.Fatalf("failed to write test webm: %v", err)
 	}
 
-	if originalSize <= 0 {
-		return errors.New("webm has invalid size")
+	img := ImageType{Filepath: path}
+
+	err := img.checkWebM()
+	if assert.NoError(t, err, "checkWebM should accept a valid webm") {
+		assert.Equal(t, 640, img.OrigWidth, "width should be parsed from ffprobe")
+		assert.Equal(t, 480, img.OrigHeight, "height should be parsed from ffprobe")
+		assert.Equal(t, 2, img.duration, "duration should be parsed from ffprobe")
+	}
+}
+
+// TestCreateWebMThumbnail verifies a real JPEG thumbnail is extracted from a webm.
+func TestCreateWebMThumbnail(t *testing.T) {
+	webmData := generateTestWebM(t)
+
+	srcPath := filepath.Join(t.TempDir(), "video.webm")
+	if err := os.WriteFile(srcPath, webmData, 0644); err != nil {
+		t.Fatalf("failed to write test webm: %v", err)
 	}
 
-	// 9. Set and validate dimensions
-	i.OrigWidth = videoStream.Width
-	i.OrigHeight = videoStream.Height
-
-	if i.OrigWidth <= 0 || i.OrigHeight <= 0 {
-		return errors.New("webm has invalid dimensions")
+	img := ImageType{
+		Filepath:  srcPath,
+		Thumbpath: filepath.Join(t.TempDir(), "videos.jpg"),
+		duration:  2,
 	}
 
-	// 10. Parse and validate framerate
-	framerate, err := parseFramerate(videoStream.AvgFrameRate)
-	if err != nil {
-		return errors.New("webm has invalid framerate: " + err.Error())
-	}
+	err := img.createWebMThumbnail()
+	if assert.NoError(t, err, "createWebMThumbnail should succeed") {
+		f, openErr := os.Open(img.Thumbpath)
+		if assert.NoError(t, openErr, "thumbnail file should exist") {
+			defer f.Close()
 
-	if framerate < minVideoFramerate || framerate > maxVideoFramerate {
-		return errors.New("webm framerate " + strconv.FormatFloat(framerate, 'f', 2, 64) + " fps is outside allowed range")
-	}
-
-	// 11. Check bitrate
-	if ffprobeData.Format.BitRate != "" {
-		bitrate, err := strconv.ParseInt(ffprobeData.Format.BitRate, 10, 64)
-		if err == nil && bitrate > 0 {
-			if bitrate < minVideoBitrate {
-				return errors.New("webm bitrate " + ffprobeData.Format.BitRate + " bps is too low")
+			cfg, format, decErr := image.DecodeConfig(f)
+			if assert.NoError(t, decErr, "thumbnail should be a decodable image") {
+				assert.Equal(t, "jpeg", format, "thumbnail should be a jpeg")
+				assert.Positive(t, cfg.Width, "thumbnail width should be set")
+				assert.Positive(t, cfg.Height, "thumbnail height should be set")
 			}
-			if bitrate > maxVideoBitrate {
-				return errors.New("webm bitrate " + ffprobeData.Format.BitRate + " bps is too high")
+		}
+	}
+}
+
+// TestSaveImageWebM exercises the full upload pipeline end-to-end with a real
+// webm: extension/magic checks, save-to-disk, ffprobe validation, ffmpeg frame
+// extraction, and ImageMagick thumbnailing. This is the test that proves webm
+// uploads actually function.
+func TestSaveImageWebM(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	noban := sqlmock.NewRows([]string{"count"}).AddRow(0)
+	nodupe := sqlmock.NewRows([]string{"count", "post", "thread"}).AddRow(0, 0, 0)
+
+	mock.ExpectQuery(`SELECT count\(\*\) FROM banned_files WHERE ban_hash`).WillReturnRows(noban)
+	mock.ExpectQuery(`select count\(1\),posts.post_num,threads.thread_id from threads`).WillReturnRows(nodupe)
+
+	setWebMConfigLimits()
+	config.Settings.Limits.ThumbnailMaxWidth = 200
+	config.Settings.Limits.ThumbnailMaxHeight = 300
+
+	err = os.MkdirAll(local.Settings.Directories.ImageDir, 0755)
+	assert.NoError(t, err, "Failed to ensure image directory exists")
+	err = os.MkdirAll(local.Settings.Directories.ThumbnailDir, 0755)
+	assert.NoError(t, err, "Failed to ensure thumbnail directory exists")
+
+	req := formWebMRequest(generateTestWebM(t), "upload.webm")
+
+	img := ImageType{Ib: 1}
+	img.File, img.Header, err = req.FormFile("file")
+	assert.NoError(t, err, "FormFile should not fail")
+
+	// Best-effort cleanup of the files the pipeline writes on success
+	defer func() {
+		os.Remove(img.Filepath)
+		os.Remove(img.Thumbpath)
+	}()
+
+	err = img.SaveImage()
+	if assert.NoError(t, err, "SaveImage should succeed for a valid webm") {
+		assert.True(t, img.video, "video flag should be set")
+		assert.True(t, strings.HasSuffix(img.Filename, ".webm"), "saved file should keep the .webm extension")
+		assert.True(t, strings.HasSuffix(img.Thumbnail, "s.jpg"), "thumbnail should be a jpg")
+		assert.Equal(t, 640, img.OrigWidth, "original width should be set")
+		assert.Equal(t, 480, img.OrigHeight, "original height should be set")
+		assert.Positive(t, img.ThumbWidth, "thumbnail width should be set")
+		assert.Positive(t, img.ThumbHeight, "thumbnail height should be set")
+
+		// the webm itself should be written to the image dir
+		_, statErr := os.Stat(img.Filepath)
+		assert.NoError(t, statErr, "saved webm should exist on disk")
+
+		// the thumbnail should be written and be a valid jpeg
+		f, openErr := os.Open(img.Thumbpath)
+		if assert.NoError(t, openErr, "thumbnail should exist on disk") {
+			defer f.Close()
+
+			_, format, decErr := image.DecodeConfig(f)
+			if assert.NoError(t, decErr, "thumbnail should decode") {
+				assert.Equal(t, "jpeg", format, "thumbnail should be a jpeg")
 			}
 		}
 	}
 
-	// 12. Final size checks against config limits
-	switch {
-	case i.OrigWidth > config.Settings.Limits.ImageMaxWidth:
-		return errors.New("webm width " + strconv.Itoa(i.OrigWidth) + " px is too large")
-	case i.OrigWidth < config.Settings.Limits.ImageMinWidth:
-		return errors.New("webm width " + strconv.Itoa(i.OrigWidth) + " px is too small")
-	case i.OrigHeight > config.Settings.Limits.ImageMaxHeight:
-		return errors.New("webm height " + strconv.Itoa(i.OrigHeight) + " px is too large")
-	case i.OrigHeight < config.Settings.Limits.ImageMinHeight:
-		return errors.New("webm height " + strconv.Itoa(i.OrigHeight) + " px is too small")
-	case int(originalSize) > config.Settings.Limits.ImageMaxSize:
-		return errors.New("webm file size " + strconv.FormatFloat(originalSize/(1024*1024), 'f', 2, 64) + " MB is too large")
-	case i.duration > config.Settings.Limits.WebmMaxLength:
-		return errors.New("webm duration " + strconv.Itoa(i.duration) + " sec is too long")
-	}
-
-	return nil
+	assert.NoError(t, mock.ExpectationsWereMet(), "all expected db queries should run")
 }
 
 // TestWebMTimepointSelection tests the logic for choosing timepoints in WebM processing
