@@ -156,7 +156,7 @@ func TestNewTagPost(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tags").
-		WithArgs("test", 1, 1).
+		WithArgs("test", 1, 1, 1, "10.0.0.1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -164,6 +164,8 @@ func TestNewTagPost(t *testing.T) {
 		Ib:      1,
 		Tag:     "test",
 		TagType: 1,
+		UID:     1,
+		IP:      "10.0.0.1",
 	}
 
 	err = tag.Post()

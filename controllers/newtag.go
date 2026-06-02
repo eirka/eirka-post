@@ -41,6 +41,8 @@ func NewTagController(c *gin.Context) {
 		Ib:      ntf.Ib,
 		Tag:     ntf.Tag,
 		TagType: ntf.Type,
+		UID:     userdata.ID,
+		IP:      c.ClientIP(),
 	}
 
 	// Validate input parameters

@@ -10,6 +10,8 @@ type AddTagModel struct {
 	Ib    uint
 	Tag   uint
 	Image uint
+	UID   uint
+	IP    string
 }
 
 // IsValid will check struct validity
@@ -107,7 +109,8 @@ func (a *AddTagModel) Post() (err error) {
 	defer tx.Rollback()
 
 	// Insert tag mapping
-	_, err = tx.Exec("INSERT into tagmap (image_id, tag_id) VALUES (?,?)", a.Image, a.Tag)
+	_, err = tx.Exec("INSERT into tagmap (image_id, tag_id, user_id, tagmap_ip) VALUES (?,?,?,?)",
+		a.Image, a.Tag, a.UID, a.IP)
 	if err != nil {
 		return
 	}

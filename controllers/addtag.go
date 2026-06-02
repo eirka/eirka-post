@@ -41,6 +41,8 @@ func AddTagController(c *gin.Context) {
 		Ib:    atf.Ib,
 		Tag:   atf.Tag,
 		Image: atf.Image,
+		UID:   userdata.ID,
+		IP:    c.ClientIP(),
 	}
 
 	// Validate input parameters

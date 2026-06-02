@@ -186,7 +186,7 @@ func TestAddTagPost(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tagmap").
-		WithArgs(1, 1).
+		WithArgs(1, 1, 1, "10.0.0.1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -194,6 +194,8 @@ func TestAddTagPost(t *testing.T) {
 		Ib:    1,
 		Tag:   1,
 		Image: 1,
+		UID:   1,
+		IP:    "10.0.0.1",
 	}
 
 	err = tag.Post()
@@ -237,7 +239,7 @@ func TestAddTagPostExecError(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tagmap").
-		WithArgs(1, 1).
+		WithArgs(1, 1, 1, "10.0.0.1").
 		WillReturnError(errors.New("exec error"))
 	mock.ExpectRollback()
 
@@ -245,6 +247,8 @@ func TestAddTagPostExecError(t *testing.T) {
 		Ib:    1,
 		Tag:   1,
 		Image: 1,
+		UID:   1,
+		IP:    "10.0.0.1",
 	}
 
 	err = tag.Post()
@@ -265,7 +269,7 @@ func TestAddTagPostCommitError(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT into tagmap").
-		WithArgs(1, 1).
+		WithArgs(1, 1, 1, "10.0.0.1").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit().WillReturnError(errors.New("commit error"))
 
@@ -273,6 +277,8 @@ func TestAddTagPostCommitError(t *testing.T) {
 		Ib:    1,
 		Tag:   1,
 		Image: 1,
+		UID:   1,
+		IP:    "10.0.0.1",
 	}
 
 	err = tag.Post()

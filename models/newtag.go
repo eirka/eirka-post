@@ -17,6 +17,8 @@ type NewTagModel struct {
 	Ib      uint
 	Tag     string
 	TagType uint
+	UID     uint
+	IP      string
 }
 
 // IsValid will check struct validity
@@ -116,8 +118,8 @@ func (m *NewTagModel) Post() (err error) {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec("INSERT into tags (tag_name,ib_id,tagtype_id) VALUES (?,?,?)",
-		m.Tag, m.Ib, m.TagType)
+	_, err = tx.Exec("INSERT into tags (tag_name,ib_id,tagtype_id,user_id,tag_ip) VALUES (?,?,?,?,?)",
+		m.Tag, m.Ib, m.TagType, m.UID, m.IP)
 	if err != nil {
 		return
 	}
