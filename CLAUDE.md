@@ -43,3 +43,13 @@ Remember to maintain the existing error handling approach using the custom error
 - Write tests for security validation failures
 - Create test cases for expected bypasses
 - Use table-driven tests for multiple security test cases
+
+## Test prerequisites
+- No /etc/pram/pram.conf -> config/config.go defaults to /tmp/eirka/{src,thumb,avatars}/; utils/testdirs_test.go init() creates them.
+- utils init() (image.go, webm.go) panics without convert, ffmpeg, ffprobe on PATH; controllers imports utils so needs them.
+- middleware/sfs_test.go asserts on live api.stopforumspam.org responses (no skip guard) - fails after a 10s timeout offline.
+- No live DB/redis: go-sqlmock and redigomock. No CI in repo; default branch master.
+- Reset test storage: find /tmp/eirka -mindepth 1 -delete
+
+## Fleet conventions
+Config is JSON from /etc/pram/pram.conf; auth is eirka-libs/user JWT (user.Auth(bool) in main.go, cookie set in controllers/login.go); tests use testify + go-sqlmock + redigomock (tempredis only transitively in go.sum, unused here).
