@@ -51,28 +51,6 @@ func Bans() gin.HandlerFunc {
 			return
 		}
 
-		// Special handling for localhost IPs
-		if isLocalhost(clientIP) {
-			// Check if localhost is in the ban list
-			isBanned, err := CheckBannedIP(clientIP)
-			if err != nil {
-				c.JSON(e.ErrorMessage(e.ErrInternalError))
-				c.Error(err).SetMeta("Bans.CheckBannedIP")
-				c.Abort()
-				return
-			}
-
-			// If localhost is banned, log a warning but allow the request
-			if isBanned {
-				log.Printf("WARNING: Localhost IP (%s) is in the ban list. This indicates a proxy misconfiguration. Request allowed anyway.", clientIP)
-			}
-
-			// Continue with the request regardless of ban status for localhost
-			c.Next()
-			return
-		}
-
-		// For non-localhost IPs, proceed with normal ban checking
 		isBanned, err := CheckBannedIP(clientIP)
 		if err != nil {
 			c.JSON(e.ErrorMessage(e.ErrInternalError))
@@ -82,6 +60,14 @@ func Bans() gin.HandlerFunc {
 		}
 
 		if isBanned {
+			// Requests through the proxy chain resolve to the CF-Connecting-IP
+			// address, so a banned loopback address means stored IPs were
+			// recorded wrongly (or the proxy config regressed). Flag it, but
+			// enforce the ban like any other: allowing it would fail open.
+			if isLocalhost(clientIP) {
+				log.Printf("WARNING: Localhost IP (%s) is in the ban list. This indicates a proxy misconfiguration. Request denied.", clientIP)
+			}
+
 			c.JSON(e.ErrorMessage(e.ErrForbidden))
 			c.Error(e.ErrIPBanned).SetMeta("Bans.IPBanned")
 			c.Abort()

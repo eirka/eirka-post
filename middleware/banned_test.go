@@ -2,9 +2,12 @@ package middleware
 
 import (
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
@@ -159,4 +162,60 @@ func TestIsLocalhostFunction(t *testing.T) {
 	// Test invalid IP
 	assert.False(t, isLocalhost("not-an-ip"), "Invalid IP should not be identified as localhost")
 	assert.False(t, isLocalhost(""), "Empty string should not be identified as localhost")
+}
+
+func TestBansMiddleware(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	tests := []struct {
+		name       string
+		remoteAddr string
+		ip         string
+		banned     bool
+		dbErr      error
+		wantStatus int
+	}{
+		{name: "clean ip is allowed", remoteAddr: "192.168.1.10:1234", ip: "192.168.1.10", wantStatus: http.StatusOK},
+		{name: "banned ip is denied", remoteAddr: "192.168.1.11:1234", ip: "192.168.1.11", banned: true, wantStatus: http.StatusForbidden},
+		{name: "clean loopback is allowed", remoteAddr: "127.0.0.1:1234", ip: "127.0.0.1", wantStatus: http.StatusOK},
+		// a banned loopback address used to be logged and then allowed
+		{name: "banned loopback is denied", remoteAddr: "127.0.0.1:1234", ip: "127.0.0.1", banned: true, wantStatus: http.StatusForbidden},
+		{name: "banned ipv6 loopback is denied", remoteAddr: "[::1]:1234", ip: "::1", banned: true, wantStatus: http.StatusForbidden},
+		{name: "database error fails closed", remoteAddr: "192.168.1.12:1234", ip: "192.168.1.12", dbErr: errors.New("database error"), wantStatus: http.StatusInternalServerError},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bannedIPCache = make(map[string]time.Time)
+
+			mock, err := db.NewTestDb()
+			assert.NoError(t, err, "An error was not expected")
+			defer db.CloseDb()
+
+			query := mock.ExpectQuery(`SELECT count\(\*\) FROM banned_ips WHERE ban_ip = \?`).WithArgs(tt.ip)
+			if tt.dbErr != nil {
+				query.WillReturnError(tt.dbErr)
+			} else {
+				count := 0
+				if tt.banned {
+					count = 1
+				}
+				query.WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(count))
+			}
+
+			router := gin.New()
+			router.Use(Bans())
+			router.GET("/", func(c *gin.Context) {
+				c.String(http.StatusOK, "OK")
+			})
+
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			req.RemoteAddr = tt.remoteAddr
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.wantStatus, w.Code, "unexpected status for %s", tt.ip)
+			assert.NoError(t, mock.ExpectationsWereMet(), "All database expectations should be met")
+		})
+	}
 }

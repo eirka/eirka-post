@@ -23,7 +23,11 @@ import (
 	m "github.com/eirka/eirka-post/middleware"
 )
 
-func init() {
+// configure performs production runtime setup: the pid file, database and redis
+// connection pools, runtime settings loaded from the database, and CORS domains.
+// It runs from main (not an init func) so that test binaries — which import this
+// package — do not try to write a pid file or open database/redis sockets.
+func configure() {
 
 	// create pid file
 	pidfile.SetPidfilePath("/run/eirka/eirka-post.pid")
@@ -68,8 +72,21 @@ func init() {
 
 }
 
-func main() {
+// setupRouter builds the gin engine with every route and its middleware.
+func setupRouter() *gin.Engine {
 	r := gin.Default()
+
+	// c.ClientIP() feeds the ban check, the spam lookups, the login counter and
+	// every stored post/tag/audit IP, so it must not be client controlled. gin's
+	// default trusts every peer and returns the leftmost X-Forwarded-For entry,
+	// which Cloudflare passes through from the client. Instead, trust only nginx
+	// on loopback, and only its CF-Connecting-IP header, which Cloudflare always
+	// overwrites. Any other peer resolves to its own TCP address.
+	r.RemoteIPHeaders = []string{"CF-Connecting-IP"}
+	err := r.SetTrustedProxies([]string{"127.0.0.1", "::1"})
+	if err != nil {
+		panic("Could not set trusted proxies")
+	}
 
 	// Limit how much of a multipart upload is buffered in memory; the remainder
 	// streams to a temp file, and LimitBody caps the total request body size.
@@ -110,6 +127,14 @@ func main() {
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
 	users.POST("/email", c.EmailController)
+
+	return r
+}
+
+func main() {
+	configure()
+
+	r := setupRouter()
 
 	s := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", local.Settings.Post.Host, local.Settings.Post.Port),
