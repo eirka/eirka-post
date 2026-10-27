@@ -1,10 +1,19 @@
 package utils
 
 import (
+	"errors"
+	"log"
+
 	"github.com/eirka/eirka-libs/config"
 
 	"github.com/eirka/eirka-post/akismet"
 )
+
+// ErrAkismetFailed is returned when the akismet check could not be completed.
+// Controllers send Check errors to the client verbatim, so the underlying
+// library error (which can carry request URLs and network details) is logged
+// and never returned.
+var ErrAkismetFailed = errors.New("spam check failed")
 
 // Akismet holds information for an akismet query
 type Akismet struct {
@@ -15,7 +24,8 @@ type Akismet struct {
 	Comment string
 }
 
-// Check comment for spam with akismet
+// Check comment for spam with akismet. It returns nil, akismet.ErrSpam, or
+// ErrAkismetFailed.
 func (c *Akismet) Check() (err error) {
 
 	// noop if akismet is not configured
@@ -30,10 +40,9 @@ func (c *Akismet) Check() (err error) {
 	}
 
 	// verify the akismet api key
-	// TODO: add errors here to a system log
 	err = akismet.VerifyKey(config)
 	if err != nil {
-		return
+		return akismetError(err)
 	}
 
 	comment := akismet.Comment{
@@ -45,11 +54,22 @@ func (c *Akismet) Check() (err error) {
 	}
 
 	// check the comment with akismet
-	err = akismet.CommentCheck(config, comment)
-	if err != nil {
-		return
+	return akismetError(akismet.CommentCheck(config, comment))
+
+}
+
+// akismetError maps an akismet library error to one that is safe to show a
+// client, logging the original
+func akismetError(err error) error {
+	if err == nil {
+		return nil
 	}
 
-	return
+	if errors.Is(err, akismet.ErrSpam) {
+		return akismet.ErrSpam
+	}
 
+	log.Printf("akismet: %v", err)
+
+	return ErrAkismetFailed
 }
