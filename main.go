@@ -93,6 +93,10 @@ func setupRouter() *gin.Engine {
 	r.MaxMultipartMemory = 2 << 20 // 2 MiB
 
 	r.Use(cors.CORS())
+	// cap the request body before anything reads it; csrf.Verify parses the
+	// whole form when the token is not sent in a header. Only the image upload
+	// routes take an upload-sized multipart body
+	r.Use(m.LimitBody("/thread/new", "/thread/reply", "/user/avatar"))
 	// verified the csrf token from the request
 	r.Use(csrf.Verify())
 	// check the ban list for the ip
@@ -107,8 +111,8 @@ func setupRouter() *gin.Engine {
 	public := r.Group("/")
 	public.Use(user.Auth(false))
 
-	public.POST("/thread/new", m.LimitBody(), m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ThreadController)
-	public.POST("/thread/reply", m.LimitBody(), m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ReplyController)
+	public.POST("/thread/new", m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ThreadController)
+	public.POST("/thread/reply", m.Goodnight(), m.StopSpam(), m.Scamalytics(), m.SpamFilter(), c.ReplyController)
 	public.POST("/register", m.StopSpam(), m.Scamalytics(), c.RegisterController)
 	public.POST("/login", c.LoginController)
 	public.POST("/logout", c.LogoutController)
@@ -123,7 +127,7 @@ func setupRouter() *gin.Engine {
 	users := r.Group("/user")
 	users.Use(user.Auth(true))
 
-	users.POST("/avatar", m.LimitBody(), c.AvatarController)
+	users.POST("/avatar", c.AvatarController)
 	users.POST("/favorite", c.FavoritesController)
 	users.POST("/password", c.PasswordController)
 	users.POST("/email", c.EmailController)
