@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"math/rand"
 	"testing"
@@ -13,6 +12,12 @@ import (
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 )
+
+// statusQuery is the thread lookup in ReplyModel.Status, matched in full.
+// go-sqlmock cannot evaluate SQL, so pinning the text is what guards that a
+// deleted thread is filtered out and that no match yields no rows. Whitespace
+// is collapsed before matching.
+const statusQuery = `^SELECT ib_id, thread_closed, count\(post_num\) FROM threads INNER JOIN posts on threads.thread_id = posts.thread_id WHERE threads.thread_id = \? AND thread_deleted != 1 AND post_deleted != 1 HAVING count\(post_num\) > 0 FOR UPDATE$`
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -163,7 +168,7 @@ func TestReplyStatus(t *testing.T) {
 
 	// Updated to use FOR UPDATE in the query
 	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 0, 2)
-	mock.ExpectQuery(`SELECT ib_id, thread_closed, count\(post_num\) FROM threads.*FOR UPDATE`).
+	mock.ExpectQuery(statusQuery).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -198,7 +203,7 @@ func TestReplyStatusClosed(t *testing.T) {
 
 	// Thread is already closed
 	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 1, 100)
-	mock.ExpectQuery(`SELECT ib_id, thread_closed, count\(post_num\) FROM threads.*FOR UPDATE`).
+	mock.ExpectQuery(statusQuery).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -222,36 +227,33 @@ func TestReplyStatusClosed(t *testing.T) {
 
 }
 
-func TestReplyStatusNonExistentThread(t *testing.T) {
-
-	var err error
-
+// TestReplyStatusThreadNotFound checks an empty result is reported as not
+// found. go-sqlmock cannot run the query, so the clauses in statusQuery are what
+// make a missing thread, a deleted thread, and one whose posts are all deleted
+// each come back from MySQL as this empty result.
+func TestReplyStatusThreadNotFound(t *testing.T) {
 	mock, err := db.NewTestDb()
 	assert.NoError(t, err, "An error was not expected")
 	defer db.CloseDb()
 
 	mock.ExpectBegin()
-
-	// Return no rows - thread doesn't exist
-	mock.ExpectQuery(`SELECT ib_id, thread_closed, count\(post_num\) FROM threads.*FOR UPDATE`).
-		WithArgs(999).
-		WillReturnError(sql.ErrNoRows)
-
-	// No commit expected since we return early with error
+	mock.ExpectQuery(statusQuery).
+		WithArgs(2).
+		WillReturnRows(sqlmock.NewRows([]string{"ib", "closed", "total"}))
+	// the deferred rollback ends the transaction
+	mock.ExpectRollback()
 
 	reply := ReplyModel{
 		UID:     1,
 		Ib:      1,
-		Thread:  999, // Non-existent thread ID
+		Thread:  2,
 		IP:      "10.0.0.1",
-		Comment: "test reply to non-existent thread",
+		Comment: "test reply",
 		Image:   false,
 	}
 
 	err = reply.Status()
-	if assert.Error(t, err, "An error was expected") {
-		assert.Equal(t, e.ErrNotFound, err, "Error should match 'not found'")
-	}
+	assert.Equal(t, e.ErrNotFound, err, "Error should match 'not found'")
 
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
@@ -268,7 +270,7 @@ func TestReplyStatusAutoclose(t *testing.T) {
 
 	// Thread has reached post limit
 	rows := sqlmock.NewRows([]string{"ib", "closed", "total"}).AddRow(1, 0, (config.Settings.Limits.PostsMax + 1))
-	mock.ExpectQuery(`SELECT ib_id, thread_closed, count\(post_num\) FROM threads.*FOR UPDATE`).
+	mock.ExpectQuery(statusQuery).
 		WithArgs(1).
 		WillReturnRows(rows)
 

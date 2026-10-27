@@ -141,12 +141,16 @@ func (m *ReplyModel) Status() (err error) {
 
 	// Lock the thread row for reading and potential update
 	// Using FOR UPDATE to prevent other transactions from modifying this thread
+	// A deleted thread is treated as missing. An aggregate with no GROUP BY
+	// still returns one row (of NULLs) when nothing matches, so the HAVING
+	// clause is what turns a missing, deleted, or emptied thread into no rows
 	err = tx.QueryRow(`SELECT ib_id, thread_closed, count(post_num) FROM threads
     INNER JOIN posts on threads.thread_id = posts.thread_id
-    WHERE threads.thread_id = ? AND post_deleted != 1
+    WHERE threads.thread_id = ? AND thread_deleted != 1 AND post_deleted != 1
+    HAVING count(post_num) > 0
     FOR UPDATE`, m.Thread).Scan(&m.Ib, &closed, &total)
 	if err != nil {
-		// Check specifically for no rows (thread doesn't exist)
+		// Check specifically for no rows (thread doesn't exist or was deleted)
 		if err == sql.ErrNoRows {
 			return e.ErrNotFound
 		}
