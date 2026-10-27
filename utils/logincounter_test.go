@@ -92,26 +92,29 @@ func TestLoginCounterName(t *testing.T) {
 	}
 }
 
-// TestLoginCounterIP checks an ipv6 client is counted per /64, so moving to
-// another address in its own /64 does not reset its counts
+// TestLoginCounterIP checks an ipv6 client is counted per /64, and per /48 for
+// the attempts its network makes at one name, so moving to other addresses in
+// its own allocation does not reset its counts
 func TestLoginCounterIP(t *testing.T) {
 	fixClock(t, 1800)
 
 	tests := []struct {
-		ip   string
-		want string
+		ip      string
+		client  string
+		network string
 	}{
-		{ip: "10.0.0.1", want: "10.0.0.1"},
-		{ip: "::ffff:10.0.0.1", want: "10.0.0.1"},
-		{ip: "2001:db8:1:2::1", want: "2001:db8:1:2::/64"},
-		{ip: "2001:db8:1:2:ffff:ffff:ffff:ffff", want: "2001:db8:1:2::/64"},
-		{ip: "2001:db8:1:3::1", want: "2001:db8:1:3::/64"},
+		{ip: "10.0.0.1", client: "10.0.0.1", network: "10.0.0.1"},
+		{ip: "::ffff:10.0.0.1", client: "10.0.0.1", network: "10.0.0.1"},
+		{ip: "2001:db8:1:2::1", client: "2001:db8:1:2::/64", network: "2001:db8:1::/48"},
+		{ip: "2001:db8:1:2:ffff:ffff:ffff:ffff", client: "2001:db8:1:2::/64", network: "2001:db8:1::/48"},
+		{ip: "2001:db8:1:ff00::1", client: "2001:db8:1:ff00::/64", network: "2001:db8:1::/48"},
+		{ip: "2001:db8:2::1", client: "2001:db8:2::/64", network: "2001:db8:2::/48"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.ip, func(t *testing.T) {
-			ipKey := "login:ip:" + tt.want + ":10"
-			nameIPKey := "login:nameip:bob:" + tt.want + ":10"
+			ipKey := "login:ip:" + tt.client + ":10"
+			nameIPKey := "login:nameip:bob:" + tt.network + ":10"
 			incrs := mockCounters(map[string]int{ipKey: 1, nameIPKey: 1, testNameKey: 1})
 
 			assert.NoError(t, LoginCounter("bob", tt.ip))
